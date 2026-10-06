@@ -105,6 +105,10 @@ The README figures use the application's bundled fonts and palette. To regenerat
 
 The [GitHub Actions workflow](.github/workflows/ci.yml) is configured to run the checks above. Its Docker job builds this repository, starts PostgreSQL and the app in an isolated Compose project, checks migrations twice, verifies health and the downloadable source archive, and runs Chromium browser tests against that app. Book metadata comes from a local test fixture. CI creates disposable test accounts and needs no hosted-service credentials. A passing run verifies these workflows; it does not test your domain, TLS certificates, or real Resend delivery.
 
+## Support Soratra
+
+Soratra is free, open source, and built in my spare time as a student. If you find it useful, you can [support its development on Ko-fi](https://ko-fi.com/soratra). Donations are optional and help me maintain and improve the project.
+
 ## License and attribution
 
 Application code is licensed under [GNU AGPLv3](LICENSE). Commercial use is allowed under that license. Keep the required copyright and license notices and Soratra attribution. If you modify the app and let people use it over a network, AGPLv3 requires offering those users the corresponding source for your modified version. Distribution also carries source obligations; consult the license for the full terms.
