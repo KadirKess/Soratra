@@ -1,0 +1,64 @@
+{
+  "name": "soratra",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "node scripts/package-source.mjs && next build --webpack",
+    "start": "next start -H 0.0.0.0",
+    "db:generate": "node --env-file-if-exists=.env --env-file-if-exists=.env.local node_modules/drizzle-kit/bin.cjs generate",
+    "db:migrate": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local src/server/db/migrate.ts",
+    "cron:purge-deleted-users": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local src/scripts/purgeDeletedUsers.ts",
+    "catalog:seed-popular": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local src/scripts/seedPopularCatalog.ts",
+    "audit:friendships": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local src/scripts/auditFriendshipIntegrity.ts",
+    "db:studio": "node --env-file-if-exists=.env --env-file-if-exists=.env.local node_modules/drizzle-kit/bin.cjs studio",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "E2E=true playwright test",
+    "typecheck": "tsc --noEmit",
+    "test:setup": "node --test scripts/setup.test.mjs scripts/launcher.test.mjs"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.90.21",
+    "@trpc/client": "^11.11.0",
+    "@trpc/react-query": "^11.11.0",
+    "@trpc/server": "^11.11.0",
+    "bcryptjs": "^3.0.3",
+    "drizzle-orm": "0.45.2",
+    "next": "16.3.7",
+    "next-auth": "5.0.0-beta.32",
+    "postgres": "^3.4.7",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-markdown": "^10.1.0",
+    "server-only": "^0.0.1",
+    "sonner": "^2.0.7",
+    "superjson": "^2.2.6",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.1.4",
+    "drizzle-kit": "^0.31.9",
+    "tailwindcss": "^4",
+    "tsx": "^4.21.0",
+    "typescript": "^5",
+    "vitest": "^4.0.18"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "8.5.25"
+    }
+  },
+  "license": "AGPL-3.0-only",
+  "engines": {
+    "node": ">=24 <25"
+  }
+}

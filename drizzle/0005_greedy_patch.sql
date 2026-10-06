@@ -1,0 +1,4 @@
+ALTER TABLE "users" ALTER COLUMN "password_hash" DROP NOT NULL;--> statement-breakpoint
+ALTER TABLE "friendships" ADD CONSTRAINT "friendships_status_check" CHECK ("friendships"."status" in ('pending', 'accepted'));--> statement-breakpoint
+ALTER TABLE "reading_sessions" ADD CONSTRAINT "reading_sessions_time_range_check" CHECK ("reading_sessions"."time_range" in ('< 15 min', '15–30', '30–45', '45–60', '1–1.5h', '1.5–2h', '2–4h', '4–6h', '6–8h', '8h+'));--> statement-breakpoint
+ALTER TABLE "user_books" ADD CONSTRAINT "user_books_status_check" CHECK ("user_books"."status" in ('want_to_read', 'reading', 'read'));

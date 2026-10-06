@@ -1,0 +1,64 @@
+name: soratra
+
+x-app-environment: &app-environment
+  POSTGRES_URL: postgres://soratra:${POSTGRES_PASSWORD:?Run ./scripts/setup.sh first}@db:5432/soratra
+  POSTGRES_POOL_MAX: ${POSTGRES_POOL_MAX:-5}
+
+services:
+  db:
+    image: postgres:16-bookworm
+    environment:
+      POSTGRES_DB: soratra
+      POSTGRES_USER: soratra
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run ./scripts/setup.sh first}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U soratra -d soratra']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      target: tools
+    image: soratra-tools:local
+    env_file: .env
+    environment: *app-environment
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: 'no'
+
+  app:
+    build:
+      context: .
+      target: runtime
+    image: soratra:local
+    env_file: .env
+    environment: *app-environment
+    ports:
+      - '127.0.0.1:${APP_PORT:-3000}:3000'
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  scheduler:
+    build:
+      context: .
+      target: tools
+    image: soratra-tools:local
+    command: [node, docker/purge-loop.mjs]
+    environment:
+      CRON_SECRET: ${CRON_SECRET:?Run ./scripts/setup.sh first}
+      PURGE_URL: http://app:3000/api/cron/purge-deleted-users
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

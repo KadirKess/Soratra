@@ -1,0 +1,1 @@
+ALTER TABLE "user_books" ADD COLUMN "finished_at" timestamp with time zone;

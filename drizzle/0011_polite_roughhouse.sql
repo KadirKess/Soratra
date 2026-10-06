@@ -1,0 +1,2 @@
+CREATE INDEX "reading_sessions_user_session_date_idx" ON "reading_sessions" USING btree ("user_id","session_date");--> statement-breakpoint
+CREATE INDEX "user_books_user_status_updated_at_idx" ON "user_books" USING btree ("user_id","status","updated_at");

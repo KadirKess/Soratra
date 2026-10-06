@@ -1,0 +1,16 @@
+services:
+  app:
+    environment:
+      E2E: 'true'
+      E2E_OPEN_LIBRARY_BASE: http://openlibrary:3101
+    depends_on:
+      openlibrary:
+        condition: service_started
+  openlibrary:
+    image: node:24-bookworm-slim
+    environment:
+      MOCK_HOST: 0.0.0.0
+    working_dir: /fixture
+    command: [node, openLibraryMock.mjs]
+    volumes:
+      - ./e2e/helpers/openLibraryMock.mjs:/fixture/openLibraryMock.mjs:ro

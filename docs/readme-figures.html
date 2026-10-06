@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Soratra README figures</title>
+<style>
+@font-face { font-family: Cormorant; src: url('../src/app/fonts/cormorant-garamond-600.ttf'); font-weight: 600; }
+@font-face { font-family: DM; src: url('../src/app/fonts/dm-sans-400.ttf'); }
+@font-face { font-family: DM; src: url('../src/app/fonts/dm-sans-600.ttf'); font-weight: 600; }
+:root { --paper: #FAF6EF; --ink: #1C1917; --surface: #F0EAD9; --accent: #E07A3A; --accent-ink: #9A4210; --sage: #C8DDB8; --blush: #F2C4AE; --sky: #B8D0E0; --straw: #EDD98A; --muted: #57534E; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: DM, sans-serif; color: var(--ink); background: var(--paper); }
+figure { margin: 0; padding: 54px 58px 48px; width: 1200px; background: var(--paper); }
+.eyebrow { margin: 0 0 12px; color: var(--accent-ink); font-size: 16px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; }
+h1 { font: 600 56px/1.06 Cormorant, serif; margin: 0; }
+.intro { margin: 16px 0 36px; color: var(--muted); font-size: 19px; line-height: 1.5; }
+.cards { display: flex; gap: 22px; }
+.card { flex: 1; padding: 25px; border: 2px solid var(--ink); border-radius: 12px; box-shadow: 5px 5px 0 var(--ink); background: var(--surface); }
+.card h2 { font: 600 32px/1.1 Cormorant, serif; margin: 22px 0 10px; }
+.card p { font-size: 17px; line-height: 1.55; margin: 0; }
+.shelf { display: flex; height: 126px; align-items: flex-end; gap: 8px; border-bottom: 3px solid var(--ink); padding: 0 12px; }
+.book { width: 50px; height: 109px; background: var(--sky); border: 2px solid var(--ink); border-bottom: 0; position: relative; }
+.book:after { content: ''; position: absolute; left: 10px; right: 10px; top: 16px; border-top: 3px solid var(--ink); }
+.book:nth-child(2) { height: 94px; background: var(--blush); width: 57px; }
+.book:nth-child(3) { height: 119px; background: var(--straw); }
+.book:nth-child(4) { height: 102px; background: var(--sage); width: 42px; }
+.entry { height: 126px; border: 2px solid var(--ink); padding: 14px; background: var(--paper); }
+.entry-label { font-size: 13px; letter-spacing: 1px; color: var(--muted); }
+.entry-time { font: 600 40px/1.15 Cormorant, serif; margin-top: 8px; }
+.rating { display: flex; gap: 5px; margin-top: 9px; }
+.rating span { width: 22px; height: 6px; background: var(--accent); }
+.rating span:last-child { background: var(--surface); }
+.friends { height: 126px; display: flex; align-items: center; justify-content: center; gap: 17px; }
+.reader { width: 69px; height: 69px; display: flex; align-items: center; justify-content: center; background: var(--sage); border: 2px solid var(--ink); border-radius: 50%; font: 600 36px Cormorant, serif; }
+.reader:last-child { background: var(--sky); }
+.connection { width: 36px; border-top: 2px solid var(--ink); }
+.footer { margin-top: 30px; font-size: 15px; color: var(--muted); }
+.install { display: flex; gap: 24px; align-items: stretch; }
+.browser { flex: 0 0 260px; background: var(--paper); }
+.browser-bar { border-bottom: 2px solid var(--ink); margin: -25px -25px 22px; padding: 12px 18px; background: var(--sky); font-size: 14px; border-radius: 10px 10px 0 0; }
+.browser h2 { margin-top: 0; }
+.arrow { display: flex; align-items: center; font-size: 30px; }
+.stack { flex: 1; border: 2px solid var(--ink); background: var(--surface); padding: 22px; border-radius: 12px; }
+.stack-label { font-size: 13px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin: 0 0 20px; }
+.services { display: flex; gap: 16px; }
+.service { flex: 1; background: var(--sage); padding: 22px; border: 2px solid var(--ink); border-radius: 8px; }
+.service:last-child { background: var(--straw); }
+.service h2 { font: 600 30px Cormorant, serif; margin: 0 0 10px; }
+.service p { font-size: 16px; line-height: 1.5; margin: 0; }
+.maintenance { display: flex; gap: 10px; margin-top: 18px; }
+.tag { border: 1px solid var(--ink); padding: 8px 12px; background: var(--paper); font-size: 14px; }
+.database-note { margin: 18px 0 0; font-size: 15px; color: var(--muted); }
+.hero { height: 570px; position: relative; overflow: hidden; }
+.hero h1 { font-size: 120px; margin: 55px 0 12px; }
+.hero-copy { max-width: 510px; font-size: 25px; line-height: 1.45; margin: 0; }
+.hero-foot { position: absolute; bottom: 48px; left: 58px; font-size: 15px; color: var(--muted); }
+.hero-art { position: absolute; right: 50px; top: 68px; width: 480px; height: 440px; }
+.hero-note { position: absolute; border: 4px solid var(--ink); box-shadow: 7px 7px 0 var(--ink); }
+.hero-log { right: 48px; top: 4px; width: 310px; height: 250px; background: var(--sky); transform: rotate(-7deg); padding: 30px; }
+.hero-note-label { font-size: 19px; letter-spacing: 2px; font-weight: 600; }
+.hero-rule { height: 3px; background: var(--ink); margin-top: 20px; }
+.hero-journal { left: 5px; top: 156px; width: 330px; height: 248px; background: var(--straw); transform: rotate(5deg); padding: 28px; }
+.hero-journal-title { font: 600 44px Cormorant, serif; }
+.hero-lines { margin-top: 24px; display: grid; gap: 13px; }
+.hero-lines div { height: 13px; background: var(--ink); }
+.hero-lines div:nth-child(2) { background: var(--accent); width: 82%; }
+.hero-lines div:nth-child(3) { width: 58%; }
+.hero-book { bottom: 0; right: 0; width: 192px; height: 200px; background: var(--sage); transform: rotate(-3deg); display: flex; align-items: center; justify-content: center; }
+.open-book { display: flex; border: 4px solid var(--ink); width: 104px; height: 102px; position: relative; }
+.open-book div { flex: 1; background: var(--blush); }
+.open-book div:last-child { border-left: 4px solid var(--ink); background: var(--paper); }
+.open-book:after { content: ''; position: absolute; width: 23px; height: 34px; background: var(--accent); top: -15px; left: 35px; }
+</style>
+<figure id="banner" class="hero">
+  <p class="eyebrow">A home for your reading life</p>
+  <h1>Soratra</h1>
+  <p class="hero-copy">Track your books.<br>Remember what you read.<br>Share with a small circle of friends.</p>
+  <div class="hero-foot">Open source &nbsp; / &nbsp; Self-hosted &nbsp; / &nbsp; Yours to keep</div>
+  <div class="hero-art" aria-hidden="true">
+    <div class="hero-note hero-log"><div class="hero-note-label">READING LOG</div><div class="hero-rule"></div></div>
+    <div class="hero-note hero-journal"><div class="hero-journal-title">My reading journal</div><div class="hero-lines"><div></div><div></div><div></div></div></div>
+    <div class="hero-note hero-book"><div class="open-book"><div></div><div></div></div></div>
+  </div>
+</figure>
+<figure id="reading">
+  <p class="eyebrow">A reading journal, at your pace</p>
+  <h1>Keep the books. Keep the moments.</h1>
+  <p class="intro">A shelf for what comes next, a journal for what you read, and friends to share it with.</p>
+  <div class="cards">
+    <section class="card">
+      <div class="shelf" aria-hidden="true"><div class="book"></div><div class="book"></div><div class="book"></div><div class="book"></div></div>
+      <h2>Your shelves</h2>
+      <p>Want to read, reading, and read.<br>Ratings, reviews, and finish dates.</p>
+    </section>
+    <section class="card">
+      <div class="entry" aria-hidden="true"><div class="entry-label">TODAY'S READING</div><div class="entry-time">37 minutes</div><div class="rating"><span></span><span></span><span></span><span></span><span></span></div></div>
+      <h2>Your journal</h2>
+      <p>Daily sessions, notes, and streaks.<br>A record of time spent reading.</p>
+    </section>
+    <section class="card">
+      <div class="friends" aria-hidden="true"><div class="reader">A</div><div class="connection"></div><div class="reader">B</div></div>
+      <h2>Your circle</h2>
+      <p>Connect by exact username.<br>Share with accepted friends.</p>
+    </section>
+  </div>
+  <div class="footer">No advertising. No public follower graph. No recommendation feed.</div>
+</figure>
+<figure id="hosting">
+  <p class="eyebrow">Inside your installation</p>
+  <h1>Your instance. Your reading data.</h1>
+  <p class="intro">One Docker Compose project runs Soratra and its database on your computer or server.</p>
+  <div class="install">
+    <section class="card browser">
+      <div class="browser-bar">localhost:3000</div>
+      <h2>Your browser</h2>
+      <p>Open Soratra.<br>Create an account.<br>Start your journal.</p>
+    </section>
+    <div class="arrow" aria-hidden="true">&#8594;</div>
+    <section class="stack">
+      <p class="stack-label">Docker Compose</p>
+      <div class="services">
+        <div class="service"><h2>Soratra app</h2><p>Shelves, sessions, friends,<br>and account settings.</p></div>
+        <div class="service"><h2>PostgreSQL</h2><p>Accounts and reading data<br>in a persistent volume.</p></div>
+      </div>
+      <div class="maintenance"><span class="tag">Migrations before startup</span><span class="tag">Daily deletion cleanup</span></div>
+      <p class="database-note">Stopping containers keeps your data. Backups are your responsibility.</p>
+    </section>
+  </div>
+  <div class="footer">Open Library supplies book metadata. Optional Resend delivery enables password recovery.</div>
+</figure>
+</html>

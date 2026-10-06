@@ -1,0 +1,21 @@
+Soratra
+Copyright (C) 2026 KadirKess and contributors.
+
+Soratra is licensed under the GNU Affero General Public License, version 3
+only. Commercial use, paid hosting, and paid support are permitted under
+that license. See LICENSE for the complete terms.
+
+Under section 7(b), preserve the following reasonable attribution in the
+Appropriate Legal Notices of works containing Soratra code:
+
+  Based on Soratra. Copyright (C) 2026 KadirKess and contributors.
+  Licensed under the GNU Affero General Public License, version 3 only.
+
+The About page provides this attribution, the license, the absence of
+warranty, and access to the corresponding source. Its layout may change,
+but the notices must remain readily accessible. This is not a requirement
+to display advertising or credit in unrelated products.
+
+No trademark permission beyond the uses described in TRADEMARKS.md is
+granted by the code license. Bundled fonts retain their separate licenses
+and copyright notices in LICENSES/.

@@ -1,0 +1,1 @@
+CREATE INDEX "reading_sessions_user_recent_idx" ON "reading_sessions" USING btree ("user_id","session_date" desc,"created_at" desc);
