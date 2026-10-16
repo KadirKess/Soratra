@@ -1,4 +1,4 @@
-const PASTELS = ['#C8DDB8', '#F2C4AE', '#B8D0E0', '#EDD98A']
+const PASTELS = ['var(--sage)', 'var(--blush)', 'var(--sky)', 'var(--straw)']
 
 export function getPastelColor(str: string): string {
   let hash = 0

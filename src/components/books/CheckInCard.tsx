@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import { CheckInModal } from "./CheckInModal";
-import { getPastelColor } from "@/lib/pastel";
+import { CoverPlaceholder } from "./CoverPlaceholder";
 import { useCheckInSuccess } from "./useCheckInSuccess";
 import type { Book } from "@/server/db";
 
@@ -31,34 +31,18 @@ export function CheckInCard({ book, userBookId, loggedToday, todayDate, variant 
 		<Link
 			href={bookHref}
 			aria-label={`View ${book.title}`}
-			className="shrink-0 overflow-hidden"
-			style={{
-				borderRadius: "var(--radius-cover)",
-				width: coverWidth,
-				height: coverHeight,
-				border: "2px solid var(--fg)",
-			}}
+			className="cover shrink-0"
+			style={{ width: coverWidth, height: coverHeight }}
 		>
-			{book.coverUrl ? (
+			<CoverPlaceholder title={book.title} size={coverWidth < 80 ? "sm" : "md"} />
+			{book.coverUrl && (
 				<Image
 					src={book.coverUrl}
 					alt={book.title}
-					width={coverWidth}
-					height={coverHeight}
-					className="object-cover w-full h-full"
+					fill
+					sizes={`${coverWidth}px`}
+					className="object-cover"
 				/>
-			) : (
-				<div
-					className="w-full h-full flex items-end p-1"
-					style={{ background: getPastelColor(book.title) }}
-				>
-					<span
-						className="text-xs font-bold leading-tight"
-						style={{ fontFamily: "var(--font-cormorant)" }}
-					>
-						{book.title}
-					</span>
-				</div>
 			)}
 		</Link>
 	);

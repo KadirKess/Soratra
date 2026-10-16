@@ -68,7 +68,7 @@ export function AdminPanel({ welcome }: { welcome: boolean }) {
   return (
     <div className="space-y-8 max-w-2xl">
       <div className="space-y-2">
-        <h1 className="text-4xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>Your Soratra</h1>
+        <h1 className="text-4xl font-medium" style={{ fontFamily: 'var(--font-cormorant)' }}>Your Soratra</h1>
         <p className="text-sm" style={{ color: 'var(--muted)' }}>
           Who reads here, and how new readers join. You never see anyone&apos;s shelves or journal from this page.
         </p>

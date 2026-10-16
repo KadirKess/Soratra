@@ -15,7 +15,7 @@ export default function AboutPage() {
   return (
     <article className="public-page-frame max-w-3xl space-y-5">
       <Link href="/landing" className="public-home-link">Back to home</Link>
-      <h1 className="text-5xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>About Soratra</h1>
+      <h1 className="text-5xl font-medium" style={{ fontFamily: 'var(--font-cormorant)' }}>About Soratra</h1>
       <p>A reading journal you can run for yourself and your friends.</p>
       <p>Based on Soratra. Copyright (C) 2026 KadirKess and contributors.</p>
       <p>

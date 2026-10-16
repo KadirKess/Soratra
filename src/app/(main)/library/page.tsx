@@ -92,7 +92,7 @@ function LibraryPageInner() {
 		<div className="space-y-6">
 			<div className="flex items-baseline justify-between">
 				<h1
-					className="text-4xl font-bold"
+					className="text-4xl font-medium"
 					style={{ fontFamily: "var(--font-cormorant)" }}
 				>
 					Library

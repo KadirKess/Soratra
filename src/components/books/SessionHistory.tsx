@@ -3,6 +3,7 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc/client";
 import { formatMinutes } from "@/lib/formatMinutes";
 import { dateOnlyParts } from "@/lib/dates";
+import { StarIcon } from "@/components/ui/Icon";
 
 interface Props {
 	bookId: string;
@@ -54,17 +55,17 @@ export function SessionHistory({ bookId }: Props) {
 								className="flex items-center gap-3 text-sm"
 								style={{ color: "var(--muted)" }}
 							>
-								<span>★ {session.rating}</span>
+								<span className="inline-flex items-center gap-1"><StarIcon size={12} />{session.rating}</span>
 								<span>·</span>
 								<span>{formatMinutes(session.minutes)}</span>
 							</div>
 							{session.note && (session.hasSpoiler ? (
-								<button type="button" className="text-sm leading-relaxed" style={{ color: "var(--fg)", filter: isRevealed ? "none" : "blur(4px)" }} aria-expanded={isRevealed} onClick={() => setRevealedSessionIds((previous) => {
+								<button type="button" className="reader-note text-left" style={{ filter: isRevealed ? "none" : "blur(4px)" }} aria-expanded={isRevealed} onClick={() => setRevealedSessionIds((previous) => {
 									const next = new Set(previous);
 									if (next.has(session.id)) next.delete(session.id); else next.add(session.id);
 									return next;
 									})}>{isRevealed ? session.note : '[Spoiler — tap to reveal]'}</button>
-							) : <p className="text-sm leading-relaxed" style={{ color: "var(--fg)" }}>{session.note}</p>)}
+							) : <p className="reader-note">{session.note}</p>)}
 						</div>
 					</div>
 					);

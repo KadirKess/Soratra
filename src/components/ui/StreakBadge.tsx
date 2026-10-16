@@ -1,3 +1,5 @@
+import { FlameIcon } from "./Icon";
+
 interface Props {
 	streak: number;
 }
@@ -16,7 +18,7 @@ export function StreakBadge({ streak }: Props) {
 					style={{
 						fontFamily: "var(--font-cormorant)",
 						fontSize: "4rem",
-						color: streak > 0 ? "var(--accent)" : "var(--muted)",
+						color: streak > 0 ? "var(--accent-ink)" : "var(--muted)",
 						lineHeight: 1,
 					}}
 				>
@@ -29,16 +31,8 @@ export function StreakBadge({ streak }: Props) {
 					{streak === 1 ? "day in a row" : "days in a row"}
 				</p>
 			</div>
-			<span
-				style={{
-					fontSize: "3rem",
-					lineHeight: 1,
-					filter: streak > 0 ? "none" : "grayscale(1) opacity(0.3)",
-				}}
-				role="img"
-				aria-label="streak"
-			>
-				🔥
+			<span role="img" aria-label={streak > 0 ? "Reading streak active" : "No active reading streak yet"}>
+				<FlameIcon lit={streak > 0} size="2.75rem" />
 			</span>
 		</div>
 	);

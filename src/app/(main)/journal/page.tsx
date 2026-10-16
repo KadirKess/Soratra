@@ -12,6 +12,7 @@ import { dateOnlyParts } from "@/lib/dates";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { toast } from "sonner";
 import Link from "next/link";
+import { CloseIcon, StarIcon } from "@/components/ui/Icon";
 
 const TINTS = ["tint-sage", "tint-blush", "tint-sky", "tint-straw"];
 
@@ -136,7 +137,7 @@ export default function JournalPage() {
 	return (
 		<div className="space-y-8">
 			<h1
-				className="text-4xl font-bold"
+				className="text-4xl font-medium"
 				style={{ fontFamily: "var(--font-cormorant)" }}
 			>
 				Journal
@@ -322,7 +323,7 @@ export default function JournalPage() {
 											className="text-xs shrink-0"
 											style={{ color: "var(--muted)" }}
 										>
-											{entry.avgRating.toFixed(1)} ★
+											{entry.avgRating.toFixed(1)} <StarIcon size={12} className="inline -mt-0.5" />
 										</span>
 									</div>
 								))}
@@ -531,17 +532,17 @@ export default function JournalPage() {
 										className="flex items-center gap-3 mt-1 text-xs"
 										style={{ color: "var(--muted)" }}
 									>
-										<span>★ {session.rating}</span>
+										<span className="inline-flex items-center gap-1"><StarIcon size={12} />{session.rating}</span>
 										<span>·</span>
 										<span>{formatMinutes(session.minutes)}</span>
 									</div>
 									{session.note && (session.hasSpoiler ? (
-										<button type="button" className="mt-2 text-sm leading-relaxed" style={{ color: "var(--fg)", filter: isRevealed ? "none" : "blur(4px)" }} aria-expanded={isRevealed} onClick={() => setRevealedSessionIds((previous) => {
+										<button type="button" className="reader-note mt-2 text-left" style={{ filter: isRevealed ? "none" : "blur(4px)" }} aria-expanded={isRevealed} onClick={() => setRevealedSessionIds((previous) => {
 											const next = new Set(previous);
 											if (next.has(session.id)) next.delete(session.id); else next.add(session.id);
 											return next;
 										})}>{isRevealed ? session.note : '[Spoiler — tap to reveal]'}</button>
-									) : <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--fg)" }}>{session.note}</p>)}
+									) : <p className="reader-note mt-2">{session.note}</p>)}
 								</div>
 
 								<div className="absolute right-2 top-2 flex items-center gap-1">
@@ -560,10 +561,10 @@ export default function JournalPage() {
 										disabled={deleteSession.isPending}
 										aria-label={`Delete session for ${session.book.title}`}
 										title="Delete session"
-										className="flex min-h-11 min-w-11 items-center justify-center text-lg"
-										style={{ color: "var(--muted)", opacity: 0.65 }}
+										className="flex min-h-11 min-w-11 items-center justify-center"
+										style={{ color: "var(--muted)" }}
 									>
-										×
+										<CloseIcon size={16} />
 									</button>
 								</div>
 							</div>

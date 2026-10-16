@@ -7,6 +7,7 @@ import { MinutesPicker } from "./MinutesPicker";
 import { formatMinutes } from "@/lib/formatMinutes";
 import { localDateInTimeZone } from "@/lib/dates";
 import type { Book, ReadingSession } from "@/server/db";
+import { CloseIcon } from "@/components/ui/Icon";
 
 const DEFAULT_MINUTES = 30;
 
@@ -214,10 +215,10 @@ export function CheckInModal({ book, onClose, onSuccess, sessionDate, knownToday
 						type="button"
 						onClick={onClose}
 						aria-label="Close"
-						className="shrink-0 flex h-11 w-11 items-center justify-center text-lg font-bold"
+						className="shrink-0 flex h-11 w-11 items-center justify-center"
 						style={{ color: "var(--muted)" }}
 					>
-						✕
+						<CloseIcon size={20} />
 					</button>
 				</div>
 

@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CheckInModal } from "./CheckInModal";
 import { useCheckInSuccess } from "./useCheckInSuccess";
-import { getPastelColor } from "@/lib/pastel";
+import { CoverPlaceholder } from "./CoverPlaceholder";
 import type { Book } from "@/server/db";
 
 interface LibraryReadingCardProps {
@@ -23,13 +23,10 @@ export function LibraryReadingCard({ book, loggedToday, todayDate }: LibraryRead
 	return (
 		<article className={`brutalist-card ${loggedToday ? "tint-sage" : ""} p-3 flex flex-col h-full gap-3`}>
 			<Link href={`/books/${encodeURIComponent(book.openLibraryId)}`} prefetch={false} className="group block">
-				<div className="relative overflow-hidden" style={{ aspectRatio: "2 / 3", border: "2px solid var(--fg)", borderRadius: "var(--radius-cover)" }}>
-					{book.coverUrl && !imageFailed ? (
+				<div className="cover">
+					<CoverPlaceholder title={book.title} author={book.authors[0]} />
+					{book.coverUrl && !imageFailed && (
 						<Image src={book.coverUrl} alt={book.title} fill sizes="(max-width: 768px) 50vw, 200px" className="object-cover transition-transform duration-300 group-hover:scale-105" onError={() => setImageFailed(true)} />
-					) : (
-						<div className="w-full h-full flex items-center justify-center p-4 text-center" style={{ background: getPastelColor(book.title) }}>
-							<span className="font-bold leading-tight line-clamp-5" style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.2rem" }}>{book.title}</span>
-						</div>
 					)}
 				</div>
 				<p className="mt-3 font-bold leading-tight line-clamp-2" style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.3rem" }}>{book.title}</p>

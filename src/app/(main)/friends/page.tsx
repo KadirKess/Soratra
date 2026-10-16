@@ -90,7 +90,7 @@ export default function FriendsPage() {
 	return (
 		<div className="space-y-8 max-w-2xl">
 			<div className="space-y-2">
-				<h1 className="text-4xl font-bold" style={{ fontFamily: "var(--font-cormorant)" }}>
+				<h1 className="text-4xl font-medium" style={{ fontFamily: "var(--font-cormorant)" }}>
 					Friends
 				</h1>
 				<p className="text-sm" style={{ color: "var(--muted)" }}>

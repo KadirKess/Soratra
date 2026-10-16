@@ -66,7 +66,7 @@ export default function UserProfilePage({ params }: Props) {
 			<header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
 				<div>
 					<p className="eyebrow">Reading journal</p>
-					<h1 className="text-5xl font-bold leading-none mt-2" style={{ fontFamily: "var(--font-cormorant)" }}>@{user.username}</h1>
+					<h1 className="text-5xl font-medium leading-none mt-2" style={{ fontFamily: "var(--font-cormorant)" }}>@{user.username}</h1>
 				</div>
 				<p className="text-sm font-semibold" style={{ color: "var(--muted)" }}>{totalRead} read <span aria-hidden="true">·</span> {totalReading} reading <span aria-hidden="true">·</span> {totalWantToRead} want to read</p>
 			</header>
@@ -90,7 +90,7 @@ export default function UserProfilePage({ params }: Props) {
 							const date = dateOnlyParts(entry.sessionDate);
 							return <article key={entry.id} className={`card-flat ${JOURNAL_TINTS[index % JOURNAL_TINTS.length]} p-4 grid grid-cols-[3.25rem_minmax(0,1fr)] gap-4`}>
 								<div className="text-center"><p className="eyebrow">{date.month}</p><p className="text-3xl leading-none font-bold" style={{ fontFamily: "var(--font-cormorant)" }}>{date.day}</p></div>
-								<div className="min-w-0"><Link href={`/books/${encodeURIComponent(entry.book.openLibraryId)}`} className="font-bold hover:underline" style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.35rem" }}>{entry.book.title}</Link><p className="text-xs truncate" style={{ color: "var(--muted)" }}>{entry.book.authors.join(", ")}</p><div className="mt-2 flex flex-wrap items-center gap-2 text-xs" style={{ color: "var(--muted)" }}><StarRating value={Number(entry.rating)} onChange={() => undefined} readOnly className="text-base" /><span aria-hidden="true">·</span><span>{formatMinutes(entry.minutes)}</span></div>{entry.note && (entry.hasSpoiler ? <SpoilerReveal label="this reading note">{entry.note}</SpoilerReveal> : <p className="mt-2 text-sm leading-relaxed whitespace-pre-wrap">{entry.note}</p>)}</div>
+								<div className="min-w-0"><Link href={`/books/${encodeURIComponent(entry.book.openLibraryId)}`} className="font-bold hover:underline" style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.35rem" }}>{entry.book.title}</Link><p className="text-xs truncate" style={{ color: "var(--muted)" }}>{entry.book.authors.join(", ")}</p><div className="mt-2 flex flex-wrap items-center gap-2 text-xs" style={{ color: "var(--muted)" }}><StarRating value={Number(entry.rating)} onChange={() => undefined} readOnly className="text-base" /><span aria-hidden="true">·</span><span>{formatMinutes(entry.minutes)}</span></div>{entry.note && (entry.hasSpoiler ? <SpoilerReveal label="this reading note">{entry.note}</SpoilerReveal> : <p className="reader-note mt-2">{entry.note}</p>)}</div>
 							</article>;
 						})}
 					</div>}
@@ -101,7 +101,7 @@ export default function UserProfilePage({ params }: Props) {
 					<section className="brutalist-card p-5 sm:p-6 tint-blush" aria-labelledby="finished-title">
 						<div className="flex items-center gap-3 mb-4"><h2 id="finished-title" className="text-3xl font-bold shrink-0" style={{ fontFamily: "var(--font-cormorant)" }}>Finished</h2><div className="flex-1" style={{ borderTop: "1px solid var(--rule)" }} /></div>
 						{finished.entries.length === 0 ? <EmptyState message="No finished books shared yet." /> : <div className="space-y-3 max-h-[24rem] overflow-y-auto pr-2 pb-2" aria-label="Finished books and reviews">
-							{finished.entries.map((entry) => <article key={entry.id} className="card-flat p-4 space-y-2"><Link href={`/books/${encodeURIComponent(entry.book.openLibraryId)}`} className="font-bold leading-tight hover:underline" style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.35rem" }}>{entry.book.title}</Link><p className="text-xs" style={{ color: "var(--muted)" }}>{entry.book.authors.join(", ")}{entry.finishedDate ? ` · ${formatDateOnly(entry.finishedDate)}` : ""}</p>{entry.rating && <StarRating value={Number(entry.rating)} onChange={() => undefined} readOnly className="text-base" />}{entry.review && (entry.reviewHasSpoiler ? <SpoilerReveal label="this review">{entry.review}</SpoilerReveal> : <p className="text-sm leading-relaxed whitespace-pre-wrap">{entry.review}</p>)}</article>)}
+							{finished.entries.map((entry) => <article key={entry.id} className="card-flat p-4 space-y-2"><Link href={`/books/${encodeURIComponent(entry.book.openLibraryId)}`} className="font-bold leading-tight hover:underline" style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.35rem" }}>{entry.book.title}</Link><p className="text-xs" style={{ color: "var(--muted)" }}>{entry.book.authors.join(", ")}{entry.finishedDate ? ` · ${formatDateOnly(entry.finishedDate)}` : ""}</p>{entry.rating && <StarRating value={Number(entry.rating)} onChange={() => undefined} readOnly className="text-base" />}{entry.review && (entry.reviewHasSpoiler ? <SpoilerReveal label="this review">{entry.review}</SpoilerReveal> : <p className="reader-note">{entry.review}</p>)}</article>)}
 						</div>}
 						<Pagination offset={finishedOffset} hasMore={finished.hasMore} onNewer={() => setFinishedOffset((value) => Math.max(0, value - PROFILE_PAGE_SIZE))} onOlder={() => setFinishedOffset((value) => value + PROFILE_PAGE_SIZE)} label="books" />
 					</section>

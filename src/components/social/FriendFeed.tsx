@@ -63,12 +63,12 @@ export function FriendFeed() {
 						{entry.kind === "session" && entry.note && (entry.hasSpoiler ? (
 							<SpoilerReveal label="this reading note">{entry.note}</SpoilerReveal>
 						) : (
-							<p className="text-sm leading-relaxed whitespace-pre-wrap p-3" style={{ color: "var(--fg)", background: "rgba(255,255,255,0.35)", borderLeft: "3px solid var(--accent)" }}>{entry.note}</p>
+							<p className="reader-note reader-note--quote">{entry.note}</p>
 						))}
 						{entry.kind === "finished" && entry.review && (entry.reviewHasSpoiler ? (
 							<SpoilerReveal label="this review">{entry.review}</SpoilerReveal>
 						) : (
-							<p className="text-sm leading-relaxed whitespace-pre-wrap p-3 line-clamp-3" style={{ color: "var(--fg)", background: "rgba(255,255,255,0.35)", borderLeft: "3px solid var(--accent)" }}>{entry.review}</p>
+							<p className="reader-note reader-note--quote line-clamp-3">{entry.review}</p>
 						))}
 								<div className="flex items-center gap-2 text-xs" style={{ color: "var(--muted)" }}>
 							{entry.rating && <><StarRating value={Number(entry.rating)} onChange={() => undefined} readOnly className="text-base sm:text-base" /><span aria-hidden="true">·</span></>}

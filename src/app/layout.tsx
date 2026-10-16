@@ -15,6 +15,17 @@ const cormorant = localFont({
   variable: '--font-cormorant',
 })
 
+// Reader notes only. Its own call so it can skip preloading: the files are
+// large and most pages never show a note.
+const cormorantItalic = localFont({
+  src: [
+    { path: './fonts/cormorant-garamond-400-italic.ttf', weight: '400', style: 'italic' },
+    { path: './fonts/cormorant-garamond-500-italic.ttf', weight: '500', style: 'italic' },
+  ],
+  variable: '--font-cormorant-italic',
+  preload: false,
+})
+
 const dmSans = localFont({
   src: [
     { path: './fonts/dm-sans-400.ttf', weight: '400' },
@@ -44,7 +55,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${dmSans.variable}`}>
+    <html lang="en" className={`${cormorant.variable} ${cormorantItalic.variable} ${dmSans.variable}`}>
       <body>
         <Providers>
           <Shell>{children}</Shell>

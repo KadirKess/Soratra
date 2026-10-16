@@ -100,7 +100,7 @@ function SearchPage() {
 	return (
 		<div className="space-y-6">
 			<h1
-				className="text-4xl font-bold"
+				className="text-4xl font-medium"
 				style={{ fontFamily: "var(--font-cormorant)" }}
 			>
 				Search

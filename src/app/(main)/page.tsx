@@ -10,14 +10,14 @@ import { QueryErrorCard } from "@/components/ui/QueryErrorCard";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
 import Link from "next/link";
 import { useState } from "react";
+import { FlameIcon } from "@/components/ui/Icon";
 
 const STAT_STYLES = [
-	{ label: "Read", bg: "var(--straw)", emoji: "✦", status: "read" },
-	{ label: "Reading", bg: "var(--sage)", emoji: "◉", status: "reading" },
+	{ label: "Read", bg: "var(--straw)", status: "read" },
+	{ label: "Reading", bg: "var(--sage)", status: "reading" },
 	{
 		label: "Want to read",
 		bg: "var(--sky)",
-		emoji: "○",
 		status: "want_to_read",
 	},
 ] as const;
@@ -94,7 +94,7 @@ export default function HomePage() {
 					<div className="flex items-start justify-between gap-4">
 						<div>
 							<p className="eyebrow">The book on your desk</p>
-							<h1 id="today-title" className="font-bold leading-none mt-1" style={{ fontFamily: "var(--font-cormorant)", fontSize: "3.25rem" }}>Today</h1>
+							<h1 id="today-title" className="font-medium leading-none mt-1" style={{ fontFamily: "var(--font-cormorant)", fontSize: "3.25rem" }}>Today</h1>
 						</div>
 						{hasBookBeingRead && (
 							<Link href="/library?status=reading" className="text-xs font-semibold text-right leading-relaxed hover:underline" style={{ color: "var(--accent-ink)" }}>
@@ -118,7 +118,7 @@ export default function HomePage() {
 							<p id="reading-rhythm-title" className="eyebrow">Keeping the flame</p>
 							<div className="flex items-end gap-3 mt-2"><p className="font-bold leading-none" style={{ fontFamily: "var(--font-dm-sans)", fontVariantNumeric: "tabular-nums", fontSize: "3.5rem", color: "var(--accent-ink)" }}>{streak}</p><p className="text-sm font-semibold mb-1" style={{ color: "var(--muted)" }}>{streak === 1 ? "day of reading" : "days of reading"}</p></div>
 						</div>
-						<span role="img" aria-label={streak > 0 ? "Reading streak active" : "No active reading streak yet"} style={{ fontSize: "3.5rem", lineHeight: 1, filter: streak > 0 ? "none" : "grayscale(1) opacity(0.3)" }}>🔥</span>
+						<span role="img" aria-label={streak > 0 ? "Reading streak active" : "No active reading streak yet"}><FlameIcon lit={streak > 0} size="3.25rem" /></span>
 					</div>
 					<div className="flex-1 flex flex-col justify-center pt-4" style={{ borderTop: "1px solid var(--rule)" }}><p className="eyebrow mb-3">Your last 4 weeks</p><HeatmapStrip data={dashboard?.heatmap ?? {}} weeks={4} timeZone={dashboard?.timezone ?? "UTC"} /></div>
 					{freezeNotice && <p className="text-xs" style={{ color: "var(--fg)", opacity: 0.7 }}>{freezeNotice}</p>}

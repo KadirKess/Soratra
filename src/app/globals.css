@@ -54,6 +54,9 @@ body {
   /* Cormorant defaults to old-style figures, which make "10h" read as "1oh".
      Set here so inline Cormorant numbers inherit it too. */
   font-variant-numeric: lining-nums;
+  /* Cormorant ships up to 600. Without this, font-bold makes the browser smear
+     a fake 700 out of the 600 outlines. */
+  font-synthesis-weight: none;
   -webkit-font-smoothing: antialiased;
   max-width: 100%;
   overflow-x: clip;
@@ -190,6 +193,58 @@ h1, h2, h3, h4, .display {
 .tint-blush { background: var(--blush); --muted: var(--muted-strong); }
 .tint-sky   { background: var(--sky);   --muted: var(--muted-strong); }
 .tint-straw { background: var(--straw); --muted: var(--muted-strong); }
+
+/* Book covers. The ::after draws a spine band with a hinge highlight and a
+   faint inner edge, so a cover reads as an object rather than a flat image.
+   The placeholder sits underneath the image and doubles as its loading state. */
+.cover {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 2 / 3;
+  border: 2px solid var(--fg);
+  border-radius: var(--radius-cover);
+  background: var(--surface-shimmer);
+}
+
+.cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--fg) 26%, transparent) 0,
+    color-mix(in srgb, var(--fg) 10%, transparent) 3%,
+    color-mix(in srgb, var(--bg) 28%, transparent) 4.5%,
+    transparent 7.5%
+  );
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bg) 22%, transparent);
+}
+
+.cover-raised {
+  box-shadow: var(--shadow-raised);
+  transition: box-shadow 0.1s ease, transform 0.1s ease;
+}
+
+/* The reader's own words: session notes and reviews, set as quiet italic.
+   Cormorant has a small x-height, so it runs a little larger than body text. */
+.reader-note {
+  font-family: var(--font-cormorant-italic), var(--font-cormorant), Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 1.08rem;
+  line-height: 1.45;
+  color: var(--fg);
+  white-space: pre-wrap;
+}
+
+/* A friend's note quoted in the feed. */
+.reader-note--quote {
+  padding: 0.6rem 0.85rem;
+  border-left: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--bg) 45%, transparent);
+}
 
 /* Shared overlay behind every dialog. */
 .dialog-backdrop {

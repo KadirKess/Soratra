@@ -14,7 +14,7 @@ export default async function SupportPage() {
   const [session, instance] = await Promise.all([auth(), getInstance()])
 
   return <div className={`${session ? '' : 'public-page-frame '}max-w-xl space-y-4`}>
-    <h1 className="text-5xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>Support</h1>
+    <h1 className="text-5xl font-medium" style={{ fontFamily: 'var(--font-cormorant)' }}>Support</h1>
     <p>This Soratra is run by {instance.operatorName}. For help with your account, a forgotten password, privacy, or accessibility, <OperatorContact contact={instance.contact} />.</p>
   </div>
 }

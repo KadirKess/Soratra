@@ -17,7 +17,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="max-w-md space-y-8">
-      <h1 className="text-4xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>
+      <h1 className="text-4xl font-medium" style={{ fontFamily: 'var(--font-cormorant)' }}>
         Profile
       </h1>
 
