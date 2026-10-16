@@ -76,7 +76,7 @@ export function SignUpForm({ invite }: { invite: string | null }) {
           ? 'You were invited. Pick a username and password to start your reading journal.'
           : 'Save books, track your reading rhythm, and make your shelves feel like home.'}
       </p>
-      <form onSubmit={handleSubmit} noValidate className="auth-form">
+      <form method="post" onSubmit={handleSubmit} noValidate className="auth-form">
         <label htmlFor="signup-username" className="sr-only">Username</label>
         <input id="signup-username" name="username" type="text" placeholder="Username" required minLength={2} maxLength={30} pattern="[A-Za-z0-9_]+" title="Use 2-30 letters, numbers, or underscores." autoComplete="username" aria-invalid={Boolean(fieldErrors.username)} aria-describedby={fieldErrors.username ? 'signup-username-error' : 'signup-username-hint'} className="auth-input" />
         {fieldErrors.username ? <p id="signup-username-error" className="auth-field-error">{fieldErrors.username}</p> : <p id="signup-username-hint" className="auth-field-hint">2-30 letters, numbers, or underscores. You sign in with it.</p>}

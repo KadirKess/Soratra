@@ -66,7 +66,7 @@ export default function SignInPage() {
         Settle in, pick up your current read, and keep the momentum going.
       </p>
       {successNotice && <p className="auth-notice" role="status">{successNotice}</p>}
-      <form onSubmit={handleSubmit} noValidate className="auth-form">
+      <form method="post" onSubmit={handleSubmit} noValidate className="auth-form">
         <label htmlFor="signin-username" className="sr-only">Username</label>
         <input id="signin-username" name="username" type="text" placeholder="Username" required autoComplete="username" autoCapitalize="none" spellCheck={false} aria-invalid={Boolean(usernameError)} aria-describedby={usernameError ? 'signin-username-error' : undefined} onChange={(event) => {
           if (usernameError && event.currentTarget.value.trim()) setUsernameError(null)

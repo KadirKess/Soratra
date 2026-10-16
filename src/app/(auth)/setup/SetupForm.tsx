@@ -82,7 +82,7 @@ export function SetupForm() {
       <p className="auth-subtitle">
         A quiet place for your reading. Create your account first; it will be the one that looks after this instance.
       </p>
-      <form onSubmit={handleSubmit} noValidate className="auth-form">
+      <form method="post" onSubmit={handleSubmit} noValidate className="auth-form">
         <p className="auth-step">1 · Your account</p>
         <label htmlFor="setup-username" className="sr-only">Username</label>
         <input id="setup-username" name="username" type="text" placeholder="Username" required minLength={2} maxLength={30} pattern="[A-Za-z0-9_]+" autoComplete="username" autoFocus aria-invalid={Boolean(fieldErrors.username)} aria-describedby={fieldErrors.username ? 'setup-username-error' : 'setup-username-hint'} className="auth-input" />

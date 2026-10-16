@@ -5,12 +5,12 @@ import { auth } from '@/server/auth'
 import { db, passwordResetTokens, users } from '@/server/db'
 import { readJsonBody } from '@/lib/requestBody'
 import { isSupportedPassword } from '@/server/password'
+import { isCrossOriginRequest } from '@/lib/requestOrigin'
 
 export async function POST(req: Request) {
   const session = await auth()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const origin = req.headers.get('origin')
-  if (origin && origin !== new URL(req.url).origin) {
+  if (isCrossOriginRequest(req)) {
     return NextResponse.json({ error: 'Invalid request origin' }, { status: 403 })
   }
   let body: unknown

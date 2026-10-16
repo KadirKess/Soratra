@@ -115,3 +115,17 @@ test('password changes invalidate existing sessions and deletion prevents sign-i
     await second.close()
   }
 })
+
+// Goes through the real form so the browser sends an Origin header; CI serves the
+// app on a port other than the container's, as most installs do.
+test('a reader can change their password from the profile page', async ({ page }) => {
+  const reader = await createReader(page)
+  await page.goto('/profile/password')
+  await page.waitForLoadState('networkidle')
+  await page.fill('#current-password', reader.password)
+  await page.fill('#replacement-password', 'changed-through-the-form')
+  await page.getByRole('button', { name: 'Change password' }).click()
+  await page.waitForURL(/signin\?reset=1/)
+  await signIn(page, reader.username, 'changed-through-the-form')
+})
+

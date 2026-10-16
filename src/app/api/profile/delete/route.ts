@@ -4,6 +4,7 @@ import { and, eq, isNull, or } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { readJsonBody } from '@/lib/requestBody'
+import { isCrossOriginRequest } from '@/lib/requestOrigin'
 
 const MAX_PASSWORD_LENGTH = 256
 
@@ -13,8 +14,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const origin = req.headers.get('origin')
-  if (origin && origin !== new URL(req.url).origin) {
+  if (isCrossOriginRequest(req)) {
     return NextResponse.json({ error: 'Invalid request origin' }, { status: 403 })
   }
 

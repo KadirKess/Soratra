@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 import { db, instanceSettings, users } from '@/server/db'
 import { readJsonBody } from '@/lib/requestBody'
 import { getAuthSecret } from '@/server/instance'
+import { isCrossOriginRequest } from '@/lib/requestOrigin'
 import {
   accountFields, duplicateAccountResponse, GDPR_CONSENT_VERSION, hashPassword, validationResponse,
 } from '@/server/accounts'
@@ -17,8 +18,7 @@ class AlreadySetUp extends Error {}
 
 // First-run setup: creates the one admin account. Works exactly once.
 export async function POST(req: Request) {
-  const origin = req.headers.get('origin')
-  if (origin && origin !== new URL(req.url).origin) {
+  if (isCrossOriginRequest(req)) {
     return NextResponse.json({ error: 'Invalid request origin' }, { status: 403 })
   }
 
