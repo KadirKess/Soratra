@@ -1,1 +1,0 @@
-ALTER TABLE "user_books" ADD COLUMN "review_has_spoiler" integer DEFAULT 0 NOT NULL;

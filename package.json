@@ -8,15 +8,14 @@
     "start": "next start -H 0.0.0.0",
     "db:generate": "node --env-file-if-exists=.env --env-file-if-exists=.env.local node_modules/drizzle-kit/bin.cjs generate",
     "db:migrate": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local src/server/db/migrate.ts",
-    "cron:purge-deleted-users": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local src/scripts/purgeDeletedUsers.ts",
+    "reset-link": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local src/scripts/resetLink.ts",
     "catalog:seed-popular": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local src/scripts/seedPopularCatalog.ts",
     "audit:friendships": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local src/scripts/auditFriendshipIntegrity.ts",
     "db:studio": "node --env-file-if-exists=.env --env-file-if-exists=.env.local node_modules/drizzle-kit/bin.cjs studio",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "E2E=true playwright test",
-    "typecheck": "tsc --noEmit",
-    "test:setup": "node --test scripts/setup.test.mjs scripts/launcher.test.mjs"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",
@@ -25,7 +24,7 @@
     "@trpc/server": "^11.11.0",
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "0.45.2",
-    "next": "16.3.7",
+    "next": "16.4.2",
     "next-auth": "5.0.0-beta.32",
     "postgres": "^3.4.7",
     "react": "19.2.3",

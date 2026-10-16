@@ -4,7 +4,7 @@ import { TopBar } from './TopBar'
 import { BottomNav } from './BottomNav'
 import { MobileHeader } from './MobileHeader'
 import { ProjectCredit } from './ProjectCredit'
-import { siteConfig } from '@/lib/config'
+import { getInstance } from '@/server/instance'
 
 export async function Shell({ children }: { children: React.ReactNode }) {
   const session = await auth()
@@ -12,11 +12,12 @@ export async function Shell({ children }: { children: React.ReactNode }) {
   if (!session) {
     return <>{children}<ProjectCredit /></>
   }
+  const instance = await getInstance()
 
   return (
     <div className="flex min-h-screen">
       <a href="#main-content" className="skip-link">Skip to content</a>
-      <Sidebar supportEmail={siteConfig.supportEmail} />
+      <Sidebar operatorName={instance.operatorName} contact={instance.contact} />
       <div className="app-shell-content flex-1 flex flex-col md:ml-56">
         <div className="hidden md:block">
           <TopBar />

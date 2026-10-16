@@ -1,0 +1,14 @@
+# Builds the image from this checkout instead of downloading it:
+#   docker compose -f compose.yaml -f compose.build.yaml up -d --build
+services:
+  app:
+    build:
+      context: .
+      args:
+        SORATRA_VERSION: local
+    image: soratra:local
+    pull_policy: build
+
+  init:
+    image: soratra:local
+    pull_policy: never

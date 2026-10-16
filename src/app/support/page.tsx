@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
-import { siteConfig } from '@/lib/config'
 import { auth } from '@/server/auth'
+import { getInstance } from '@/server/instance'
+import { OperatorContact } from '@/components/layout/OperatorContact'
 
 export const metadata: Metadata = {
   title: 'Support',
@@ -10,7 +11,10 @@ export const metadata: Metadata = {
 }
 
 export default async function SupportPage() {
-  const session = await auth()
+  const [session, instance] = await Promise.all([auth(), getInstance()])
 
-  return <div className={`${session ? '' : 'public-page-frame '}max-w-xl space-y-4`}><h1 className="text-5xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>Support</h1><p>For account, privacy, or accessibility help, email <a className="underline" href={`mailto:${siteConfig.supportEmail}`}>{siteConfig.supportEmail}</a>.</p></div>
+  return <div className={`${session ? '' : 'public-page-frame '}max-w-xl space-y-4`}>
+    <h1 className="text-5xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>Support</h1>
+    <p>This Soratra is run by {instance.operatorName}. For help with your account, a forgotten password, privacy, or accessibility, <OperatorContact contact={instance.contact} />.</p>
+  </div>
 }

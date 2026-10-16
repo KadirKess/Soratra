@@ -13,8 +13,8 @@ export default function DeleteAccountPage() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  const email = session?.user?.email ?? ''
-  const canDelete = confirm === email && currentPassword.length > 0
+  const username = session?.user?.name ?? ''
+  const canDelete = Boolean(username) && confirm.trim().toLowerCase() === username.toLowerCase() && currentPassword.length > 0
 
   async function handleDelete() {
     if (!canDelete) return
@@ -24,10 +24,11 @@ export default function DeleteAccountPage() {
       const res = await fetch('/api/profile/delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: confirm, currentPassword }),
+        body: JSON.stringify({ username: confirm, currentPassword }),
       })
       if (!res.ok) {
-        setError('Something went wrong. Please try again.')
+        const data = await res.json().catch(() => null)
+        setError(typeof data?.error === 'string' ? data.error : 'Something went wrong. Please try again.')
         return
       }
       router.push('/signin?deleted=1')
@@ -50,7 +51,7 @@ export default function DeleteAccountPage() {
         <p className="text-sm" style={{ color: 'var(--muted)' }}>
           Your reading history and relationships are removed immediately. We keep a minimal,
           anonymized deletion record for 30 days so the scheduled purge can complete; it does
-          not retain your email, password, or time zone. This cannot be undone.
+          not retain your username, password, or time zone. This cannot be undone.
         </p>
         <div>
           <label
@@ -58,13 +59,13 @@ export default function DeleteAccountPage() {
             className="block text-xs uppercase tracking-wider mb-1"
             style={{ color: 'var(--muted)' }}
           >
-            Type your email to confirm
+            Type your username to confirm
           </label>
           <input
             id="delete-confirmation"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
-            placeholder={email}
+            placeholder={username}
             className="auth-input w-full"
           />
         </div>

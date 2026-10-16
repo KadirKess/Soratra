@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { users, books, bookTitleResolutions, friendships, userBooks } from '../schema'
+import { users, books, bookTitleResolutions, friendships, userBooks, instanceSettings, invites } from '../schema'
 
 describe('schema', () => {
   it('users table has required GDPR fields', () => {
@@ -9,6 +9,17 @@ describe('schema', () => {
     expect(cols).toContain('deletedAt')
     expect(cols).toContain('usernameNormalized')
     expect(cols).toContain('preferredLanguage')
+  })
+
+  it('identifies readers by username only', () => {
+    expect(Object.keys(users)).not.toContain('email')
+    expect(Object.keys(users)).toContain('isAdmin')
+  })
+
+  it('stores instance settings and hashed invites', () => {
+    expect(Object.keys(instanceSettings)).toEqual(expect.arrayContaining(['authSecret', 'registration', 'setupCompletedAt']))
+    expect(Object.keys(invites)).toEqual(expect.arrayContaining(['tokenHash', 'expiresAt', 'usedAt']))
+    expect(Object.keys(invites)).not.toContain('token')
   })
 
   it('friendships have independent direction and pair-integrity fields', () => {

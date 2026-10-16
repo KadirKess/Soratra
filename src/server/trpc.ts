@@ -59,3 +59,10 @@ export const protectedProcedure = publicProcedure.use(({ ctx, next }) => {
   }
   return next({ ctx: { ...ctx, activeUser: user } })
 })
+
+export const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (!ctx.activeUser.isAdmin) {
+    throw new TRPCError({ code: 'FORBIDDEN' })
+  }
+  return next()
+})

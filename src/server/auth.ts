@@ -6,9 +6,10 @@ import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { rateLimit, rateLimitKey, getClientIp } from '@/lib/rateLimit'
 import { isSupportedPassword } from '@/server/password'
+import { getAuthSecret } from '@/server/instance'
 
 const signInSchema = z.object({
-  email: z.string().email(),
+  username: z.string().trim().min(1).max(30),
   password: z.string().refine(isSupportedPassword),
 })
 
@@ -16,7 +17,11 @@ class RateLimitedSignInError extends CredentialsSignin {
   code = 'rate_limited'
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+// Lazy config so the secret can come from the database. trustHost lets the same
+// instance answer on localhost, a LAN address or a domain without a fixed URL.
+export const { handlers, auth, signIn, signOut } = NextAuth(async () => ({
+  secret: await getAuthSecret(),
+  trustHost: true,
   session: { strategy: 'jwt' },
   pages: {
     signIn: '/signin',
@@ -28,16 +33,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const parsed = signInSchema.safeParse(credentials)
         if (!parsed.success) return null
 
-        const [ipLimit, emailLimit] = await Promise.all([
+        const [ipLimit, usernameLimit] = await Promise.all([
           rateLimit(rateLimitKey('signin:ip', getClientIp(request)), 10, 5 * 60_000),
-          rateLimit(rateLimitKey('signin:email', parsed.data.email), 10, 5 * 60_000),
+          rateLimit(rateLimitKey('signin:username', parsed.data.username), 10, 5 * 60_000),
         ])
-        if (!ipLimit.ok || !emailLimit.ok) {
+        if (!ipLimit.ok || !usernameLimit.ok) {
           throw new RateLimitedSignInError()
         }
 
         const user = await db.query.users.findFirst({
-          where: eq(users.email, parsed.data.email),
+          where: eq(users.usernameNormalized, parsed.data.username.toLowerCase()),
         })
 
         if (!user || user.deletedAt || !user.passwordHash) return null
@@ -45,7 +50,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const valid = await bcrypt.compare(parsed.data.password, user.passwordHash)
         if (!valid) return null
 
-        return { id: user.id, email: user.email, name: user.username, authVersion: user.authVersion }
+        return { id: user.id, name: user.username, authVersion: user.authVersion }
       },
     }),
   ],
@@ -63,4 +68,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session
     },
   },
-})
+}))

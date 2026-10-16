@@ -6,15 +6,11 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { PasswordInput } from '@/components/ui/PasswordInput'
 
-function emailValidationMessage(input: HTMLInputElement) {
-  return input.value.trim() ? 'Enter a valid email address.' : 'Enter your email address.'
-}
-
 export default function SignInPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [error, setError] = useState<string | null>(null)
-  const [emailError, setEmailError] = useState<string | null>(null)
+  const [usernameError, setUsernameError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const successNotice = searchParams.get('registered')
     ? 'Account created. Sign in to start building your reading ritual.'
@@ -27,19 +23,19 @@ export default function SignInPage() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const formElement = e.currentTarget
-    const emailInput = formElement.elements.namedItem('email')
-    if (!(emailInput instanceof HTMLInputElement) || !emailInput.validity.valid) {
-      setEmailError(emailInput instanceof HTMLInputElement ? emailValidationMessage(emailInput) : 'Enter a valid email address.')
+    const usernameInput = formElement.elements.namedItem('username')
+    if (!(usernameInput instanceof HTMLInputElement) || !usernameInput.value.trim()) {
+      setUsernameError('Enter your username.')
       return
     }
 
     setLoading(true)
     setError(null)
-    setEmailError(null)
+    setUsernameError(null)
     const form = new FormData(formElement)
     try {
       const result = await signIn('credentials', {
-        email: form.get('email'),
+        username: form.get('username'),
         password: form.get('password'),
         redirect: false,
       })
@@ -48,7 +44,7 @@ export default function SignInPage() {
           result.code === 'rate_limited'
             ? 'Too many sign-in attempts. Please wait a few minutes and try again.'
             : result.error === 'CredentialsSignin'
-              ? 'Invalid email or password.'
+              ? 'Invalid username or password.'
               : 'We could not sign you in right now. Please try again shortly.',
         )
         return
@@ -70,17 +66,17 @@ export default function SignInPage() {
         Settle in, pick up your current read, and keep the momentum going.
       </p>
       {successNotice && <p className="auth-notice" role="status">{successNotice}</p>}
-      <form onSubmit={handleSubmit} noValidate className="auth-form">
-        <label htmlFor="signin-email" className="sr-only">Email</label>
-        <input id="signin-email" name="email" type="email" placeholder="Email" required autoComplete="email" aria-invalid={Boolean(emailError)} aria-describedby={emailError ? 'signin-email-error' : undefined} onChange={(event) => {
-          if (emailError && event.currentTarget.validity.valid) setEmailError(null)
+      <form method="post" onSubmit={handleSubmit} noValidate className="auth-form">
+        <label htmlFor="signin-username" className="sr-only">Username</label>
+        <input id="signin-username" name="username" type="text" placeholder="Username" required autoComplete="username" autoCapitalize="none" spellCheck={false} aria-invalid={Boolean(usernameError)} aria-describedby={usernameError ? 'signin-username-error' : undefined} onChange={(event) => {
+          if (usernameError && event.currentTarget.value.trim()) setUsernameError(null)
         }} className="auth-input" />
-        {emailError && <p id="signin-email-error" className="auth-field-error">{emailError}</p>}
+        {usernameError && <p id="signin-username-error" className="auth-field-error">{usernameError}</p>}
         <label htmlFor="signin-password" className="sr-only">Password</label>
         <PasswordInput id="signin-password" name="password" placeholder="Password" required minLength={8} autoComplete="current-password" className="auth-input" />
         {error && (
           <p className="auth-error" role="alert">
-            {error}{error === 'Invalid email or password.' && ' Double-check for typos and use the email you signed up with.'}
+            {error}{error === 'Invalid username or password.' && ' Usernames are not case-sensitive; passwords are.'}
           </p>
         )}
         <button type="submit" disabled={loading} className="auth-btn">

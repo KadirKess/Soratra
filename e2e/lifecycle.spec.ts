@@ -60,7 +60,7 @@ test('reading sessions survive editing and export with the book finish date', as
   expect(archive.readingSessions[0].sessionDate).toMatch(/^\d{4}-\d{2}-\d{2}$/)
 
   const removed = await page.request.post('/api/profile/delete', {
-    data: { email: reader.email, currentPassword: reader.password },
+    data: { username: reader.username, currentPassword: reader.password },
   })
   expect(removed.status()).toBe(200)
   expect((await page.request.get('/api/profile/export')).status()).toBe(401)
@@ -74,7 +74,7 @@ test('password changes invalidate existing sessions and deletion prevents sign-i
     const firstPage = await first.newPage()
     const reader = await createReader(firstPage)
     const secondPage = await second.newPage()
-    await signIn(secondPage, reader.email, reader.password)
+    await signIn(secondPage, reader.username, reader.password)
     expect((await secondPage.request.get('/api/profile/export')).status()).toBe(200)
 
     const rejectedChange = await firstPage.request.post('/api/profile/password', {
@@ -89,24 +89,24 @@ test('password changes invalidate existing sessions and deletion prevents sign-i
     expect((await firstPage.request.get('/api/profile/export')).status()).toBe(401)
 
     await firstPage.goto('/signin')
-    await firstPage.fill('[name=email]', reader.email)
+    await firstPage.fill('[name=username]', reader.username)
     await firstPage.fill('[name=password]', reader.password)
     await firstPage.click('button[type=submit]')
     await expect(firstPage.locator('.auth-error')).toBeVisible()
-    await signIn(firstPage, reader.email, 'changed-password456')
+    await signIn(firstPage, reader.username, 'changed-password456')
     expect((await firstPage.request.get('/api/profile/export')).status()).toBe(200)
 
     const rejectedDelete = await firstPage.request.post('/api/profile/delete', {
-      data: { email: 'different@example.com', currentPassword: 'changed-password456' },
+      data: { username: 'someone_else', currentPassword: 'changed-password456' },
     })
     expect(rejectedDelete.status()).toBe(400)
     const removed = await firstPage.request.post('/api/profile/delete', {
-      data: { email: reader.email, currentPassword: 'changed-password456' },
+      data: { username: reader.username, currentPassword: 'changed-password456' },
     })
     expect(removed.status()).toBe(200)
     expect((await firstPage.request.get('/api/profile/export')).status()).toBe(401)
     await firstPage.goto('/signin')
-    await firstPage.fill('[name=email]', reader.email)
+    await firstPage.fill('[name=username]', reader.username)
     await firstPage.fill('[name=password]', 'changed-password456')
     await firstPage.click('button[type=submit]')
     await expect(firstPage.locator('.auth-error')).toBeVisible()
@@ -115,3 +115,17 @@ test('password changes invalidate existing sessions and deletion prevents sign-i
     await second.close()
   }
 })
+
+// Goes through the real form so the browser sends an Origin header; CI serves the
+// app on a port other than the container's, as most installs do.
+test('a reader can change their password from the profile page', async ({ page }) => {
+  const reader = await createReader(page)
+  await page.goto('/profile/password')
+  await page.waitForLoadState('networkidle')
+  await page.fill('#current-password', reader.password)
+  await page.fill('#replacement-password', 'changed-through-the-form')
+  await page.getByRole('button', { name: 'Change password' }).click()
+  await page.waitForURL(/signin\?reset=1/)
+  await signIn(page, reader.username, 'changed-through-the-form')
+})
+

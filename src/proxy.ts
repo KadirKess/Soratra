@@ -19,7 +19,8 @@ export function proxy(request: NextRequest) {
   requestHeaders.set('x-nonce', nonce)
   const response = NextResponse.next({ request: { headers: requestHeaders } })
   response.headers.set('Content-Security-Policy-Report-Only', reportOnlyPolicy)
-  if (process.env.PUBLIC_DEPLOYMENT === 'preview') {
+  // Instances stay out of search results unless the operator opts in.
+  if (process.env.SEARCH_INDEXING?.trim().toLowerCase() !== 'true') {
     response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive')
   }
   return response
