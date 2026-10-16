@@ -1,151 +1,176 @@
 # Self-hosting Soratra
 
-Soratra runs as a web server backed by PostgreSQL. Docker packages both, but the computer or server hosting them must stay running for readers to access the app.
+Soratra is a web app and a PostgreSQL database, packaged as one Docker Compose file. It runs on anything with Docker: a laptop, a home server, a Raspberry Pi running a 64-bit system, or a small VPS. The machine has to stay on for people to use it.
 
-Use a current Docker Engine or Docker Desktop with Compose v2. Installations build the application from this repository; there is no published container image required by this guide.
+The [README](../README.md#run-it) has the short version. This guide covers the rest.
 
-## Local installation
+## Install
 
-Run the launcher from the repository root. It checks Docker, asks only for a port, and saves ignored configuration with unique database, authentication, and cleanup secrets. Keep `.env` private and retain a protected copy with your backups.
-
-```sh
-./soratra.sh
-```
-
-Open the address printed by the launcher and create an account. The default port is 3000; if it is occupied, first launch checks the next ports. An explicitly requested `--port` must be available. Inspect startup and cleanup with `docker compose logs app migrate scheduler`. The helper uses Docker's Node.js image; host Node.js is optional. With Node.js 24 installed, `node scripts/setup.mjs` performs the same setup.
-
-Local mode accepts matching loopback `SITE_URL` and `AUTH_URL` origins. Email can be disabled for a personal installation. Registration and journaling work without delivery; password recovery cannot send email. Password reset links are not printed to logs.
-
-The app port binds to localhost. PostgreSQL stays on the internal Compose network and stores its data in a named volume. Stopping containers preserves this volume.
+In an empty folder:
 
 ```sh
-./soratra.sh stop
-./soratra.sh
+curl -fsSLO https://github.com/KadirKess/Soratra/releases/latest/download/compose.yaml
+docker compose up -d
 ```
 
-Use `./soratra.sh configure` to edit saved settings, or pass `--port 3030`, `--name 'Your name'`, and `--support-email reader@example.org` when launching. Pass `--support-email ''` to clear the optional address. Existing credentials are preserved. `--yes --no-open` accepts defaults without prompts and leaves the browser closed. `--no-color` or `NO_COLOR=1` disables terminal colors. Build and startup output is reduced to progress steps; `--verbose` shows Docker output, and failures always show the relevant command output. `advanced` offers optional hosting details: your name or organisation and a contact email appear on the legal and support pages. Personal installations can keep the defaults. Open Library book search needs no API key.
+Open <http://localhost:3000>. The first visit shows a setup screen where you create your account and choose who can join. That first account runs the instance.
 
-Use `./soratra.sh advanced` for a separate settings menu:
+Finish setup before you make Soratra reachable from other machines: until then, whoever opens the page first would become the person running it.
 
-- **Personal details:** the name and contact displayed on legal and support pages.
-- **Local port:** a free port for access on this computer.
-- **Email recovery:** keep it disabled, or configure a verified Resend sender and enter the API key without echoing it.
-- **Public hosting:** switch between localhost and a public domain. Public hosting requires real contact details, verified email delivery, DNS pointing to the host, and free ports 80 and 443 for the HTTPS proxy.
-- **Security and source:** set a reporting contact, future expiry, and optional HTTPS source link. Leave the source link blank to use the bundled archive.
-- **Runtime:** choose a database connection limit between 1 and 20 and whether search engines may index the public pages. Authenticated pages remain private.
+### What's running
 
-The menu stages changes until you review them and explicitly save. Invalid or incomplete public configurations leave `.env` unchanged. Saving does not launch or restart containers; run `./soratra.sh` afterward to apply the settings. Switching back to local hosting removes the public proxy from this Compose project. Database, authentication, and cleanup credentials are preserved. Rotate those credentials separately with a backup and planned restart; the menu deliberately does not offer rotation.
+| Service | What it does |
+| --- | --- |
+| `app` | Soratra itself. Applies database updates when it starts, then serves the app on port 3000. |
+| `db` | PostgreSQL 16. Reachable only by the other services, never from outside. |
+| `init` | Runs once on the first start to generate the database password, then exits. |
+| `backup` | Writes a database backup to `./backups` once a day. |
 
-`./soratra.sh status` shows containers, `logs` follows app and scheduler output, and `update` builds and migrates before restarting. Back up first; updates prompt for confirmation, or accept `update --yes` for unattended use. The launcher never deletes database volumes. It does not install Docker, configure public DNS, or create email credentials. Continue below for public hosting.
+Your data lives in two Docker volumes, `soratra_postgres_data` (the database) and `soratra_config` (the generated database password), plus the `./backups` folder. Stopping or restarting keeps all of them. Only `docker compose down --volumes` deletes the volumes, so don't add `--volumes` unless you mean it.
 
-The lower-level `./scripts/setup.sh` and Compose commands remain available for operators who prefer them.
+## Settings
 
-Keep the same Compose project name when restarting. Do not add `--volumes` to the stop command, which would remove stored data. For local installations, the launcher keeps the two origin settings in sync when changing the port. Public HTTPS origins remain unchanged. Public instances saved with `DEPLOYMENT_MODE=public` automatically use the public Compose overlay; configure domain and email settings manually as described below.
+Soratra needs none. To change a default, create `.env` next to `compose.yaml` and run `docker compose up -d` afterwards. Every setting is listed in [`.env.example`](../.env.example).
 
-## Shared internet-facing installation
+| Setting | Default | What it does |
+| --- | --- | --- |
+| `SORATRA_BIND` | `127.0.0.1` | The network address to listen on. `0.0.0.0` makes Soratra reachable from other devices. |
+| `SORATRA_PORT` | `3000` | The port on this machine. |
+| `SORATRA_VERSION` | `1` | Which release to run: `1` follows 1.x, `1.2` stays on 1.2.x, `1.2.0` pins one release. |
+| `DOMAIN` | | Your domain, used by `compose.caddy.yaml`. |
+| `KEEP_BACKUPS` | `7` | How many daily backups to keep. |
+| `SITE_URL` | | Your public address, such as `https://books.example.org`. Only used for link previews and the sitemap. Soratra otherwise answers on whatever address it is reached at. |
+| `SEARCH_INDEXING` | `false` | `true` lets search engines index the landing and legal pages. Signed-in pages are never indexed. |
+| `TRUSTED_PROXY_IP_HEADER` | | Behind your own reverse proxy, a header it overwrites with the visitor's address, such as `x-real-ip`. Never `x-forwarded-for`. |
+| `SECURITY_CONTACT`, `SECURITY_EXPIRES` | | A `mailto:` or `https://` contact and a future date such as `2027-12-31T00:00:00Z`. Together they publish `/.well-known/security.txt`. |
+| `SOURCE_CODE_URL` | | Only if you modified Soratra and host the source elsewhere. See [License](#license-and-modified-versions). |
 
-Use a domain you control and an HTTPS reverse proxy. Configure `DEPLOYMENT_MODE=public`, matching HTTPS `SITE_URL` and `AUTH_URL`, and `EMAIL_MODE=resend`. Set `RESEND_API_KEY` and `EMAIL_FROM` to your own verified Resend sender. Other email providers and general SMTP are not supported.
+Your name, how readers can reach you, and who can join are not in `.env`. They live in the database and are changed on the admin page.
 
-The supplied Caddy configuration needs DNS pointing at this server and inbound ports 80 and 443. In `.env`, set `PUBLIC_HOST` to the hostname without `https://` and set both origins to `https://` followed by that hostname. Set `PUBLIC_DEPLOYMENT=production`. Then start the public stack:
+## Reaching it from other devices
+
+Set `SORATRA_BIND=0.0.0.0` in `.env` and run `docker compose up -d`. Soratra is then at `http://<this machine's address>:<port>` on your network. Phones and laptops on the same Wi-Fi can use it right away.
+
+[Tailscale](https://tailscale.com) is a good way to reach it from anywhere: install it on the server and your devices, and use the server's Tailscale name. Nothing is exposed to the public internet.
+
+Over plain HTTP on a home network, Soratra cannot tell visitors apart for rate limiting, so everyone shares one budget of sign-in attempts. That is fine for a household. A public instance should sit behind HTTPS, as described next.
+
+## HTTPS on your own domain
+
+The Caddy overlay gives you HTTPS with automatic certificates. You need:
+
+- a domain or subdomain whose DNS points at this server,
+- ports 80 and 443 free and open to the internet.
+
+Then:
 
 ```sh
-docker compose -f compose.yaml -f compose.public.yaml up -d --build --wait
+curl -fsSLO https://github.com/KadirKess/Soratra/releases/latest/download/compose.caddy.yaml
+echo "DOMAIN=books.example.org" >> .env
+docker compose -f compose.yaml -f compose.caddy.yaml up -d
 ```
 
-The public overlay selects public deployment mode, Resend delivery, and trusted `x-real-ip` forwarding. Add the same two `-f` arguments to subsequent Compose commands for this installation. Caddy's certificate state has its own persistent volumes.
+Use the same two `-f` arguments for every later command on this install, or set `COMPOSE_FILE=compose.yaml:compose.caddy.yaml` in `.env` so plain `docker compose` picks up both.
 
-Set `LEGAL_NAME` and `SUPPORT_EMAIL` to your operator details. Review the application's legal and privacy pages against your hosting region, access policy, backup retention, and email provider before inviting readers. Default copy cannot establish your compliance.
+The overlay sets `SITE_URL` and the trusted proxy header for you. Keep `SORATRA_BIND` at its default, so the app is only reachable through Caddy.
 
-The application ignores forwarding headers unless `TRUSTED_PROXY_IP_HEADER` is configured. The supplied proxy uses `x-real-ip`, overwrites the incoming value, and forwards the client address. Keep direct access to the app restricted so visitors cannot bypass that proxy and supply a trusted header themselves.
+### Using your own reverse proxy
 
-An optional reporting channel uses `SECURITY_CONTACT`, which defaults to the support mail address, and a future ISO date in `SECURITY_EXPIRES`. The `/.well-known/security.txt` route is unavailable without a valid future expiry. Renew it before it expires.
+If you already run Traefik, nginx, Nginx Proxy Manager, or Cloudflare Tunnel, point it at Soratra's port instead of using the overlay:
 
-The About page offers a source archive built from this application's source files. If you set `SOURCE_CODE_URL` instead, ensure it provides the corresponding source for the version you actually run, including your changes. An upstream repository link alone does not satisfy AGPL obligations for a modified installation.
+- If the proxy runs on the same machine, keep `SORATRA_BIND=127.0.0.1`. Otherwise bind to an address only the proxy can reach.
+- Have the proxy overwrite a header such as `X-Real-IP` with the visitor's address, and set `TRUSTED_PROXY_IP_HEADER=x-real-ip`. Don't trust a header the proxy merely appends to.
+- Set `SITE_URL` to your public address.
+- Pass the `Host` and `X-Forwarded-Proto` headers through. Sign-in uses them to build its own links.
 
-## Data and maintenance
+## Readers and accounts
 
-Account deletion removes reading data, friendship records, and reset tokens immediately. A pseudonymized account tombstone remains for 30 days. The scheduler cleans expired tombstones and rate-limit buckets on startup and once a day after success, retrying failed requests after five minutes. Check scheduler logs after installation and upgrades.
+Soratra doesn't send email. The person who runs the instance looks after joining and forgotten passwords from **Profile → Manage members**:
 
-Reading data may also remain in backups until your retention period ends. Tell your readers what that period is. Database dumps and exported journals contain personal data; store them outside the repository and limit access.
+- **Who can join.** *Only people I invite* (the default) or *Anyone who can open this page*. Open sign-up is fine on a private network; on a public domain, invite-only keeps strangers out.
+- **Invite links.** Each one works once and expires after seven days. Send it any way you like.
+- **Password reset links.** For a reader who forgot their password. The link works once, for 24 hours. Their old password stops working when they choose a new one, and they are signed out everywhere.
+- **Your name and contact.** Shown on the support, privacy, and forgot-password pages so readers know who to ask.
 
-The account export is JSON format version `1.7`, including shelf entries and finish dates, sessions, freezes, and non-deleted friendships. It is an archive for the reader. There is currently no UI for importing it into another instance.
+The admin page shows usernames and join dates only. It never shows anyone's shelves, journal, or password.
 
-Use the application's health endpoint at `/api/health` to check readiness. A failed database connection or invalid deployment configuration makes the instance unhealthy; inspect app logs rather than bypassing the check.
-
-### Backups and restore
-
-Back up the PostgreSQL database before every upgrade. Keep a copy of the instance configuration too; a database dump does not contain the application's authentication and email configuration.
-
-For the local stack, create a private destination outside the checkout and take a custom-format dump:
+The account that runs the instance can't be deleted from the app, so the instance is never left without someone to run it. If you lose its password, the rescue command prints a reset link from the server:
 
 ```sh
-mkdir -p ../soratra-backups
-chmod 700 ../soratra-backups
-umask 077
-docker compose exec -T db pg_dump -U soratra -d soratra -Fc > ../soratra-backups/soratra.dump
+docker compose exec app soratra reset-link <your-username>
 ```
 
-Use a new filename for each backup you want to retain. A failed dump can leave a partial file; check the command's exit status before relying on it.
+Accounts sign in with a username and password. Usernames aren't case-sensitive. Each instance is separate: accounts and friendships don't carry over between instances.
 
-Test restoration into a separate empty database, then compare accounts, journal entries, and an export with the original. Do not use a production database for this test. Backup success alone does not prove restoration works.
+## Backups and restore
 
-From a separate checkout with a newly generated `.env`, use a distinct project name:
+The `backup` service takes a backup when it starts if there isn't one from the last 23 hours, then checks every hour. Files are named `soratra-YYYY-MM-DD-HHMM.dump` and are only readable by their owner. On Linux they belong to root, so use `sudo` to copy them.
+
+A backup on the same disk doesn't survive that disk. Copy `./backups` to another machine or cloud storage now and then.
+
+To take an extra backup right now, for example before an update:
 
 ```sh
-docker compose -p soratra-restore up -d --wait db
-docker compose -p soratra-restore exec -T db pg_restore -U soratra -d soratra --no-owner --no-acl --exit-on-error < ../soratra-backups/soratra.dump
+docker compose exec backup pg_dump --format=custom --file=/backups/before-update.dump
 ```
 
-Before starting that restored app, choose a different `APP_PORT` and matching loopback origins so it does not conflict with the original. Start it with the same `-p soratra-restore` argument. Do not initialize the restored database with migrations before `pg_restore`; the dump contains its schema and migration history.
-
-Changing a database password in the environment file does not rotate the password in an existing PostgreSQL volume. Initialization variables only initialize an empty volume. Rotate credentials deliberately in PostgreSQL and then update the app configuration.
-
-### Upgrades
-
-Use a release tag or reviewed revision and keep your current version recorded. Back up first, stop the application while applying migrations, explicitly run the migration job for the new version, and then start the application. A previous successful migration container does not prove that the new version's migrations ran.
-
-After checking out the new version, run the helper. It builds the new images, stops the app and scheduler, runs migrations against the healthy database, and restarts services only if migration succeeds:
+To restore one, stop the app, restore into the database, and start the app again:
 
 ```sh
-./scripts/upgrade.sh
+docker compose stop app
+docker compose exec backup pg_restore --clean --if-exists --no-owner --dbname=soratra /backups/soratra-2026-10-16-0300.dump
+docker compose start app
 ```
 
-For the public stack use `./scripts/upgrade.sh -f compose.yaml -f compose.public.yaml`. If migration fails, inspect the output and keep the app stopped until the problem is resolved.
+This replaces everything in the database with the backup's contents, including accounts and settings. The backup contains everything Soratra needs, the sign-in secret included, so it restores onto a fresh install too.
 
-Keep every checked-in migration and its Drizzle metadata. The single initial Git commit does not replace the database migration sequence. Recovery after a schema change needs a reviewed forward fix or restoration plan; blindly starting older application code can fail against a newer schema.
+To move to another machine: install there, stop its app, copy a backup into its `./backups` folder, and restore as above.
+
+## Updates
+
+```sh
+docker compose pull
+docker compose up -d
+```
+
+The app applies any database changes when it starts. The daily backup covers you, but a fresh one before a big update doesn't hurt (see above). Going back to an older release after its database has been updated isn't supported; restore a backup taken before the update instead.
+
+`SORATRA_VERSION` decides how far updates go. The default `1` follows every 1.x release; a new major version is never pulled in automatically. Release notes are on the [releases page](https://github.com/KadirKess/Soratra/releases). Download the new `compose.yaml` from there too when the notes say it changed.
+
+## Building from source
+
+To run your own changes, clone the repository and build the image locally:
+
+```sh
+docker compose -f compose.yaml -f compose.build.yaml up -d --build
+```
+
+## Using an existing PostgreSQL
+
+Set `POSTGRES_URL` in the app's environment to use your own database server instead of the bundled one, for example `postgres://soratra:password@db.internal:5432/soratra`. PostgreSQL 16 or newer works. Then remove the `db`, `init`, and `backup` services and the app's `depends_on` from your copy of `compose.yaml`. Backups become yours to arrange.
+
+## Data and privacy
+
+Account deletion removes reading data, friendships, and reset links immediately. A pseudonymized account record remains for 30 days, then the app purges it in its daily cleanup. Backups can still hold earlier data until they rotate out. Tell your readers how long you keep backups.
+
+Backups and account exports contain personal data. Keep them private.
+
+The account export is JSON format version `1.7`, with shelf entries and finish dates, sessions, freezes, and current friendships. It's an archive for the reader; there is no import yet.
+
+Book search and metadata come from Open Library. Requests are made by the server and don't include readers' IP addresses. Covers load through the app's image proxy. Saved shelves and journals don't depend on Open Library being up.
+
+Soratra keeps short operational logs (`docker compose logs app`) without reading notes or account identifiers, and collects first-party page-speed figures with no account or persistent identifier. There are no ads or third-party analytics.
+
+`/api/health` reports whether the app and its database are ready; Docker uses it to mark the app healthy.
+
+## License and modified versions
+
+Soratra is licensed under the [GNU AGPLv3](../LICENSE). Every instance offers its exact source as a download on its About page. If you modify Soratra and let other people use it, that archive keeps you covered as long as you build from your modified source. If you host the source elsewhere instead, set `SOURCE_CODE_URL` to it; a link to the upstream repository alone isn't enough for a modified version.
+
+## What Soratra doesn't do
+
+Instances don't connect to each other. There is no journal import, offline book catalog, native app, or email of any kind.
 
 ## Contributor setup
 
-Use Node.js 24 LTS and npm. Generate configuration in a fresh checkout with `node scripts/setup.mjs`, then copy `.env` to `.env.local` if you want separate local Next.js overrides. Never copy a hosted instance's environment file into a test installation.
-
-Start the database-only Compose stack, install dependencies, and migrate before starting Next.js. This stack exposes PostgreSQL on `127.0.0.1:5432`. Do not run it alongside another database already using that port. Next.js and database npm scripts load `.env` and optional `.env.local` overrides.
-
-```sh
-node scripts/setup.mjs
-docker compose -f compose.dev.yaml up -d --wait
-npm ci
-npm run db:migrate
-npm run dev
-```
-
-For a schema change, edit `src/server/db/schema.ts`, run `npm run db:generate` with your local environment, inspect the generated migration, and run `npm run db:migrate` on a safe database. Do not hand-edit generated migrations.
-
-### Verification
-
-```sh
-npx tsc --noEmit
-npm test
-npm run test:setup
-npm run build
-npm audit --omit=dev --audit-level=high
-```
-
-The Open Library unit tests use mocked responses. Playwright uses a local Open Library fixture server and generates test accounts. Configure a separate disposable PostgreSQL database, apply migrations to it, and install Chromium with `npx playwright install chromium` before `npm run test:e2e`. Never point Playwright at a production database. `E2E=true` bypasses application rate limits and must not be enabled on a shared instance.
-
-## Network dependencies and limitations
-
-Book search and metadata use Open Library; cover images come from its cover service through Next.js image optimization. The server-side metadata client does not forward readers' IP addresses. Your saved shelves and journal do not require fresh metadata lookups on each visit.
-
-Resend handles password-reset delivery when enabled. Configure operational logs and backups privately; the app's logs deliberately avoid reading notes and account identifiers. There is no analytics or advertising integration.
-
-This distribution is a self-hosted web app. It does not include federation between instances, journal import, an offline catalog, a native app, billing, or automatic device synchronization between separate installations.
+Working on Soratra itself? See [CONTRIBUTING.md](../CONTRIBUTING.md).

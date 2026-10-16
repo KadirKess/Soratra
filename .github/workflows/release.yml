@@ -1,7 +1,8 @@
 name: Release
 
-# Pushing a tag such as v1.2.0 runs the full checks, then publishes
-# ghcr.io/kadirkess/soratra:1.2.0, :1.2, :1 and :latest for amd64 and arm64.
+# Pushing a tag such as v1.2.0 runs the full checks, publishes
+# ghcr.io/kadirkess/soratra:1.2.0, :1.2, :1 and :latest for amd64 and arm64,
+# then creates the GitHub release with compose.yaml attached.
 on:
   push:
     tags: ['v*.*.*']
@@ -102,3 +103,16 @@ jobs:
             $(printf "$IMAGE@sha256:%s " *)
       - name: Show the published image
         run: docker buildx imagetools inspect "$IMAGE:${{ steps.meta.outputs.version }}"
+
+  # The README's install command downloads these from the latest release.
+  release-files:
+    needs: publish
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Create the GitHub release with the install files
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "$GITHUB_REF_NAME" compose.yaml compose.caddy.yaml .env.example --verify-tag --generate-notes --title "Soratra ${GITHUB_REF_NAME#v}"

@@ -112,7 +112,7 @@ h1 { font: 600 56px/1.06 Cormorant, serif; margin: 0; }
     <section class="card browser">
       <div class="browser-bar">localhost:3000</div>
       <h2>Your browser</h2>
-      <p>Open Soratra.<br>Create an account.<br>Start your journal.</p>
+      <p>Open Soratra.<br>Create your account.<br>Invite your friends.</p>
     </section>
     <div class="arrow" aria-hidden="true">&#8594;</div>
     <section class="stack">
@@ -121,10 +121,10 @@ h1 { font: 600 56px/1.06 Cormorant, serif; margin: 0; }
         <div class="service"><h2>Soratra app</h2><p>Shelves, sessions, friends,<br>and account settings.</p></div>
         <div class="service"><h2>PostgreSQL</h2><p>Accounts and reading data<br>in a persistent volume.</p></div>
       </div>
-      <div class="maintenance"><span class="tag">Migrations before startup</span><span class="tag">Daily deletion cleanup</span></div>
-      <p class="database-note">Stopping containers keeps your data. Backups are your responsibility.</p>
+      <div class="maintenance"><span class="tag">Updates the database on start</span><span class="tag">Daily backups in ./backups</span><span class="tag">Daily cleanup</span></div>
+      <p class="database-note">Stopping containers keeps your data. Copy your backups somewhere safe.</p>
     </section>
   </div>
-  <div class="footer">Open Library supplies book metadata. Optional Resend delivery enables password recovery.</div>
+  <div class="footer">Open Library supplies book metadata. Soratra sends no email.</div>
 </figure>
 </html>
