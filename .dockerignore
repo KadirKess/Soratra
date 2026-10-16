@@ -18,7 +18,6 @@
 !TRADEMARKS.md
 !.gitignore
 !.nvmrc
-!AGENTS.md
 !.env.example
 !src/
 !src/**

@@ -1,0 +1,206 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { trpc } from '@/lib/trpc/client'
+import { useConfirm } from '@/components/ui/ConfirmDialog'
+import { CopyLink } from '@/components/ui/CopyLink'
+
+const dateFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+const dateTimeFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
+
+type Registration = 'invite' | 'open'
+
+const registrationOptions: { value: Registration; title: string; copy: string }[] = [
+  { value: 'invite', title: 'Only people I invite', copy: 'New readers need a one-time invite link from you.' },
+  { value: 'open', title: 'Anyone who can open this page', copy: 'Fine on a home network or Tailscale. Think twice on a public domain.' },
+]
+
+export function AdminPanel({ welcome }: { welcome: boolean }) {
+  const utils = trpc.useUtils()
+  const confirm = useConfirm()
+  const overview = trpc.admin.overview.useQuery()
+  const [newInvite, setNewInvite] = useState<{ path: string; expiresAt: Date } | null>(null)
+  const [resetLink, setResetLink] = useState<{ userId: string; path: string; expiresAt: Date } | null>(null)
+
+  const createInvite = trpc.admin.createInvite.useMutation({
+    onSuccess: (invite) => {
+      setNewInvite(invite)
+      void utils.admin.overview.invalidate()
+    },
+    onError: (error) => toast.error(error.message),
+  })
+  const revokeInvite = trpc.admin.revokeInvite.useMutation({
+    onSuccess: () => {
+      toast.success('Invite link revoked.')
+      void utils.admin.overview.invalidate()
+    },
+    onError: (error) => toast.error(error.message),
+  })
+  const createResetLink = trpc.admin.createResetLink.useMutation({
+    onSuccess: (link, input) => setResetLink({ userId: input.userId, path: link.path, expiresAt: link.expiresAt }),
+    onError: (error) => toast.error(error.message),
+  })
+
+  async function handleRevoke(id: string) {
+    const ok = await confirm({
+      title: 'Revoke invite?',
+      message: 'Anyone holding this link will no longer be able to join with it.',
+      confirmLabel: 'Revoke',
+      danger: true,
+    })
+    if (ok) revokeInvite.mutate({ id })
+  }
+
+  async function handleResetLink(userId: string, username: string) {
+    const ok = await confirm({
+      title: `Help @${username} back in?`,
+      message: `This makes a one-time link that lets @${username} choose a new password. Their current password stops working once they use it. Only send it to them.`,
+      confirmLabel: 'Make link',
+    })
+    if (ok) createResetLink.mutate({ userId })
+  }
+
+  if (overview.isLoading) return <p className="text-sm" style={{ color: 'var(--muted)' }}>Loading your instance...</p>
+  if (!overview.data) return <p className="text-sm" style={{ color: 'var(--muted)' }}>We could not load your instance. Refresh to try again.</p>
+  const { members, pendingInvites, acceptedInvites, settings } = overview.data
+
+  return (
+    <div className="space-y-8 max-w-2xl">
+      <div className="space-y-2">
+        <h1 className="text-4xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>Your Soratra</h1>
+        <p className="text-sm" style={{ color: 'var(--muted)' }}>
+          Who reads here, and how new readers join. You never see anyone&apos;s shelves or journal from this page.
+        </p>
+      </div>
+
+      {welcome && (
+        <p className="auth-notice" role="status">
+          You&apos;re all set. Make an invite link below and send it to a friend however you like.
+        </p>
+      )}
+
+      <section className="brutalist-card p-5 space-y-4" style={{ background: 'var(--sage)' }} aria-labelledby="invite-heading">
+        <div>
+          <h2 id="invite-heading" className="text-xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>Invite someone</h2>
+          <p className="text-sm mt-1" style={{ color: 'var(--muted-strong)' }}>
+            Each link works once and lasts seven days. Send it by message, in person, however you like.
+          </p>
+        </div>
+        {newInvite && (
+          <div className="space-y-2">
+            <CopyLink path={newInvite.path} label="New invite link" />
+            <p className="text-xs" style={{ color: 'var(--muted-strong)' }}>
+              Expires {dateTimeFormat.format(newInvite.expiresAt)}. It won&apos;t be shown again.
+            </p>
+          </div>
+        )}
+        <button type="button" onClick={() => createInvite.mutate()} disabled={createInvite.isPending} className="btn-primary justify-center">
+          {createInvite.isPending ? 'Making link...' : newInvite ? 'Make another link' : 'Make an invite link'}
+        </button>
+        {(pendingInvites.length > 0 || acceptedInvites.length > 0) && (
+          <ul className="space-y-2 text-sm">
+            {pendingInvites.map((invite) => (
+              <li key={invite.id} className="flex items-center justify-between gap-3 border-t-2 pt-2" style={{ borderColor: 'var(--border)' }}>
+                <span>Unused link, expires {dateFormat.format(invite.expiresAt)}</span>
+                <button type="button" onClick={() => handleRevoke(invite.id)} disabled={revokeInvite.isPending} className="btn-ghost text-xs">Revoke</button>
+              </li>
+            ))}
+            {acceptedInvites.map((invite) => (
+              <li key={invite.id} className="border-t-2 pt-2" style={{ borderColor: 'var(--border)', color: 'var(--muted-strong)' }}>
+                {invite.username ? <>Joined as <strong>@{invite.username}</strong></> : 'Used'} on {dateFormat.format(invite.usedAt)}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="space-y-3" aria-labelledby="members-heading">
+        <h2 id="members-heading" className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
+          Readers · {members.length}
+        </h2>
+        {members.map((member) => (
+          <div key={member.id} className="brutalist-card p-4 space-y-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="font-semibold text-sm truncate">@{member.username}{member.isAdmin && <span className="ml-2 text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--accent-ink)' }}>You</span>}</p>
+                <p className="text-xs" style={{ color: 'var(--muted)' }}>Joined {dateFormat.format(member.createdAt)}</p>
+              </div>
+              {!member.isAdmin && (
+                <button type="button" onClick={() => handleResetLink(member.id, member.username)} disabled={createResetLink.isPending} className="btn-secondary justify-center">
+                  Password reset link
+                </button>
+              )}
+            </div>
+            {resetLink?.userId === member.id && (
+              <div className="space-y-2">
+                <CopyLink path={resetLink.path} label={`Password reset link for ${member.username}`} />
+                <p className="text-xs" style={{ color: 'var(--muted)' }}>
+                  Works once, until {dateTimeFormat.format(resetLink.expiresAt)}. Send it to @{member.username} privately.
+                </p>
+              </div>
+            )}
+          </div>
+        ))}
+      </section>
+
+      <InstanceSettings key={JSON.stringify(settings)} initial={settings} />
+    </div>
+  )
+}
+
+function InstanceSettings({ initial }: { initial: { operatorName: string; contact: string; registration: Registration } }) {
+  const utils = trpc.useUtils()
+  const [operatorName, setOperatorName] = useState(initial.operatorName)
+  const [contact, setContact] = useState(initial.contact)
+  const [registration, setRegistration] = useState<Registration>(initial.registration)
+  const [saved, setSaved] = useState(false)
+  const update = trpc.admin.updateSettings.useMutation({
+    onSuccess: () => {
+      setSaved(true)
+      toast.success('Settings saved.')
+      void utils.admin.overview.invalidate()
+    },
+    onError: (error) => toast.error(error.message),
+  })
+
+  useEffect(() => setSaved(false), [operatorName, contact, registration])
+
+  return (
+    <section className="brutalist-card p-5 space-y-5" style={{ background: 'var(--surface)' }} aria-labelledby="settings-heading">
+      <h2 id="settings-heading" className="text-xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>Settings</h2>
+      <form
+        className="space-y-5"
+        onSubmit={(event) => {
+          event.preventDefault()
+          update.mutate({ operatorName, contact, registration })
+        }}
+      >
+        <fieldset className="choice-list">
+          <legend className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--muted)' }}>Who can join</legend>
+          {registrationOptions.map((option) => (
+            <label key={option.value} className="choice-card">
+              <input type="radio" name="registration" value={option.value} checked={registration === option.value} onChange={() => setRegistration(option.value)} />
+              <span className="choice-title">{option.title}</span>
+              <span className="choice-copy">{option.copy}</span>
+            </label>
+          ))}
+        </fieldset>
+
+        <div className="space-y-1.5">
+          <label htmlFor="operator-name" className="block text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>Your name, as readers see it</label>
+          <input id="operator-name" value={operatorName} onChange={(event) => setOperatorName(event.target.value)} maxLength={80} placeholder="Defaults to your username" className="auth-input" />
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="operator-contact" className="block text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>How readers can reach you</label>
+          <input id="operator-contact" value={contact} onChange={(event) => setContact(event.target.value)} maxLength={200} placeholder="An email, a link, or a short note" className="auth-input" />
+          <p className="text-xs" style={{ color: 'var(--muted)' }}>Shown on the support, privacy, and forgot-password pages. Optional.</p>
+        </div>
+
+        <button type="submit" disabled={update.isPending} className="btn-primary justify-center">
+          {update.isPending ? 'Saving...' : saved ? 'Saved' : 'Save settings'}
+        </button>
+      </form>
+    </section>
+  )
+}

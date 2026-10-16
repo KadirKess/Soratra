@@ -1,6 +1,5 @@
 import { z } from 'zod'
 import { logExternalRequestMetric } from '@/lib/observability'
-import { siteConfig } from '@/lib/config'
 import { openLibraryLanguageMatches, type CatalogLanguage } from '@/lib/catalogLanguages'
 
 const e2eOpenLibraryBase = process.env.E2E === 'true' ? process.env.E2E_OPEN_LIBRARY_BASE : undefined
@@ -42,7 +41,7 @@ async function olFetch(operation: OLOperation, url: string, init?: OLFetchInit):
   const startedAt = performance.now()
   const { headers: initHeaders, signal: _signal, next, ...requestInit } = init ?? {}
   const headers = new Headers(initHeaders)
-  headers.set('User-Agent', `Soratra (${siteConfig.supportEmail})`)
+  headers.set('User-Agent', 'Soratra (+https://github.com/KadirKess/Soratra)')
 
   try {
     const response = await fetch(url, {

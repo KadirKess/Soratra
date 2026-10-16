@@ -1,6 +1,6 @@
 import {
-  pgTable, uuid, text, timestamp, numeric, integer,
-  uniqueIndex, index, check, foreignKey,
+  pgTable, uuid, text, timestamp, numeric, integer, boolean,
+  uniqueIndex, unique, index, check, foreignKey,
 } from 'drizzle-orm/pg-core'
 import { relations, sql } from 'drizzle-orm'
 
@@ -8,22 +8,18 @@ export const users = pgTable(
   'users',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    email: text('email').notNull().unique(),
     username: text('username').notNull().unique(),
     usernameNormalized: text('username_normalized').generatedAlwaysAs(sql`lower(btrim("username"))`).notNull(),
     // Nullable: soft delete nulls this out (no password rather than a sentinel '').
     passwordHash: text('password_hash'),
     gdprConsentAt: timestamp('gdpr_consent_at', { withTimezone: true }).notNull(),
     gdprConsentVersion: text('gdpr_consent_version').notNull(),
-    dataExportRequestedAt: timestamp('data_export_requested_at', { withTimezone: true }),
+    // The account that ran first-run setup. Only one can exist.
+    isAdmin: boolean('is_admin').notNull().default(false),
     timezone: text('timezone'),
     preferredLanguage: text('preferred_language').notNull().default('en'),
     authVersion: integer('auth_version').notNull().default(0),
     activeDataVersion: integer('active_data_version').notNull().default(1),
-    isPro: integer('is_pro').notNull().default(0),
-    purchasedFreezes: integer('purchased_freezes').notNull().default(0),
-    periodicFreezeUsed: integer('periodic_freeze_used').notNull().default(0),
-    freezePeriodStart: text('freeze_period_start'),
     weeklyFreezeUsed: integer('weekly_freeze_used').notNull().default(0),
     freezeWeekStart: text('freeze_week_start'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -32,7 +28,9 @@ export const users = pgTable(
   },
   (t) => [
     uniqueIndex('users_username_normalized_unique').on(t.usernameNormalized),
-    uniqueIndex('users_id_active_data_version_unique').on(t.id, t.activeDataVersion),
+    // A table constraint rather than an index so it exists before the foreign keys that point at it.
+    unique('users_id_active_data_version_unique').on(t.id, t.activeDataVersion),
+    uniqueIndex('users_single_admin_unique').on(t.isAdmin).where(sql`${t.isAdmin}`),
   ],
 )
 
@@ -200,6 +198,40 @@ export const passwordResetTokens = pgTable(
   ],
 )
 
+// Single row (id = 1) holding settings the admin edits in the app, plus the
+// generated auth secret so a database dump is a complete backup.
+export const instanceSettings = pgTable(
+  'instance_settings',
+  {
+    id: integer('id').primaryKey().default(1),
+    authSecret: text('auth_secret').notNull(),
+    operatorName: text('operator_name'),
+    contact: text('contact'),
+    registration: text('registration').notNull().default('invite'), // 'invite' | 'open'
+    setupCompletedAt: timestamp('setup_completed_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    check('instance_settings_single_row_check', sql`${t.id} = 1`),
+    check('instance_settings_registration_check', sql`${t.registration} in ('invite', 'open')`),
+  ],
+)
+
+export const invites = pgTable(
+  'invites',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    tokenHash: text('token_hash').notNull().unique(),
+    createdBy: uuid('created_by').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    usedAt: timestamp('used_at', { withTimezone: true }),
+    usedBy: uuid('used_by').references(() => users.id, { onDelete: 'set null' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('invites_expires_at_idx').on(t.expiresAt)],
+)
+
 export const rateLimitBuckets = pgTable(
   'rate_limit_buckets',
   {
@@ -262,3 +294,5 @@ export type Friendship = typeof friendships.$inferSelect
 export type StreakFreeze = typeof streakFreezes.$inferSelect
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect
 export type RateLimitBucket = typeof rateLimitBuckets.$inferSelect
+export type InstanceSettings = typeof instanceSettings.$inferSelect
+export type Invite = typeof invites.$inferSelect

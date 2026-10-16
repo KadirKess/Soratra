@@ -84,7 +84,7 @@ async function fetchPage(source: PopularCatalogSource, page: number) {
   for (let attempt = 1; attempt <= MAX_REQUEST_ATTEMPTS; attempt += 1) {
     try {
       const response = await fetch(buildPopularCatalogSearchUrl(source, page, PAGE_SIZE), {
-        headers: { 'User-Agent': `Soratra popular catalog seed (${process.env.SUPPORT_EMAIL || 'self-hosted instance'})` },
+        headers: { 'User-Agent': 'Soratra popular catalog seed (+https://github.com/KadirKess/Soratra)' },
         signal: AbortSignal.timeout(timeout),
       })
 

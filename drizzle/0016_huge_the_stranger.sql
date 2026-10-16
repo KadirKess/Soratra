@@ -1,1 +1,0 @@
-ALTER TABLE "reading_sessions" ADD COLUMN "revision" integer DEFAULT 1 NOT NULL;

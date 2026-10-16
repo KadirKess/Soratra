@@ -24,8 +24,8 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: 'Confirmation is required.' }, { status: 400 })
   }
-  const confirmationEmail = typeof body === 'object' && body && 'email' in body && typeof body.email === 'string'
-    ? body.email.trim().toLowerCase()
+  const confirmationUsername = typeof body === 'object' && body && 'username' in body && typeof body.username === 'string'
+    ? body.username.trim().toLowerCase()
     : ''
   const currentPassword = typeof body === 'object' && body && 'currentPassword' in body && typeof body.currentPassword === 'string'
     ? body.currentPassword
@@ -34,12 +34,15 @@ export async function POST(req: Request) {
   const userId = session.user.id
   const activeUser = await db.query.users.findFirst({
     where: and(eq(users.id, userId), isNull(users.deletedAt)),
-    columns: { id: true, authVersion: true, email: true, passwordHash: true },
+    columns: { id: true, authVersion: true, username: true, isAdmin: true, passwordHash: true },
   })
   if (!activeUser || activeUser.authVersion !== session.user.authVersion) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-  if (confirmationEmail !== activeUser.email) {
+  if (activeUser.isAdmin) {
+    return NextResponse.json({ error: 'You run this instance, so your account cannot be deleted from here.' }, { status: 409 })
+  }
+  if (confirmationUsername !== activeUser.username.toLowerCase()) {
     return NextResponse.json({ error: 'Confirmation does not match.' }, { status: 400 })
   }
   if (currentPassword.length > MAX_PASSWORD_LENGTH || !activeUser.passwordHash || !await bcrypt.compare(currentPassword, activeUser.passwordHash)) {
@@ -49,16 +52,10 @@ export async function POST(req: Request) {
   await db.transaction(async (tx) => {
     const [deletedUser] = await tx.update(users)
       .set({
-        email: `deleted-${userId}@deleted.invalid`,
         username: `deleted-${userId.slice(0, 8)}`,
         passwordHash: null,
         timezone: null,
         preferredLanguage: 'en',
-        dataExportRequestedAt: null,
-        isPro: 0,
-        purchasedFreezes: 0,
-        periodicFreezeUsed: 0,
-        freezePeriodStart: null,
         weeklyFreezeUsed: 0,
         freezeWeekStart: null,
         authVersion: activeUser.authVersion + 1,

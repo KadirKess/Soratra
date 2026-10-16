@@ -15,7 +15,7 @@ import { db } from '@/server/db'
 
 const userId = '11111111-1111-1111-1111-111111111111'
 
-function setupDatabase(active = true) {
+function setupDatabase(active = true, isAdmin = false) {
   const returning = vi.fn().mockResolvedValue([{ id: userId }])
   const where = vi.fn(() => ({ returning }))
   const set = vi.fn(() => ({ where }))
@@ -24,12 +24,12 @@ function setupDatabase(active = true) {
     update: vi.fn(() => ({ set })),
   }
   const dbMock = db as unknown as Record<string, unknown>
-  dbMock.query = { users: { findFirst: vi.fn().mockResolvedValue(active ? { id: userId, authVersion: 0, email: 'reader@example.com', passwordHash: 'hash' } : null) } }
+  dbMock.query = { users: { findFirst: vi.fn().mockResolvedValue(active ? { id: userId, authVersion: 0, username: 'Reader_One', isAdmin, passwordHash: 'hash' } : null) } }
   dbMock.transaction = vi.fn(async (callback: (value: typeof tx) => Promise<void>) => callback(tx))
   return { tx, set }
 }
 
-function deleteRequest(body: Record<string, string> = { email: 'reader@example.com', currentPassword: 'correct-password' }, origin?: string) {
+function deleteRequest(body: Record<string, string> = { username: 'reader_one', currentPassword: 'correct-password' }, origin?: string) {
   return new Request('https://instance.test/api/profile/delete', {
     method: 'POST',
     headers: { 'content-type': 'application/json', ...(origin ? { origin } : {}) },
@@ -76,10 +76,10 @@ describe('POST /api/profile/delete', () => {
     expect(cookies).toContain('__Secure-authjs.session-token=')
   })
 
-  it('requires a matching email confirmation', async () => {
+  it('requires a matching username confirmation', async () => {
     auth.mockResolvedValue({ user: { id: userId, authVersion: 0 } })
     const { tx } = setupDatabase()
-    const response = await POST(deleteRequest({ email: 'other@example.com', currentPassword: 'correct-password' }))
+    const response = await POST(deleteRequest({ username: 'someone_else', currentPassword: 'correct-password' }))
     expect(response.status).toBe(400)
     expect(tx.delete).not.toHaveBeenCalled()
   })
@@ -87,8 +87,17 @@ describe('POST /api/profile/delete', () => {
   it('rejects cross-origin requests', async () => {
     auth.mockResolvedValue({ user: { id: userId, authVersion: 0 } })
     const { tx } = setupDatabase()
-    const response = await POST(deleteRequest({ email: 'reader@example.com', currentPassword: 'correct-password' }, 'https://attacker.example'))
+    const response = await POST(deleteRequest({ username: 'reader_one', currentPassword: 'correct-password' }, 'https://attacker.example'))
     expect(response.status).toBe(403)
+    expect(tx.delete).not.toHaveBeenCalled()
+  })
+
+  it('keeps the admin account, so the instance always has someone running it', async () => {
+    auth.mockResolvedValue({ user: { id: userId, authVersion: 0 } })
+    const { tx } = setupDatabase(true, true)
+    const response = await POST(deleteRequest())
+    expect(response.status).toBe(409)
+    expect(tx.update).not.toHaveBeenCalled()
     expect(tx.delete).not.toHaveBeenCalled()
   })
 

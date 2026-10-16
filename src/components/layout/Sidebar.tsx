@@ -19,7 +19,7 @@ const links = [
 	{ href: "/profile", label: "Profile" },
 ];
 
-export function Sidebar({ supportEmail }: { supportEmail: string }) {
+export function Sidebar({ operatorName, contact }: { operatorName: string; contact: string | null }) {
 	const path = usePathname();
 	const pendingRequests = useFriendSummary();
 
@@ -95,10 +95,10 @@ export function Sidebar({ supportEmail }: { supportEmail: string }) {
 						Instance support
 					</p>
 					<p className="text-xs leading-5" style={{ color: "var(--muted)" }}>
-						Feedback or a bug? Write to
-						<a href={`mailto:${supportEmail}`} className="block w-fit max-w-full whitespace-nowrap font-semibold hover:underline" style={{ color: "var(--fg)" }}>
-							{supportEmail}
-						</a>
+						Forgot a password or found a bug? Ask
+						<span className="block w-fit max-w-full truncate font-semibold" style={{ color: "var(--fg)" }}>
+							{contact ?? operatorName}
+						</span>
 					</p>
 				</div>
 

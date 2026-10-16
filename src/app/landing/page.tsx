@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { auth } from '@/server/auth'
 import { redirect } from 'next/navigation'
 import { siteConfig } from '@/lib/config'
+import { requireSetup } from '@/server/setupGate'
 
 export const metadata: Metadata = {
   title: { absolute: 'Book Tracker & Reading Journal | Soratra' },
@@ -47,6 +48,7 @@ const principles = [
 ]
 
 export default async function LandingPage() {
+  await requireSetup()
   const session = await auth()
   if (session) redirect('/')
 
@@ -57,7 +59,6 @@ export default async function LandingPage() {
         '@type': 'Organization',
         name: 'Soratra',
         url: siteConfig.siteUrl,
-        email: siteConfig.supportEmail,
       },
       {
         '@type': 'WebApplication',

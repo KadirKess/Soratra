@@ -630,6 +630,89 @@ main {
   font-weight: 600;
 }
 
+.auth-card--wide {
+  max-width: 30rem;
+}
+
+.auth-step {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+/* Radio options drawn as cards; the real input stays for keyboards and screen readers. */
+.choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.choice-card {
+  position: relative;
+  display: block;
+  padding: 0.75rem 0.9rem 0.75rem 2.6rem;
+  background: var(--bg);
+  border: 2px solid var(--fg);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: box-shadow 0.1s, transform 0.1s, background 0.1s;
+}
+
+.choice-card input {
+  position: absolute;
+  left: 0.95rem;
+  top: 0.95rem;
+  accent-color: var(--accent);
+}
+
+.choice-card:has(input:checked) {
+  background: var(--straw);
+  box-shadow: 3px 3px 0 var(--fg);
+}
+
+.choice-card:has(input:focus-visible) {
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 2px;
+}
+
+.choice-title {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.choice-copy {
+  display: block;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--muted-strong);
+}
+
+.link-box {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.link-box input {
+  flex: 1;
+  min-width: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .choice-card {
+    transition: none;
+  }
+}
+
 .public-page-frame {
   margin: 0 auto;
   min-height: 100vh;
