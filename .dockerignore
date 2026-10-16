@@ -8,7 +8,6 @@
 !vitest.config.ts
 !playwright.config.ts
 !Dockerfile
-!soratra.sh
 !.dockerignore
 !compose*.yaml
 !README.md

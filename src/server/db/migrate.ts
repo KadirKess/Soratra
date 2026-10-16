@@ -8,7 +8,8 @@ async function main() {
     throw new Error('POSTGRES_URL is required to run migrations.')
   }
 
-  const client = postgres(connectionString, { max: 1 })
+  // Notices like "schema already exists, skipping" would clutter every startup log.
+  const client = postgres(connectionString, { max: 1, onnotice: () => {} })
   try {
     await migrate(drizzle(client), { migrationsFolder: 'drizzle' })
   } finally {

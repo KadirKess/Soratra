@@ -5,7 +5,7 @@ import { join } from 'node:path'
 const roots = ['src', 'drizzle', 'e2e', 'scripts', 'docker', '.github', 'LICENSES', 'docs', 'public']
 const rootFiles = [
   'LICENSE', 'NOTICE', 'TRADEMARKS.md', 'README.md', 'CONTRIBUTING.md', '.env.example',
-  '.gitignore', '.dockerignore', '.nvmrc', 'Dockerfile', 'soratra.sh', 'package.json', 'package-lock.json',
+  '.gitignore', '.dockerignore', '.nvmrc', 'Dockerfile', 'package.json', 'package-lock.json',
   'next.config.ts', 'tsconfig.json', 'vitest.config.ts', 'playwright.config.ts',
   'postcss.config.mjs', 'drizzle.config.ts',
 ]

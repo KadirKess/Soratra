@@ -1,3 +1,5 @@
+# Database for working on Soratra with `npm run dev`. Listens on this computer
+# only, with a fixed development password that matches .env.example.
 name: soratra-dev
 
 services:
@@ -6,7 +8,7 @@ services:
     environment:
       POSTGRES_DB: soratra
       POSTGRES_USER: soratra
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run ./scripts/setup.sh first}
+      POSTGRES_PASSWORD: soratra
     ports:
       - '127.0.0.1:5432:5432'
     volumes:

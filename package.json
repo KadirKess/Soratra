@@ -15,8 +15,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "E2E=true playwright test",
-    "typecheck": "tsc --noEmit",
-    "test:setup": "node --test scripts/setup.test.mjs scripts/launcher.test.mjs"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",
