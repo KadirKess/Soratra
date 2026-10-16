@@ -1,7 +1,7 @@
 'use client'
 import { trpc } from '@/lib/trpc/client'
 import { StarRating } from './StarRating'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, type CSSProperties } from 'react'
 import { toast } from 'sonner'
 import { useConfirm } from '@/components/ui/ConfirmDialog'
 import { celebrateFinished } from '@/lib/celebrate'
@@ -143,12 +143,10 @@ export function LogBookForm({ bookId }: LogBookFormProps) {
   }
 
   return (
-    <div className="brutalist-card space-y-5 p-5">
+    <div className="brutalist-card space-y-5 p-5 sm:p-6">
       {/* Status */}
       <div>
-        <p className="text-xs font-bold mb-2.5 uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
-          Status
-        </p>
+        <p className="eyebrow mb-2.5">Status</p>
         <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label="Reading status">
           {STATUS_OPTIONS.map(({ value, label, bg }) => {
             const active = status === value
@@ -159,14 +157,8 @@ export function LogBookForm({ bookId }: LogBookFormProps) {
                 onClick={() => selectStatus(value)}
                 role="radio"
                 aria-checked={active}
-                className="px-3 py-1.5 text-xs font-bold transition-all"
-                style={{
-                  background: active ? bg : 'transparent',
-                  color: 'var(--fg)',
-                  border: `2px solid ${active ? 'var(--fg)' : 'var(--muted)'}`,
-                  borderRadius: '8px',
-                  boxShadow: active ? '2px 2px 0 var(--fg)' : 'none',
-                }}
+                className="chip"
+                style={{ '--chip-bg': bg, '--chip-fg': 'var(--fg)' } as CSSProperties}
               >
                 {label}
               </button>
@@ -178,14 +170,14 @@ export function LogBookForm({ bookId }: LogBookFormProps) {
       {status === 'read' && (
         <>
           <div>
-            <p className="text-xs font-bold mb-2.5 uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
+            <p className="eyebrow mb-2.5">
               Rating
             </p>
             <StarRating value={rating} onChange={setRating} />
           </div>
 
           <div>
-            <p className="text-xs font-bold mb-2.5 uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
+            <p className="eyebrow mb-2.5">
               Review
             </p>
             <label className="sr-only" htmlFor="book-review">Your note about this book</label>

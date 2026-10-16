@@ -31,8 +31,9 @@ export function CheckInCard({ book, userBookId, loggedToday, todayDate, variant 
 		<Link
 			href={bookHref}
 			aria-label={`View ${book.title}`}
-			className="shrink-0 rounded-lg overflow-hidden"
+			className="shrink-0 overflow-hidden"
 			style={{
+				borderRadius: "var(--radius-cover)",
 				width: coverWidth,
 				height: coverHeight,
 				border: "2px solid var(--fg)",
@@ -64,7 +65,7 @@ export function CheckInCard({ book, userBookId, loggedToday, todayDate, variant 
 	const details = (
 		<div className="flex-1 min-w-0">
 			{isFeatured && (
-				<p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "var(--muted)" }}>
+				<p className="eyebrow mb-2">
 					Reading now
 				</p>
 			)}
@@ -111,7 +112,7 @@ export function CheckInCard({ book, userBookId, loggedToday, todayDate, variant 
 				</article>
 			) : (
 				<article
-					className="w-full brutalist-card p-4 flex gap-3 items-start"
+					className="w-full card-flat p-4 flex gap-3 items-start"
 					style={{
 						background: "var(--surface)",
 						position: "relative",

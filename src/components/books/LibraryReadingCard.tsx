@@ -21,9 +21,9 @@ export function LibraryReadingCard({ book, loggedToday, todayDate }: LibraryRead
 	const handleSuccess = useCheckInSuccess();
 
 	return (
-		<article className="brutalist-card p-3 flex flex-col h-full gap-3" style={{ background: loggedToday ? "var(--sage)" : "var(--surface)" }}>
+		<article className={`brutalist-card ${loggedToday ? "tint-sage" : ""} p-3 flex flex-col h-full gap-3`}>
 			<Link href={`/books/${encodeURIComponent(book.openLibraryId)}`} prefetch={false} className="group block">
-				<div className="relative overflow-hidden rounded-md" style={{ aspectRatio: "2 / 3", border: "2px solid var(--fg)" }}>
+				<div className="relative overflow-hidden" style={{ aspectRatio: "2 / 3", border: "2px solid var(--fg)", borderRadius: "var(--radius-cover)" }}>
 					{book.coverUrl && !imageFailed ? (
 						<Image src={book.coverUrl} alt={book.title} fill sizes="(max-width: 768px) 50vw, 200px" className="object-cover transition-transform duration-300 group-hover:scale-105" onError={() => setImageFailed(true)} />
 					) : (

@@ -7,8 +7,7 @@ export function StreakBadge({ streak }: Props) {
 		<div className="flex items-end justify-between">
 			<div>
 				<p
-					className="text-xs font-bold uppercase tracking-widest mb-1"
-					style={{ color: "var(--muted)" }}
+					className="eyebrow mb-1"
 				>
 					Reading streak
 				</p>

@@ -26,7 +26,7 @@ export function ShelfPickCard({ book, onPickAnother, pickingAnother, canPickAnot
 	});
 
 	return (
-		<section aria-labelledby="from-shelf-title" className="brutalist-card overflow-hidden" style={{ background: "var(--sky)" }}>
+		<section aria-labelledby="from-shelf-title" className="card-flat overflow-hidden">
 				<div className="grid sm:grid-cols-[7rem_minmax(0,1fr)]">
 					<Link href={`/books/${encodeURIComponent(book.openLibraryId)}`} aria-label={`View ${book.title}`} className="relative min-h-48 sm:min-h-full block brutalist-card-hover" style={{ background: "rgba(255,255,255,0.28)", borderRadius: 0, boxShadow: "none" }}>
 						{book.coverUrl ? (
@@ -39,7 +39,7 @@ export function ShelfPickCard({ book, onPickAnother, pickingAnother, canPickAnot
 					</Link>
 					<div className="p-5 flex flex-col gap-3">
 						<div>
-							<p className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>From your shelf</p>
+							<p className="eyebrow">From your shelf</p>
 							<h2 id="from-shelf-title" className="font-bold leading-tight mt-1" style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.75rem" }}><Link href={`/books/${encodeURIComponent(book.openLibraryId)}`} className="hover:underline">{book.title}</Link></h2>
 							<p className="text-sm mt-1" style={{ color: "var(--muted)" }}>{book.authors.join(", ")}</p>
 							<p className="text-sm mt-3" style={{ color: "var(--fg)", opacity: 0.8 }}>You saved this for later.</p>

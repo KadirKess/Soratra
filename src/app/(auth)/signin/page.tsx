@@ -67,13 +67,13 @@ export default function SignInPage() {
       </p>
       {successNotice && <p className="auth-notice" role="status">{successNotice}</p>}
       <form method="post" onSubmit={handleSubmit} noValidate className="auth-form">
-        <label htmlFor="signin-username" className="sr-only">Username</label>
-        <input id="signin-username" name="username" type="text" placeholder="Username" required autoComplete="username" autoCapitalize="none" spellCheck={false} aria-invalid={Boolean(usernameError)} aria-describedby={usernameError ? 'signin-username-error' : undefined} onChange={(event) => {
+        <label htmlFor="signin-username" className="field-label">Username</label>
+        <input id="signin-username" name="username" type="text" required autoComplete="username" autoCapitalize="none" spellCheck={false} aria-invalid={Boolean(usernameError)} aria-describedby={usernameError ? 'signin-username-error' : undefined} onChange={(event) => {
           if (usernameError && event.currentTarget.value.trim()) setUsernameError(null)
         }} className="auth-input" />
         {usernameError && <p id="signin-username-error" className="auth-field-error">{usernameError}</p>}
-        <label htmlFor="signin-password" className="sr-only">Password</label>
-        <PasswordInput id="signin-password" name="password" placeholder="Password" required minLength={8} autoComplete="current-password" className="auth-input" />
+        <label htmlFor="signin-password" className="field-label">Password</label>
+        <PasswordInput id="signin-password" name="password" required minLength={8} autoComplete="current-password" className="auth-input" />
         {error && (
           <p className="auth-error" role="alert">
             {error}{error === 'Invalid username or password.' && ' Usernames are not case-sensitive; passwords are.'}

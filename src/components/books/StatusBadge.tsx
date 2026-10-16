@@ -14,8 +14,7 @@ export function StatusBadge({ status }: { status: string }) {
         background: config.bg,
         color: config.color,
         border: '2px solid var(--fg)',
-        borderRadius: '8px',
-        boxShadow: '2px 2px 0 var(--fg)',
+        borderRadius: '999px',
       }}
     >
       {config.label}

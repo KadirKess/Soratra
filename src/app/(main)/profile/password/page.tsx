@@ -36,10 +36,10 @@ export default function ChangePasswordPage() {
 
   return <div className="max-w-md space-y-6">
     <h1 className="text-4xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>Change password</h1>
-    <form method="post" onSubmit={submit} className="brutalist-card p-5 space-y-4">
+    <form method="post" onSubmit={submit} className="brutalist-card p-5 sm:p-6 space-y-4">
       <div><label htmlFor="current-password" className="block text-sm font-semibold mb-1">Current password</label><PasswordInput id="current-password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} minLength={8} required autoComplete="current-password" className="brutalist-input w-full" /></div>
       <div><label htmlFor="replacement-password" className="block text-sm font-semibold mb-1">New password</label><PasswordInput id="replacement-password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} required autoComplete="new-password" className="brutalist-input w-full" /></div>
-      {error && <p role="alert" className="text-sm" style={{ color: 'var(--accent)' }}>{error}</p>}
+      {error && <p role="alert" className="form-error">{error}</p>}
       <button type="submit" disabled={loading} className="btn-primary">{loading ? 'Saving...' : 'Change password'}</button>
     </form>
   </div>

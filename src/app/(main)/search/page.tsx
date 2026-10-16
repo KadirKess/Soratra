@@ -30,7 +30,7 @@ function SearchResults({ query }: { query: string }) {
 
 	if (isError) {
 		return (
-			<div className="brutalist-card p-4 flex flex-wrap items-center justify-between gap-3" style={{ background: "var(--blush)" }}>
+			<div className="card-flat p-4 flex flex-wrap items-center justify-between gap-3 tint-blush">
 				<p className="text-sm font-medium" style={{ color: "var(--fg)" }}>
 					Search failed. Your query is still here when you are ready to retry.
 				</p>
@@ -45,7 +45,7 @@ function SearchResults({ query }: { query: string }) {
 
 	if (!works.length) {
 		return (
-			<div className="brutalist-card p-4 flex flex-wrap items-center justify-between gap-3" style={{ background: "var(--blush)" }}>
+			<div className="card-flat p-4 flex flex-wrap items-center justify-between gap-3 tint-blush">
 				<p className="text-sm font-medium" style={{ color: "var(--fg)" }}>
 					{data?.unavailable
 						? "The catalog is temporarily unavailable. Please try again shortly."
@@ -63,7 +63,7 @@ function SearchResults({ query }: { query: string }) {
 	return (
 		<>
 			{data?.unavailable && (
-				<div className="brutalist-card p-4" style={{ background: "var(--blush)" }}>
+				<div className="card-flat p-4 tint-blush">
 					<p className="text-sm font-medium" style={{ color: "var(--fg)" }}>
 						The live catalog is temporarily unavailable. Showing matching books already in Soratra.
 					</p>

@@ -46,11 +46,12 @@ export default async function BookPage({ params }: PageProps) {
 				{/* Cover */}
 				<div className="shrink-0 w-40 sm:w-52">
 					<div
-						className="relative rounded-xl overflow-hidden"
+						className="relative overflow-hidden"
 						style={{
 							aspectRatio: "2/3",
+							borderRadius: "var(--radius-cover)",
 							border: "2px solid var(--fg)",
-							boxShadow: "4px 4px 0 var(--fg)",
+							boxShadow: "var(--shadow-raised)",
 						}}
 					>
 						{dbBook.coverUrl ? (
@@ -64,7 +65,7 @@ export default async function BookPage({ params }: PageProps) {
 							/>
 						) : (
 							<div
-								className="w-full h-full flex items-end p-4 rounded-[10px]"
+								className="w-full h-full flex items-end p-4"
 								style={{
 									background: getPastelColor(dbBook.title),
 									border: "2px solid var(--fg)",
@@ -121,17 +122,7 @@ export default async function BookPage({ params }: PageProps) {
 					{dbBook.genres.length > 0 && (
 						<div className="flex flex-wrap gap-1.5">
 							{dbBook.genres.map((g) => (
-								<span
-									key={g}
-									className="px-3 py-1 text-xs font-bold"
-									style={{
-										border: "2px solid var(--fg)",
-										borderRadius: "8px",
-										background: "var(--straw)",
-										color: "var(--fg)",
-										boxShadow: "2px 2px 0 var(--fg)",
-									}}
-								>
+								<span key={g} className="tag">
 									{g}
 								</span>
 							))}

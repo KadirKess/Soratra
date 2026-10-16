@@ -38,8 +38,8 @@ export default function ResetPasswordPage() {
     <p className="auth-kicker">Soratra</p>
     <h1 className="auth-title auth-title--standalone">Choose a new password</h1>
     <form method="post" onSubmit={submit} className="auth-form">
-      <label htmlFor="new-password" className="sr-only">New password</label>
-      <PasswordInput id="new-password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} required autoComplete="new-password" className="auth-input" placeholder="New password (min 8 chars)" />
+      <label htmlFor="new-password" className="field-label">New password</label>
+      <PasswordInput id="new-password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} required autoComplete="new-password" className="auth-input" placeholder="At least 8 characters" />
       {error && <p className="auth-error" role="alert">{error}</p>}
       <button type="submit" disabled={loading || !token} className="auth-btn">{loading ? 'Saving...' : 'Reset password'}</button>
     </form>

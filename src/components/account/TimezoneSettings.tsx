@@ -19,9 +19,9 @@ export function TimezoneSettings() {
   const save = trpc.users.setTimezone.useMutation()
   const timeZones = getTimeZones()
 
-  return <div className="brutalist-card p-5 space-y-3">
+  return <div className="brutalist-card p-5 sm:p-6 space-y-3">
     <div>
-      <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>Reading day</p>
+      <p className="eyebrow">Reading day</p>
       <p className="text-sm mt-1" style={{ color: 'var(--muted)' }}>Your streak and check-ins use this time zone.</p>
     </div>
     <label htmlFor="timezone" className="text-sm font-semibold">Time zone</label>
@@ -29,7 +29,7 @@ export function TimezoneSettings() {
       {timeZones.map((zone) => <option key={zone} value={zone}>{zone}</option>)}
     </select>
     <p id="timezone-help" className="text-xs" style={{ color: 'var(--muted)' }}>We detected {Intl.DateTimeFormat().resolvedOptions().timeZone} on this device.</p>
-    {save.error && <p className="text-sm" role="alert" style={{ color: 'var(--accent)' }}>{save.error.message}</p>}
+    {save.error && <p className="form-error" role="alert">{save.error.message}</p>}
     <button type="button" onClick={() => save.mutate({ timezone })} disabled={!me || save.isPending || !timezone} className="btn-secondary">
       {save.isPending ? 'Saving...' : 'Save time zone'}
     </button>

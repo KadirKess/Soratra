@@ -13,8 +13,8 @@ export function CurrentlyReading({ book }: { book: Book }) {
           height: '12rem',
           background: 'var(--surface)',
           border: '2px solid var(--fg)',
-          borderRadius: '12px',
-          boxShadow: '4px 4px 0 var(--fg)',
+          borderRadius: 'var(--radius-card)',
+          boxShadow: 'var(--shadow-raised)',
         }}
       >
         {book.coverUrl && (
@@ -43,8 +43,8 @@ export function CurrentlyReading({ book }: { book: Book }) {
           )}
           <div className="min-w-0">
             <p
-              className="text-xs uppercase tracking-widest mb-1"
-              style={{ color: 'var(--accent)' }}
+              className="eyebrow mb-1"
+              style={{ color: 'var(--accent-ink)' }}
             >
               Currently reading
             </p>

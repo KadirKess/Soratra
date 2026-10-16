@@ -84,13 +84,13 @@ export function SetupForm() {
       </p>
       <form method="post" onSubmit={handleSubmit} noValidate className="auth-form">
         <p className="auth-step">1 · Your account</p>
-        <label htmlFor="setup-username" className="sr-only">Username</label>
-        <input id="setup-username" name="username" type="text" placeholder="Username" required minLength={2} maxLength={30} pattern="[A-Za-z0-9_]+" autoComplete="username" autoFocus aria-invalid={Boolean(fieldErrors.username)} aria-describedby={fieldErrors.username ? 'setup-username-error' : 'setup-username-hint'} className="auth-input" />
+        <label htmlFor="setup-username" className="field-label">Username</label>
+        <input id="setup-username" name="username" type="text" required minLength={2} maxLength={30} pattern="[A-Za-z0-9_]+" autoComplete="username" autoFocus aria-invalid={Boolean(fieldErrors.username)} aria-describedby={fieldErrors.username ? 'setup-username-error' : 'setup-username-hint'} className="auth-input" />
         {fieldErrors.username
           ? <p id="setup-username-error" className="auth-field-error">{fieldErrors.username}</p>
           : <p id="setup-username-hint" className="auth-field-hint">2-30 letters, numbers, or underscores. Friends find you by it.</p>}
-        <label htmlFor="setup-password" className="sr-only">Password</label>
-        <PasswordInput id="setup-password" name="password" placeholder="Password (min 8 chars)" required minLength={8} autoComplete="new-password" aria-invalid={Boolean(fieldErrors.password)} aria-describedby={fieldErrors.password ? 'setup-password-error' : 'setup-password-hint'} className="auth-input" />
+        <label htmlFor="setup-password" className="field-label">Password</label>
+        <PasswordInput id="setup-password" name="password" placeholder="At least 8 characters" required minLength={8} autoComplete="new-password" aria-invalid={Boolean(fieldErrors.password)} aria-describedby={fieldErrors.password ? 'setup-password-error' : 'setup-password-hint'} className="auth-input" />
         {fieldErrors.password
           ? <p id="setup-password-error" className="auth-field-error">{fieldErrors.password}</p>
           : <p id="setup-password-hint" className="auth-field-hint">Soratra does not send email, so keep this somewhere safe.</p>}

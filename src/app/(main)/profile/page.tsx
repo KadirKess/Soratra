@@ -31,8 +31,8 @@ export default async function ProfilePage() {
       </div>
 
       {account?.isAdmin && (
-        <div className="brutalist-card p-5 space-y-3" style={{ background: 'var(--straw)' }}>
-          <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted-strong)' }}>
+        <div className="brutalist-card p-5 sm:p-6 space-y-3 tint-straw">
+          <p className="eyebrow" style={{ color: 'var(--muted-strong)' }}>
             Your instance
           </p>
           <p className="text-sm leading-6" style={{ color: 'var(--muted-strong)' }}>
@@ -42,8 +42,8 @@ export default async function ProfilePage() {
         </div>
       )}
 
-      <div className="brutalist-card p-5 space-y-4">
-        <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
+      <div className="brutalist-card p-5 sm:p-6 space-y-4">
+        <p className="eyebrow">
           Privacy & Data
         </p>
         <div className="flex flex-col gap-2.5">
@@ -67,8 +67,8 @@ export default async function ProfilePage() {
 
       <CatalogLanguageSettings />
 
-      <div className="brutalist-card p-5 space-y-2 md:hidden" style={{ background: 'var(--surface)' }}>
-        <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
+      <div className="brutalist-card p-5 sm:p-6 space-y-2 md:hidden" style={{ background: 'var(--surface)' }}>
+        <p className="eyebrow">
           Instance support
         </p>
         <p className="text-sm leading-6" style={{ color: 'var(--muted)' }}>

@@ -43,8 +43,7 @@ export function FriendFeed() {
 								@{entry.user.username}
 							</Link>
 							<span
-								className="text-xs font-bold uppercase tracking-wider"
-								style={{ color: "var(--muted)" }}
+								className="eyebrow"
 							>
 								{entry.kind === "session"
 									? `logged ${formatMinutes(entry.minutes)}`

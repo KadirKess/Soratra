@@ -56,8 +56,7 @@ export default function DeleteAccountPage() {
         <div>
           <label
             htmlFor="delete-confirmation"
-            className="block text-xs uppercase tracking-wider mb-1"
-            style={{ color: 'var(--muted)' }}
+            className="eyebrow block mb-1"
           >
             Type your username to confirm
           </label>
@@ -72,8 +71,7 @@ export default function DeleteAccountPage() {
         <div>
           <label
             htmlFor="delete-current-password"
-            className="block text-xs uppercase tracking-wider mb-1"
-            style={{ color: 'var(--muted)' }}
+            className="eyebrow block mb-1"
           >
             Confirm your current password
           </label>
@@ -85,7 +83,7 @@ export default function DeleteAccountPage() {
             className="auth-input w-full"
           />
         </div>
-        {error && <p className="text-xs" style={{ color: 'var(--accent)' }}>{error}</p>}
+        {error && <p role="alert" className="form-error">{error}</p>}
         <div className="flex gap-3">
           <button
             type="button"

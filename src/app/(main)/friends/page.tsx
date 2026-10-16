@@ -102,17 +102,17 @@ export default function FriendsPage() {
 
 			{received && received.length > 0 && (
 				<section className="space-y-3" aria-labelledby="received-requests">
-					<h2 id="received-requests" className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
+					<h2 id="received-requests" className="eyebrow">
 						Requests received
 					</h2>
 					{received.map((request) => (
-						<div key={request.requester.id} className="brutalist-card p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+						<div key={request.requester.id} className="card-flat p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 							<span className="font-semibold text-sm truncate">@{request.requester.username}</span>
 							<div className="grid grid-cols-2 gap-2 sm:flex">
-								<button type="button" onClick={() => accept.mutate({ requesterId: request.requester.id })} disabled={pending} className="btn-secondary justify-center" style={{ background: "var(--sage)" }}>
+								<button type="button" onClick={() => accept.mutate({ requesterId: request.requester.id })} disabled={pending} className="btn-secondary justify-center tint-sage">
 									{accept.isPending ? "Accepting..." : "Accept"}
 								</button>
-								<button type="button" onClick={() => decline.mutate({ requesterId: request.requester.id })} disabled={pending} className="btn-secondary justify-center" style={{ background: "var(--blush)" }}>
+								<button type="button" onClick={() => decline.mutate({ requesterId: request.requester.id })} disabled={pending} className="btn-secondary justify-center tint-blush">
 									{decline.isPending ? "Declining..." : "Decline"}
 								</button>
 							</div>
@@ -121,15 +121,17 @@ export default function FriendsPage() {
 				</section>
 			)}
 
-			<section className="brutalist-card p-5 space-y-4" style={{ background: "var(--sky)" }} aria-labelledby="connect-reader">
+			<section className="brutalist-card p-5 sm:p-6 space-y-4 tint-sky" aria-labelledby="connect-reader">
 				<div>
 					<h2 id="connect-reader" className="text-xl font-bold" style={{ fontFamily: "var(--font-cormorant)" }}>Connect with a reader</h2>
 					<p className="text-sm mt-1" style={{ color: "var(--muted)" }}>Ask someone you know for their username.</p>
 				</div>
-				<form onSubmit={submitLookup} className="flex flex-col gap-2 sm:flex-row">
-					<label className="sr-only" htmlFor="friend-username">Their username</label>
-					<input id="friend-username" value={usernameInput} onChange={(event) => setUsernameInput(event.target.value)} placeholder="Their username" autoComplete="off" className="min-h-11 flex-1 brutalist-input" />
-					<button type="submit" disabled={!usernameInput.trim()} className="btn-primary min-h-11 justify-center">Find reader</button>
+				<form onSubmit={submitLookup}>
+					<label className="field-label" htmlFor="friend-username">Their username</label>
+					<div className="flex flex-col gap-2 sm:flex-row">
+						<input id="friend-username" value={usernameInput} onChange={(event) => setUsernameInput(event.target.value)} autoComplete="off" className="min-h-11 flex-1 brutalist-input" />
+						<button type="submit" disabled={!usernameInput.trim()} className="btn-primary min-h-11 justify-center">Find reader</button>
+					</div>
 				</form>
 				{submittedUsername && (
 					<div aria-live="polite" className="text-sm">
@@ -143,13 +145,13 @@ export default function FriendsPage() {
 			</section>
 
 			<section className="space-y-3" aria-labelledby="friends-list">
-				<h2 id="friends-list" className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Your friends</h2>
+				<h2 id="friends-list" className="eyebrow">Your friends</h2>
 				{!friends || friends.length === 0 ? <p className="text-sm" style={{ color: "var(--muted)" }}>No connections yet.</p> : friends.map(({ friend }) => {
-					return <div key={friend.id} className="brutalist-card p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><Link href={`/profile/${friend.username}`} className="font-semibold text-sm truncate hover:underline">@{friend.username}</Link><div className="grid grid-cols-2 gap-2 sm:flex"><Link href={`/profile/${friend.username}`} className="btn-secondary justify-center">View profile</Link><button type="button" onClick={() => handleRemoveFriend(friend.id, friend.username)} disabled={pending} className="btn-secondary justify-center" style={{ background: "var(--blush)" }}>{remove.isPending ? "Removing..." : "Remove"}</button></div></div>;
+					return <div key={friend.id} className="card-flat p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><Link href={`/profile/${friend.username}`} className="font-semibold text-sm truncate hover:underline">@{friend.username}</Link><div className="grid grid-cols-2 gap-2 sm:flex"><Link href={`/profile/${friend.username}`} className="btn-secondary justify-center">View profile</Link><button type="button" onClick={() => handleRemoveFriend(friend.id, friend.username)} disabled={pending} className="btn-secondary justify-center tint-blush">{remove.isPending ? "Removing..." : "Remove"}</button></div></div>;
 				})}
 			</section>
 
-			{sent && sent.length > 0 && <section className="space-y-3" aria-labelledby="sent-requests"><h2 id="sent-requests" className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Requests sent</h2>{sent.map((request) => <div key={request.addressee.id} className="brutalist-card p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><span className="font-semibold text-sm truncate">@{request.addressee.username}</span><button type="button" onClick={() => cancel.mutate({ addresseeId: request.addressee.id })} disabled={pending} className="btn-secondary justify-center">{cancel.isPending ? "Cancelling..." : "Cancel request"}</button></div>)}</section>}
+			{sent && sent.length > 0 && <section className="space-y-3" aria-labelledby="sent-requests"><h2 id="sent-requests" className="eyebrow">Requests sent</h2>{sent.map((request) => <div key={request.addressee.id} className="brutalist-card p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><span className="font-semibold text-sm truncate">@{request.addressee.username}</span><button type="button" onClick={() => cancel.mutate({ addresseeId: request.addressee.id })} disabled={pending} className="btn-secondary justify-center">{cancel.isPending ? "Cancelling..." : "Cancel request"}</button></div>)}</section>}
 		</div>
 	);
 }

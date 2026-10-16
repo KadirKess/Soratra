@@ -31,15 +31,14 @@ export function SessionHistory({ bookId }: Props) {
 					return (
 					<div
 						key={session.id}
-						className="brutalist-card p-4 flex gap-4 items-start"
+						className="card-flat p-4 flex gap-4 items-start"
 					>
 						<div
 							className="shrink-0 text-center"
 							style={{ minWidth: 44 }}
 						>
 							<p
-								className="text-xs font-bold uppercase tracking-wider"
-								style={{ color: "var(--muted)" }}
+								className="eyebrow"
 							>
 								{date.month}
 							</p>

@@ -1,6 +1,6 @@
 "use client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, type CSSProperties } from "react";
 import { trpc } from "@/lib/trpc/client";
 import { BookCard } from "@/components/books/BookCard";
 import { LibraryReadingCard } from "@/components/books/LibraryReadingCard";
@@ -115,16 +115,8 @@ function LibraryPageInner() {
 							type="button"
 							onClick={() => updateFilters({ status: value, author: undefined, genre: undefined })}
 							aria-pressed={active}
-							className="px-3 py-1.5 text-xs font-bold transition-all"
-							style={{
-								background: active ? bg : "transparent",
-								color: active ? color : "var(--muted)",
-								border: `2px solid ${active ? "var(--fg)" : "var(--muted)"}`,
-								borderRadius: "8px",
-								boxShadow: active
-									? "2px 2px 0 var(--fg)"
-									: "none",
-							}}
+							className="chip"
+							style={{ "--chip-bg": bg, "--chip-fg": color } as CSSProperties}
 						>
 							{label}
 						</button>
@@ -134,28 +126,14 @@ function LibraryPageInner() {
 
 			{/* Sort */}
 			<div className="flex gap-2 flex-wrap items-center" aria-label="Library sort order">
-				<span
-					className="text-xs font-bold uppercase tracking-wider"
-					style={{ color: "var(--muted)" }}
-				>
-					Sort
-				</span>
+				<span className="eyebrow">Sort</span>
 				{(["date_added", "date_released"] as SortOption[]).map((s) => (
 					<button
 						key={s}
 						type="button"
 						onClick={() => updateFilters({ sort: s === "date_added" ? undefined : s })}
 						aria-pressed={sort === s}
-						className="px-3 py-1.5 text-xs font-bold transition-all"
-						style={{
-							background:
-								sort === s ? "var(--fg)" : "transparent",
-							color: sort === s ? "var(--bg)" : "var(--muted)",
-							border: `2px solid ${sort === s ? "var(--fg)" : "var(--muted)"}`,
-							borderRadius: "8px",
-							boxShadow:
-								sort === s ? "2px 2px 0 var(--accent)" : "none",
-						}}
+						className="chip"
 					>
 						{s === "date_added" ? "Date added" : "Date released"}
 					</button>
@@ -174,14 +152,14 @@ function LibraryPageInner() {
 							onChange={(e) =>
 								updateFilters({ author: e.target.value || undefined })
 							}
-							className="px-3 py-1.5 text-base font-bold md:text-xs"
+							className="min-w-0 max-w-full px-3 py-1.5 text-base font-bold md:text-xs"
 							style={{
 								background: authorFilter
 									? "var(--sage)"
 									: "transparent",
 								color: authorFilter ? "var(--fg)" : "var(--muted)",
 								border: `2px solid ${authorFilter ? "var(--fg)" : "var(--muted)"}`,
-								borderRadius: "8px",
+								borderRadius: "var(--radius-control)",
 							}}
 						>
 							<option value="">All authors</option>
@@ -202,14 +180,14 @@ function LibraryPageInner() {
 							onChange={(e) =>
 								updateFilters({ genre: e.target.value || undefined })
 							}
-							className="px-3 py-1.5 text-base font-bold md:text-xs"
+							className="min-w-0 max-w-full px-3 py-1.5 text-base font-bold md:text-xs"
 							style={{
 								background: genreFilter
 									? "var(--blush)"
 									: "transparent",
 								color: genreFilter ? "var(--fg)" : "var(--muted)",
 								border: `2px solid ${genreFilter ? "var(--fg)" : "var(--muted)"}`,
-								borderRadius: "8px",
+								borderRadius: "var(--radius-control)",
 							}}
 						>
 							<option value="">All genres</option>
@@ -278,8 +256,7 @@ function LibraryPageInner() {
 								<div>
 									<div className="flex items-center gap-3 my-4">
 										<span
-											className="text-xs font-bold uppercase tracking-wider"
-											style={{ color: "var(--muted)" }}
+											className="eyebrow"
 										>
 											Unknown release date
 										</span>

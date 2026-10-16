@@ -79,7 +79,7 @@ export default async function LandingPage() {
         <header className="flex items-center justify-between gap-4 border-b-2 pb-5" style={{ borderColor: 'var(--border)' }}>
           <Link href="/landing" className="flex items-baseline gap-3" aria-label="Soratra home">
             <span className="display text-4xl font-semibold leading-none">Soratra</span>
-            <span className="hidden text-xs font-semibold uppercase tracking-[0.18em] sm:inline" style={{ color: 'var(--muted)' }}>Reading journal</span>
+            <span className="eyebrow hidden sm:inline">Reading journal</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/signin" className="text-sm font-semibold underline underline-offset-4">Sign in</Link>
@@ -89,7 +89,7 @@ export default async function LandingPage() {
 
         <section id="landing-intro" className="grid gap-8 py-12 md:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)] md:items-end md:py-20">
           <div className="max-w-3xl">
-            <p className="mb-5 text-xs font-bold uppercase tracking-[0.22em]" style={{ color: 'var(--accent-ink)' }}>A home for your reading life</p>
+            <p className="eyebrow mb-5" style={{ color: 'var(--accent-ink)' }}>A home for your reading life</p>
             <h1 className="display max-w-3xl text-6xl font-semibold leading-none sm:text-7xl md:text-8xl">
               Keep a life in books.
             </h1>
@@ -104,13 +104,13 @@ export default async function LandingPage() {
 
           <aside className="brutalist-card overflow-hidden" style={{ background: 'var(--surface)' }} aria-label="A glimpse of a reading journal">
             <div className="border-b-2 px-5 py-4" style={{ borderColor: 'var(--border)' }}>
-              <p className="text-xs font-bold uppercase tracking-[0.18em]" style={{ color: 'var(--muted)' }}>Today&apos;s page</p>
+              <p className="eyebrow">Today&apos;s page</p>
             </div>
             <div className="space-y-5 p-5">
               <div className="flex items-start gap-4">
                 <div className="flex h-20 w-14 shrink-0 items-center justify-center border-2 text-3xl" style={{ borderColor: 'var(--border)', background: 'var(--blush)', fontFamily: 'var(--font-cormorant)' }}>S</div>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.16em]" style={{ color: 'var(--muted)' }}>Currently reading</p>
+                  <p className="eyebrow">Currently reading</p>
                   <p className="display mt-1 text-3xl font-semibold leading-none">A book worth lingering over</p>
                 </div>
               </div>
@@ -120,7 +120,7 @@ export default async function LandingPage() {
                   <p className="display text-3xl font-semibold">47 min</p>
                 </div>
                 <div className="mt-3 h-3 border-2" style={{ borderColor: 'var(--border)', background: 'var(--bg)' }}>
-                  <div className="h-full w-[58%]" style={{ background: 'var(--sage)' }} />
+                  <div className="h-full w-[58%] tint-sage" />
                 </div>
               </div>
               <p className="text-sm leading-6" style={{ color: 'var(--muted-strong)' }}>The point is not to perform a perfect streak. It is to leave a small, honest record of the time you found.</p>
@@ -135,7 +135,7 @@ export default async function LandingPage() {
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {principles.map((principle) => (
-              <article key={principle.number} className="brutalist-card min-h-56 p-5" style={{ background: principle.tone }}>
+              <article key={principle.number} className="brutalist-card min-h-56 p-5 sm:p-6" style={{ background: principle.tone }}>
                 <p className="text-xs font-bold tracking-[0.18em]" style={{ color: 'var(--muted-strong)' }}>{principle.number}</p>
                 <h3 className="display mt-8 text-3xl font-semibold leading-none">{principle.title}</h3>
                 <p className="mt-4 text-sm leading-6" style={{ color: 'var(--muted-strong)' }}>{principle.copy}</p>
@@ -146,7 +146,7 @@ export default async function LandingPage() {
 
         <section className="grid gap-6 py-12 sm:py-16 md:grid-cols-3" aria-labelledby="landing-how-it-works">
           <div className="md:col-span-1">
-            <p className="text-xs font-bold uppercase tracking-[0.22em]" style={{ color: 'var(--accent-ink)' }}>A simple reading log</p>
+            <p className="eyebrow" style={{ color: 'var(--accent-ink)' }}>A simple reading log</p>
             <h2 id="landing-how-it-works" className="display mt-3 text-5xl font-semibold leading-[0.9]">Everything you want to remember about reading.</h2>
           </div>
           <div className="space-y-4 text-base leading-7 md:col-span-2" style={{ color: 'var(--muted-strong)' }}>

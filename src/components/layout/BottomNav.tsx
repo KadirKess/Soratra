@@ -112,8 +112,8 @@ export function BottomNav() {
 			style={{
 				background: "var(--surface)",
 				border: "2px solid var(--fg)",
-				borderRadius: "0.75rem",
-				boxShadow: "4px 4px 0 var(--fg)",
+				borderRadius: "var(--radius-card)",
+				boxShadow: "var(--shadow-raised)",
 				bottom: "max(0.75rem, env(safe-area-inset-bottom))",
 				left: "max(0.75rem, env(safe-area-inset-left))",
 				right: "max(0.75rem, env(safe-area-inset-right))",

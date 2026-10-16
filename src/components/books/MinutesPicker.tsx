@@ -60,7 +60,7 @@ export function MinutesPicker({ value, onChange, id }: Props) {
 				</div>
 				<p
 					className="text-sm font-semibold"
-					style={{ color: "var(--accent)" }}
+					style={{ color: "var(--accent-ink)" }}
 				>
 					{value > 0 ? formatMinutes(value) : "—"}
 				</p>

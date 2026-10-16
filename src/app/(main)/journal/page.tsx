@@ -13,7 +13,7 @@ import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { toast } from "sonner";
 import Link from "next/link";
 
-const PASTELS = ["var(--sage)", "var(--blush)", "var(--sky)", "var(--straw)"];
+const TINTS = ["tint-sage", "tint-blush", "tint-sky", "tint-straw"];
 
 function JournalSkeleton() {
 	return (
@@ -144,14 +144,13 @@ export default function JournalPage() {
 
 			{/* Row 1: Streak + heatmap | Time read | Avg rating */}
 			<div className="grid md:grid-cols-[2fr_1fr_1fr] gap-4 items-stretch">
-				<div className="brutalist-card p-4 space-y-5 sm:p-6">
+				<div className="brutalist-card p-5 space-y-5 sm:p-6">
 					<StreakBadge streak={journal?.streak ?? 0} />
 					{journal?.heatmap && (
 						<>
 							<div className="md:hidden">
 								<p
-									className="text-xs font-semibold uppercase tracking-wider mb-3"
-									style={{ color: "var(--muted)" }}
+									className="eyebrow mb-3"
 								>
 									Last 12 weeks
 								</p>
@@ -159,8 +158,7 @@ export default function JournalPage() {
 							</div>
 							<div className="hidden md:block">
 								<p
-									className="text-xs font-semibold uppercase tracking-wider mb-3"
-									style={{ color: "var(--muted)" }}
+									className="eyebrow mb-3"
 								>
 									This year
 								</p>
@@ -171,12 +169,10 @@ export default function JournalPage() {
 				</div>
 
 				<div
-					className="brutalist-card p-4 flex flex-col justify-center"
-					style={{ background: "var(--straw)" }}
+					className="brutalist-card p-4 flex flex-col justify-center tint-straw"
 				>
 					<p
-						className="text-xs font-bold uppercase tracking-wider mb-1"
-						style={{ color: "var(--muted)" }}
+						className="eyebrow mb-1"
 					>
 						Time read this month
 					</p>
@@ -191,12 +187,10 @@ export default function JournalPage() {
 				</div>
 
 				<div
-					className="brutalist-card p-4 flex flex-col justify-center"
-					style={{ background: "var(--blush)" }}
+					className="brutalist-card p-4 flex flex-col justify-center tint-blush"
 				>
 					<p
-						className="text-xs font-bold uppercase tracking-wider mb-1"
-						style={{ color: "var(--muted)" }}
+						className="eyebrow mb-1"
 					>
 						Avg rating this month
 					</p>
@@ -214,7 +208,7 @@ export default function JournalPage() {
 			{/* This Year — macro reading arc */}
 			{yearStats && yearStats.totalSessions > 0 && (
 				<div
-					className="brutalist-card p-4 sm:p-6"
+					className="brutalist-card p-5 sm:p-6"
 					style={{ background: "var(--accent)", color: "var(--on-accent)" }}
 				>
 					<div className="flex items-baseline justify-between mb-4 flex-wrap gap-2">
@@ -266,8 +260,7 @@ export default function JournalPage() {
 								{monthlyStats.topByTime.map((entry, i) => (
 									<div
 										key={entry.book.id}
-										className="brutalist-card p-3 flex items-center gap-3"
-										style={{ background: PASTELS[i % 4] }}
+										className={`card-flat ${TINTS[i % 4]} p-3 flex items-center gap-3`}
 									>
 										<span
 											className="font-bold text-sm"
@@ -308,10 +301,7 @@ export default function JournalPage() {
 								{monthlyStats.topByRating.map((entry, i) => (
 									<div
 										key={entry.book.id}
-										className="brutalist-card p-3 flex items-center gap-3"
-										style={{
-											background: PASTELS[(i + 2) % 4],
-										}}
+										className={`card-flat ${TINTS[(i + 2) % 4]} p-3 flex items-center gap-3`}
 									>
 										<span
 											className="font-bold text-sm"
@@ -347,25 +337,16 @@ export default function JournalPage() {
 				<button
 					type="button"
 					onClick={() => setShowInsights((v) => !v)}
-					className="px-4 py-2 text-sm font-bold transition-all"
-					style={{
-						background: showInsights ? "var(--fg)" : "transparent",
-						color: showInsights ? "var(--bg)" : "var(--muted)",
-						border: "2px solid var(--fg)",
-						borderRadius: "8px",
-						boxShadow: showInsights
-							? "3px 3px 0 var(--accent)"
-							: "none",
-					}}
+					aria-pressed={showInsights}
+					className="chip"
 				>
-					{showInsights ? "Hide insights" : "Deeper Insights"}
+					{showInsights ? "Hide insights" : "Deeper insights"}
 				</button>
 			</div>
 
 			{showInsights && (
 				<div
-					className="brutalist-card p-5 space-y-4"
-					style={{ background: "var(--straw)" }}
+					className="brutalist-card p-5 sm:p-6 space-y-4 tint-straw"
 				>
 					<div className="flex gap-2">
 						{(["month", "year", "all"] as const).map((p) => (
@@ -435,8 +416,7 @@ export default function JournalPage() {
 							{insights.topAuthors.length > 0 && (
 								<div>
 									<p
-										className="text-xs font-bold uppercase tracking-wider mb-2"
-										style={{ color: "var(--muted)" }}
+										className="eyebrow mb-2"
 									>
 										Most-read authors
 									</p>
@@ -505,9 +485,8 @@ export default function JournalPage() {
 							return (
 							<div
 								key={session.id}
-								className="brutalist-card p-4 flex gap-4 items-start card-enter"
+								className={`card-flat ${TINTS[i % 4]} p-4 flex gap-4 items-start card-enter`}
 								style={{
-									background: PASTELS[i % 4],
 									animationDelay: `${Math.min(i * 40, 300)}ms`,
 									position: "relative",
 								}}
@@ -517,8 +496,7 @@ export default function JournalPage() {
 									style={{ minWidth: 48 }}
 								>
 									<p
-										className="text-xs font-bold uppercase tracking-wider"
-										style={{ color: "var(--muted)" }}
+										className="eyebrow"
 									>
 										{date.month}
 									</p>
@@ -626,8 +604,8 @@ function YearStat({ label, value }: { label: string; value: string }) {
 				{value}
 			</p>
 			<p
-				className="text-xs font-bold uppercase tracking-wider"
-				style={{ opacity: 0.85 }}
+				className="eyebrow"
+				style={{ color: "inherit", opacity: 0.85 }}
 			>
 				{label}
 			</p>
@@ -642,8 +620,7 @@ function InsightStat({ label, value }: { label: string; value: string }) {
 			style={{ background: "var(--bg)" }}
 		>
 			<p
-				className="text-xs font-bold uppercase tracking-wider mb-1"
-				style={{ color: "var(--muted)" }}
+				className="eyebrow mb-1"
 			>
 				{label}
 			</p>

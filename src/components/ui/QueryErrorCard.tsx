@@ -8,7 +8,7 @@ interface QueryErrorCardProps {
 
 export function QueryErrorCard({ message, onRetry, retrying = false }: QueryErrorCardProps) {
   return (
-    <div className="brutalist-card p-5 flex flex-wrap items-center justify-between gap-3" style={{ background: 'var(--blush)' }} role="alert">
+    <div className="card-flat p-5 flex flex-wrap items-center justify-between gap-3 tint-blush" role="alert">
       <p className="text-sm font-medium">{message}</p>
       <button type="button" onClick={onRetry} disabled={retrying} className="btn-secondary">
         {retrying ? 'Retrying…' : 'Retry'}

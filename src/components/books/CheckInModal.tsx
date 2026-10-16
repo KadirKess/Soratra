@@ -180,11 +180,7 @@ export function CheckInModal({ book, onClose, onSuccess, sessionDate, knownToday
 
 	return createPortal(
 		<div
-			className="fixed inset-0 z-[10000] flex items-center justify-center p-4"
-			style={{
-				background: "rgba(0,0,0,0.4)",
-				backdropFilter: "blur(4px)",
-			}}
+			className="dialog-backdrop fixed inset-0 z-[10000] flex items-center justify-center p-4"
 			onClick={(e) => {
 				if (e.target === e.currentTarget) onClose();
 			}}
@@ -194,12 +190,8 @@ export function CheckInModal({ book, onClose, onSuccess, sessionDate, knownToday
 		>
 			<div
 				ref={dialogRef}
-				className="w-full min-w-0 max-h-[calc(100dvh-2rem)] overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl p-5 space-y-5 sm:max-w-md sm:p-6"
-				style={{
-					background: "var(--surface)",
-					border: "2px solid var(--border)",
-					boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-				}}
+				className="card-dialog w-full min-w-0 max-h-[calc(100dvh-2rem)] overflow-x-hidden overflow-y-auto overscroll-contain p-5 space-y-5 sm:max-w-md sm:p-6"
+				style={{ background: "var(--surface)" }}
 			>
 				<div className="flex items-start justify-between gap-3">
 					<div>
@@ -230,12 +222,12 @@ export function CheckInModal({ book, onClose, onSuccess, sessionDate, knownToday
 				</div>
 
 				{isLoadingEntry ? (
-					<div className="brutalist-card p-4 space-y-2" role="status" style={{ background: "var(--bg)" }}>
+					<div className="card-flat p-4 space-y-2" role="status">
 						<p className="font-semibold">Getting your entry for {entryDate}</p>
 						<p className="text-sm" style={{ color: "var(--muted)" }}>We’ll show the saved details before you can make changes.</p>
 					</div>
 				) : existing.isError ? (
-					<div className="brutalist-card p-4 space-y-3" role="alert" style={{ background: "var(--blush)" }}>
+					<div className="card-flat tint-blush p-4 space-y-3" role="alert">
 						<p className="font-semibold">We couldn’t load this entry.</p>
 						<p className="text-sm" style={{ color: "var(--muted)" }}>Try again before saving, so we never make the editing state unclear.</p>
 						<button type="button" onClick={() => existing.refetch()} className="btn-secondary">Try again</button>
@@ -244,8 +236,7 @@ export function CheckInModal({ book, onClose, onSuccess, sessionDate, knownToday
 				<form onSubmit={handleSubmit} className="space-y-5">
 					<div>
 						<label htmlFor="check-in-rating"
-							className="block text-xs font-bold uppercase tracking-wider mb-2"
-							style={{ color: "var(--muted)" }}
+							className="eyebrow block mb-2"
 						>
 							How was today&apos;s session?
 						</label>
@@ -255,7 +246,7 @@ export function CheckInModal({ book, onClose, onSuccess, sessionDate, knownToday
 					{expanded ? (
 						<>
 							<div>
-								<label htmlFor="check-in-date" className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "var(--muted)" }}>
+								<label htmlFor="check-in-date" className="eyebrow block mb-2">
 									Date
 								</label>
 								{sessionDate ? (
@@ -266,8 +257,7 @@ export function CheckInModal({ book, onClose, onSuccess, sessionDate, knownToday
 							</div>
 							<div>
 							<label htmlFor="check-in-minutes"
-									className="block text-xs font-bold uppercase tracking-wider mb-2"
-									style={{ color: "var(--muted)" }}
+									className="eyebrow block mb-2"
 								>
 									Time spent
 								</label>
@@ -280,8 +270,7 @@ export function CheckInModal({ book, onClose, onSuccess, sessionDate, knownToday
 
 							<div>
 							<label htmlFor="check-in-note"
-									className="block text-xs font-bold uppercase tracking-wider mb-2"
-									style={{ color: "var(--muted)" }}
+									className="eyebrow block mb-2"
 								>
 									Notes{" "}
 									<span
@@ -335,30 +324,11 @@ export function CheckInModal({ book, onClose, onSuccess, sessionDate, knownToday
 							</span>
 						</button>
 					)}
-					{log.error && <p role="alert" className="text-sm" style={{ color: "var(--accent)" }}>{isConflict ? "This entry changed in another tab. Loading its latest version…" : "Your check-in could not be saved. Please try again."}</p>}
+					{log.error && <p role="alert" className="form-error">{isConflict ? "This entry changed in another tab. Loading its latest version…" : "Your check-in could not be saved. Please try again."}</p>}
 					<button
 						type="submit"
 						disabled={!canSubmit || log.isPending}
-						className="w-full brutalist-card py-3 text-sm font-bold"
-						style={{
-							background:
-								canSubmit
-									? "var(--accent)"
-									: "var(--border)",
-							color:
-								canSubmit
-									? "var(--on-accent)"
-									: "var(--muted)",
-							cursor:
-								canSubmit
-									? "pointer"
-									: "not-allowed",
-							border: "2px solid var(--fg)",
-							boxShadow:
-								canSubmit
-									? "3px 3px 0 var(--fg)"
-									: "none",
-						}}
+						className="btn-primary w-full py-3 font-bold"
 					>
 							{log.isPending
 								? "Saving…"

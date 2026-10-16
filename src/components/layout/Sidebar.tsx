@@ -74,24 +74,21 @@ export function Sidebar({ operatorName, contact }: { operatorName: string; conta
 									? STATUS_COLORS[href]
 									: "transparent",
 								boxShadow: active
-									? "3px 3px 0 var(--fg)"
+									? "var(--shadow-small)"
 									: "none",
 								color: active ? "var(--fg)" : "var(--muted)",
 								fontWeight: active ? 700 : 500,
 							}}
 						>
 							<span>{label}</span>
-							{hasRequests && <span aria-hidden="true" className="ml-auto min-w-5 h-5 px-1 flex items-center justify-center rounded-full text-[0.7rem]" style={{ background: "var(--accent)", color: "var(--bg)" }}>{pendingRequests}</span>}
+							{hasRequests && <span aria-hidden="true" className="ml-auto min-w-5 h-5 px-1 flex items-center justify-center rounded-full text-[0.7rem]" style={{ background: "var(--accent)", color: "var(--on-accent)" }}>{pendingRequests}</span>}
 						</Link>
 					);
 				})}
 			</nav>
 			<div className="mt-auto mb-6 mx-2 space-y-4">
-				<div className="p-3.5 space-y-2 brutalist-card" style={{ background: "var(--bg)" }}>
-					<p
-						className="text-[0.7rem] font-bold uppercase tracking-[0.2em]"
-						style={{ color: "var(--muted)" }}
-					>
+				<div className="px-3 pt-3 space-y-2" style={{ borderTop: "1px solid var(--rule)" }}>
+					<p className="eyebrow">
 						Instance support
 					</p>
 					<p className="text-xs leading-5" style={{ color: "var(--muted)" }}>

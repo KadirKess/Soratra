@@ -29,7 +29,7 @@ export function BookCard({ openLibraryId, title, originalTitle, authors, coverUr
     <Link href={href} prefetch={false} className="group block cursor-pointer">
       <div
         className="brutalist-card brutalist-card-hover relative overflow-hidden"
-        style={{ aspectRatio: '2/3' }}
+        style={{ aspectRatio: '2/3', borderRadius: 'var(--radius-cover)' }}
       >
         {showCover ? (
           <>
@@ -37,12 +37,12 @@ export function BookCard({ openLibraryId, title, originalTitle, authors, coverUr
               src={coverUrl}
               alt={canonicalTitle}
               fill
-				className="object-cover transition-transform duration-300 group-hover:scale-105 rounded-[10px]"
+				className="object-cover transition-transform duration-300 group-hover:scale-105"
               sizes="(max-width: 768px) 50vw, 200px"
               onError={() => setImgError(true)}
             />
             <div
-				className="absolute inset-0 flex flex-col justify-end p-3 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-200 rounded-[10px]"
+				className="absolute inset-0 flex flex-col justify-end p-3 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-200"
               style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 60%)' }}
             >
               <p className="text-white text-sm font-semibold leading-tight line-clamp-2">{canonicalTitle}</p>
@@ -52,11 +52,11 @@ export function BookCard({ openLibraryId, title, originalTitle, authors, coverUr
           </>
         ) : (
           <div
-            className="w-full h-full flex flex-col items-center justify-center px-4 py-5 rounded-[10px] relative overflow-hidden"
+            className="w-full h-full flex flex-col items-center justify-center px-4 py-5 relative overflow-hidden"
             style={{ background: fallbackColor }}
           >
             {/* Top rule */}
-            <div className="w-full mb-3" style={{ borderTop: '1.5px solid rgba(28,25,23,0.25)' }} />
+            <div className="w-full mb-3" style={{ borderTop: '1px solid var(--rule)' }} />
 
             <span
               className="text-center leading-snug font-semibold line-clamp-5 px-1"
@@ -75,11 +75,11 @@ export function BookCard({ openLibraryId, title, originalTitle, authors, coverUr
             )}
 
             {/* Bottom rule */}
-            <div className="w-full mt-3" style={{ borderTop: '1.5px solid rgba(28,25,23,0.25)' }} />
+            <div className="w-full mt-3" style={{ borderTop: '1px solid var(--rule)' }} />
 
             {/* Hover overlay — consistent with cover cards */}
             <div
-				className="absolute inset-0 flex flex-col justify-end p-3 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-200 rounded-[10px]"
+				className="absolute inset-0 flex flex-col justify-end p-3 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-200"
               style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 55%)' }}
             >
               <p className="text-white text-sm font-semibold leading-tight line-clamp-2">{canonicalTitle}</p>
