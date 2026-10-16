@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main, dev, 'codex/**']
+    branches: [main]
   # The release workflow runs these checks before publishing an image.
   workflow_call:
 
