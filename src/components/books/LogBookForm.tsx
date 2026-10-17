@@ -1,15 +1,15 @@
 'use client'
 import { trpc } from '@/lib/trpc/client'
 import { StarRating } from './StarRating'
-import { useState, useEffect, useRef, type CSSProperties } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 import { useConfirm } from '@/components/ui/ConfirmDialog'
 import { celebrateFinished } from '@/lib/celebrate'
 
 const STATUS_OPTIONS = [
-  { value: 'want_to_read', label: 'Want to read', bg: 'var(--straw)' },
-  { value: 'reading',      label: 'Reading',      bg: 'var(--sage)'  },
-  { value: 'read',         label: 'Read',         bg: 'var(--blush)' },
+  { value: 'want_to_read', label: 'Want to read' },
+  { value: 'reading',      label: 'Reading' },
+  { value: 'read',         label: 'Read' },
 ] as const
 
 type Status = 'want_to_read' | 'reading' | 'read'
@@ -148,7 +148,7 @@ export function LogBookForm({ bookId }: LogBookFormProps) {
       <div>
         <p className="eyebrow mb-2.5">Status</p>
         <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label="Reading status">
-          {STATUS_OPTIONS.map(({ value, label, bg }) => {
+          {STATUS_OPTIONS.map(({ value, label }) => {
             const active = status === value
             return (
               <button
@@ -158,7 +158,6 @@ export function LogBookForm({ bookId }: LogBookFormProps) {
                 role="radio"
                 aria-checked={active}
                 className="chip"
-                style={{ '--chip-bg': bg, '--chip-fg': 'var(--fg)' } as CSSProperties}
               >
                 {label}
               </button>

@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 function SkeletonGrid() {
 	return (
@@ -99,12 +100,7 @@ function SearchPage() {
 
 	return (
 		<div className="space-y-6">
-			<h1
-				className="text-4xl font-medium"
-				style={{ fontFamily: "var(--font-cormorant)" }}
-			>
-				Search
-			</h1>
+			<PageHeader title="Search" />
 			<form onSubmit={submitMobileSearch} className="md:hidden">
 				<label htmlFor="mobile-book-search" className="sr-only">Search books</label>
 				<div className="flex gap-3">

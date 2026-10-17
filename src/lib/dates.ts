@@ -49,9 +49,19 @@ export function formatDateOnly(value: string): string {
   }).format(new Date(Date.UTC(year!, month! - 1, day!)))
 }
 
-export function dateOnlyParts(value: string): { month: string; day: string } {
-  const [, month, day] = value.split('-')
+export function dateOnlyParts(value: string): { month: string; day: string; weekday: string } {
+  const [year, month, day] = value.split('-')
   const monthLabel = new Intl.DateTimeFormat('en', { month: 'short', timeZone: 'UTC' })
     .format(new Date(Date.UTC(2000, Number(month) - 1, 1)))
-  return { month: monthLabel, day: String(Number(day)) }
+  // A calendar date has no time zone, so read it in UTC to keep the weekday stable.
+  const weekday = new Intl.DateTimeFormat('en', { weekday: 'short', timeZone: 'UTC' })
+    .format(new Date(Date.UTC(Number(year), Number(month) - 1, Number(day))))
+  return { month: monthLabel, day: String(Number(day)), weekday }
+}
+
+/** "October 2026" for a YYYY-MM-DD or YYYY-MM value. */
+export function monthLabel(value: string): string {
+  const [year, month] = value.split('-')
+  return new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+    .format(new Date(Date.UTC(Number(year), Number(month) - 1, 1)))
 }

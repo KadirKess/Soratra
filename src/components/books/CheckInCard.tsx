@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CheckInModal } from "./CheckInModal";
 import { CoverPlaceholder } from "./CoverPlaceholder";
+import { getPastelTint } from "@/lib/pastel";
 import { useCheckInSuccess } from "./useCheckInSuccess";
 import type { Book } from "@/server/db";
 
@@ -88,8 +89,8 @@ export function CheckInCard({ book, userBookId, loggedToday, todayDate, variant 
 		<>
 			{isFeatured ? (
 				<article
-					className={isDesk ? "w-full grid sm:grid-cols-[9.5rem_minmax(0,1fr)] gap-5 sm:gap-6 items-center" : "w-full brutalist-card p-5 sm:p-6 grid sm:grid-cols-[9rem_minmax(0,1fr)] gap-5 sm:gap-6 items-center"}
-					style={isDesk ? undefined : { background: "var(--sage)", position: "relative", overflow: "hidden" }}
+					className={isDesk ? "w-full grid sm:grid-cols-[9.5rem_minmax(0,1fr)] gap-5 sm:gap-6 items-center" : `w-full brutalist-card ${getPastelTint(book.title)} p-5 sm:p-6 grid sm:grid-cols-[9rem_minmax(0,1fr)] gap-5 sm:gap-6 items-center`}
+					style={isDesk ? undefined : { position: "relative", overflow: "hidden" }}
 				>
 					{cover}
 					{details}

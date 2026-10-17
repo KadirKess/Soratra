@@ -7,7 +7,6 @@ const TABS = [
 	{
 		href: "/",
 		label: "Home",
-		activeColor: "var(--sage)",
 		icon: (
 			<svg
 				width="20"
@@ -27,7 +26,6 @@ const TABS = [
 	{
 		href: "/library",
 		label: "Library",
-		activeColor: "var(--sky)",
 		icon: (
 			<svg
 				width="20"
@@ -47,7 +45,6 @@ const TABS = [
 	{
 		href: "/journal",
 		label: "Journal",
-		activeColor: "var(--blush)",
 		icon: (
 			<svg
 				width="20"
@@ -70,7 +67,6 @@ const TABS = [
 	{
 		href: "/friends",
 		label: "Friends",
-		activeColor: "var(--sage)",
 		icon: (
 			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
 				<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
@@ -83,7 +79,6 @@ const TABS = [
 	{
 		href: "/profile",
 		label: "Profile",
-		activeColor: "var(--straw)",
 		icon: (
 			<svg
 				width="20"
@@ -119,7 +114,7 @@ export function BottomNav() {
 				right: "max(0.75rem, env(safe-area-inset-right))",
 			}}
 		>
-			{TABS.map(({ href, label, activeColor, icon }, index) => {
+			{TABS.map(({ href, label, icon }, index) => {
 				const active = path === href;
 				const hasRequests = href === "/friends" && pendingRequests > 0;
 				return (
@@ -131,7 +126,7 @@ export function BottomNav() {
 						aria-current={active ? "page" : undefined}
 						style={{
 							color: active ? "var(--fg)" : "var(--muted)",
-							background: active ? activeColor : "transparent",
+							background: active ? "var(--bg)" : "transparent",
 							borderRight:
 								index < TABS.length - 1
 									? "1px solid var(--border)"

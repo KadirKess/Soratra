@@ -246,6 +246,36 @@ h1, h2, h3, h4, .display {
   background: color-mix(in srgb, var(--bg) 45%, transparent);
 }
 
+/* Journal timeline: dates in a gutter on the paper, the site's vermilion
+   margin rule beside them, and each sitting on a card in its book's tint. */
+.journal-timeline {
+  --gutter: 3.25rem;
+  position: relative;
+  list-style: none;
+}
+
+.journal-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--gutter);
+  width: 1px;
+  background: var(--accent);
+  opacity: 0.55;
+}
+
+.journal-timeline > li {
+  display: grid;
+  grid-template-columns: var(--gutter) minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .journal-timeline {
+    --gutter: 4.5rem;
+  }
+}
+
 /* Shared overlay behind every dialog. */
 .dialog-backdrop {
   background: color-mix(in srgb, var(--fg) 40%, transparent);
@@ -265,8 +295,8 @@ h1, h2, h3, h4, .display {
   line-height: 1.4;
 }
 
-/* Toggle chips for filters, sort and status pickers. Selected means inked in;
-   a status chip passes its own fill through --chip-bg. */
+/* Toggle chips for filters, sort and status pickers. Selected means inked in.
+   Pastels stay reserved for books, so a status never borrows one. */
 .chip {
   display: inline-flex;
   align-items: center;
@@ -291,8 +321,8 @@ h1, h2, h3, h4, .display {
 
 .chip[aria-pressed="true"],
 .chip[aria-checked="true"] {
-  background: var(--chip-bg, var(--fg));
-  color: var(--chip-fg, var(--bg));
+  background: var(--fg);
+  color: var(--bg);
   border-color: var(--fg);
   box-shadow: var(--shadow-small);
 }

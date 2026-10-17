@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addDaysToDate, dateOnlyParts, isValidDateOnly, localDateInTimeZone, weekStartForDate } from '../dates'
+import { addDaysToDate, dateOnlyParts, isValidDateOnly, localDateInTimeZone, monthLabel, weekStartForDate } from '../dates'
 
 describe('date utilities', () => {
   it('validates real calendar dates', () => {
@@ -21,6 +21,12 @@ describe('date utilities', () => {
   })
 
   it('formats date-only values without UTC day shifts', () => {
-    expect(dateOnlyParts('2026-07-21')).toEqual({ month: 'Jul', day: '21' })
+    expect(dateOnlyParts('2026-07-21')).toEqual({ month: 'Jul', day: '21', weekday: 'Tue' })
+    expect(dateOnlyParts('2026-10-16').weekday).toBe('Fri')
+  })
+
+  it('labels a month from a date or a year-month', () => {
+    expect(monthLabel('2026-10-16')).toBe('October 2026')
+    expect(monthLabel('2026-01')).toBe('January 2026')
   })
 })

@@ -1,28 +1,19 @@
 "use client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, type CSSProperties } from "react";
+import { Suspense } from "react";
 import { trpc } from "@/lib/trpc/client";
 import { BookCard } from "@/components/books/BookCard";
 import { LibraryReadingCard } from "@/components/books/LibraryReadingCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyStateCard } from "@/components/ui/EmptyStateCard";
 import { QueryErrorCard } from "@/components/ui/QueryErrorCard";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 const FILTERS = [
-	{ value: undefined, label: "All", bg: "var(--fg)", color: "var(--bg)" },
-	{
-		value: "reading",
-		label: "Reading",
-		bg: "var(--sage)",
-		color: "var(--fg)",
-	},
-	{ value: "read", label: "Read", bg: "var(--blush)", color: "var(--fg)" },
-	{
-		value: "want_to_read",
-		label: "Want to read",
-		bg: "var(--straw)",
-		color: "var(--fg)",
-	},
+	{ value: undefined, label: "All" },
+	{ value: "reading", label: "Reading" },
+	{ value: "read", label: "Read" },
+	{ value: "want_to_read", label: "Want to read" },
 ] as const;
 
 type StatusFilter = "reading" | "read" | "want_to_read" | undefined;
@@ -90,24 +81,14 @@ function LibraryPageInner() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-baseline justify-between">
-				<h1
-					className="text-4xl font-medium"
-					style={{ fontFamily: "var(--font-cormorant)" }}
-				>
-					Library
-				</h1>
-				<span
-					className="text-sm font-medium"
-					style={{ color: "var(--muted)" }}
-				>
-					{books.length} books
-				</span>
-			</div>
+			<PageHeader
+				title="Library"
+				action={<span className="text-sm font-medium" style={{ color: "var(--muted)" }}>{books.length} {books.length === 1 ? "book" : "books"}</span>}
+			/>
 
 			{/* Status filters */}
 			<div className="flex gap-2 flex-wrap" aria-label="Library shelf">
-				{FILTERS.map(({ value, label, bg, color }) => {
+				{FILTERS.map(({ value, label }) => {
 					const active = filter === value;
 					return (
 						<button
@@ -116,7 +97,6 @@ function LibraryPageInner() {
 							onClick={() => updateFilters({ status: value, author: undefined, genre: undefined })}
 							aria-pressed={active}
 							className="chip"
-							style={{ "--chip-bg": bg, "--chip-fg": color } as CSSProperties}
 						>
 							{label}
 						</button>
@@ -155,7 +135,7 @@ function LibraryPageInner() {
 							className="min-w-0 max-w-full px-3 py-1.5 text-base font-bold md:text-xs"
 							style={{
 								background: authorFilter
-									? "var(--sage)"
+									? "var(--surface-shimmer)"
 									: "transparent",
 								color: authorFilter ? "var(--fg)" : "var(--muted)",
 								border: `2px solid ${authorFilter ? "var(--fg)" : "var(--muted)"}`,
@@ -183,7 +163,7 @@ function LibraryPageInner() {
 							className="min-w-0 max-w-full px-3 py-1.5 text-base font-bold md:text-xs"
 							style={{
 								background: genreFilter
-									? "var(--blush)"
+									? "var(--surface-shimmer)"
 									: "transparent",
 								color: genreFilter ? "var(--fg)" : "var(--muted)",
 								border: `2px solid ${genreFilter ? "var(--fg)" : "var(--muted)"}`,
@@ -226,7 +206,6 @@ function LibraryPageInner() {
 					description="Save books you want to read, are reading, or have already finished."
 					ctaHref="/search"
 					ctaLabel="Find a book"
-					tone="sky"
 				/>
 			))}
 

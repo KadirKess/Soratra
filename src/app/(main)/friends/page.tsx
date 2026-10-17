@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc/client";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default function FriendsPage() {
 	const { data: session } = useSession();
@@ -89,14 +90,7 @@ export default function FriendsPage() {
 
 	return (
 		<div className="space-y-8 max-w-2xl">
-			<div className="space-y-2">
-				<h1 className="text-4xl font-medium" style={{ fontFamily: "var(--font-cormorant)" }}>
-					Friends
-				</h1>
-				<p className="text-sm" style={{ color: "var(--muted)" }}>
-					A small circle for sharing reading, by mutual choice.
-				</p>
-			</div>
+			<PageHeader title="Friends" description="A small circle for sharing reading, by mutual choice." />
 
 			{statusMessage && <p role="status" className="text-sm" style={{ color: "var(--muted)" }}>{statusMessage}</p>}
 

@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { trpc } from '@/lib/trpc/client'
 import { useConfirm } from '@/components/ui/ConfirmDialog'
 import { CopyLink } from '@/components/ui/CopyLink'
+import { PageHeader } from "@/components/ui/PageHeader";
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
 const dateTimeFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
@@ -67,12 +68,10 @@ export function AdminPanel({ welcome }: { welcome: boolean }) {
 
   return (
     <div className="space-y-8 max-w-2xl">
-      <div className="space-y-2">
-        <h1 className="text-4xl font-medium" style={{ fontFamily: 'var(--font-cormorant)' }}>Your Soratra</h1>
-        <p className="text-sm" style={{ color: 'var(--muted)' }}>
-          Who reads here, and how new readers join. You never see anyone&apos;s shelves or journal from this page.
-        </p>
-      </div>
+      <PageHeader
+        title="Your Soratra"
+        description={<>Who reads here, and how new readers join. You never see anyone&apos;s shelves or journal from this page.</>}
+      />
 
       {welcome && (
         <p className="auth-notice" role="status">
@@ -80,7 +79,7 @@ export function AdminPanel({ welcome }: { welcome: boolean }) {
         </p>
       )}
 
-      <section className="brutalist-card p-5 sm:p-6 space-y-4 tint-sage" aria-labelledby="invite-heading">
+      <section className="brutalist-card p-5 sm:p-6 space-y-4" aria-labelledby="invite-heading">
         <div>
           <h2 id="invite-heading" className="text-xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>Invite someone</h2>
           <p className="text-sm mt-1" style={{ color: 'var(--muted-strong)' }}>

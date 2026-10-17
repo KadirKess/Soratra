@@ -5,6 +5,7 @@ import { CatalogLanguageSettings } from '@/components/account/CatalogLanguageSet
 import { and, eq, isNull } from 'drizzle-orm'
 import { db, users } from '@/server/db'
 import { getInstance } from '@/server/instance'
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default async function ProfilePage() {
   const session = await auth()
@@ -17,18 +18,10 @@ export default async function ProfilePage() {
 
   return (
     <div className="max-w-md space-y-8">
-      <h1 className="text-4xl font-medium" style={{ fontFamily: 'var(--font-cormorant)' }}>
-        Profile
-      </h1>
-
-      <div className="space-y-0.5">
-        <p className="text-base font-bold" style={{ color: 'var(--fg)' }}>
-          {session?.user?.name}
-        </p>
-        <p className="text-sm" style={{ color: 'var(--muted)' }}>
-          {account?.isAdmin ? 'You run this Soratra' : `Member of ${instance.operatorName}'s Soratra`}
-        </p>
-      </div>
+      <PageHeader
+        title="Profile"
+        description={<><span className="font-semibold" style={{ color: 'var(--fg)' }}>@{session?.user?.name}</span> · {account?.isAdmin ? 'You run this Soratra' : `Member of ${instance.operatorName}'s Soratra`}</>}
+      />
 
       {account?.isAdmin && (
         <div className="brutalist-card p-5 sm:p-6 space-y-3 tint-straw">

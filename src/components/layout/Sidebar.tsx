@@ -3,14 +3,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFriendSummary } from "@/components/social/useFriendSummary";
 
-const STATUS_COLORS: Record<string, string> = {
-	"/": "var(--sage)",
-	"/library": "var(--sky)",
-	"/journal": "var(--blush)",
-	"/friends": "var(--sage)",
-	"/profile": "var(--straw)",
-};
-
 const links = [
 	{ href: "/", label: "Home" },
 	{ href: "/library", label: "Library" },
@@ -71,7 +63,7 @@ export function Sidebar({ operatorName, contact }: { operatorName: string; conta
 									? "2px solid var(--fg)"
 									: "2px solid transparent",
 								background: active
-									? STATUS_COLORS[href]
+									? "var(--bg)"
 									: "transparent",
 								boxShadow: active
 									? "var(--shadow-small)"

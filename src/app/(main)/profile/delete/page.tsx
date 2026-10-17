@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { PasswordInput } from '@/components/ui/PasswordInput'
+import { PageHeader } from '@/components/ui/PageHeader'
 
 export default function DeleteAccountPage() {
   const { data: session } = useSession()
@@ -41,9 +42,7 @@ export default function DeleteAccountPage() {
 
   return (
     <div className="max-w-md space-y-6">
-      <h1 className="text-4xl font-light" style={{ fontFamily: 'var(--font-cormorant)' }}>
-        Delete account
-      </h1>
+      <PageHeader title="Delete account" />
       <div
         className="p-5 space-y-4"
         style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
