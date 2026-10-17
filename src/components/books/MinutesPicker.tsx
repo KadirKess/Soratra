@@ -38,8 +38,7 @@ export function MinutesPicker({ value, onChange, id }: Props) {
 				step={SLIDER_STEP}
 				value={sliderValue}
 				onChange={(e) => onChange(Number(e.target.value))}
-				className="w-full accent-[var(--accent)]"
-				style={{ cursor: "pointer" }}
+				className="range-ink w-full"
 				aria-label="Minutes read"
 			/>
 			<div className="flex flex-wrap items-center justify-between gap-3">
@@ -58,12 +57,12 @@ export function MinutesPicker({ value, onChange, id }: Props) {
 						min
 					</span>
 				</div>
-				<p
-					className="text-sm font-semibold"
-					style={{ color: "var(--accent-ink)" }}
-				>
-					{value > 0 ? formatMinutes(value) : "—"}
-				</p>
+				{/* The field already says "30 min"; spell it out only once it runs past an hour. */}
+				{value >= 60 && (
+					<p className="text-sm font-semibold" style={{ color: "var(--accent-ink)" }}>
+						{formatMinutes(value)}
+					</p>
+				)}
 			</div>
 		</div>
 	);

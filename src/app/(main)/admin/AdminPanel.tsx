@@ -63,12 +63,12 @@ export function AdminPanel({ welcome }: { welcome: boolean }) {
     if (ok) createResetLink.mutate({ userId })
   }
 
-  if (overview.isLoading) return <p className="text-sm" style={{ color: 'var(--muted)' }}>Loading your instance...</p>
-  if (!overview.data) return <p className="text-sm" style={{ color: 'var(--muted)' }}>We could not load your instance. Refresh to try again.</p>
+  if (overview.isLoading) return <p className="text-sm" style={{ color: 'var(--muted)' }}>Loading your Soratra…</p>
+  if (!overview.data) return <p className="text-sm" style={{ color: 'var(--muted)' }}>We could not load your Soratra. Refresh to try again.</p>
   const { members, pendingInvites, acceptedInvites, settings } = overview.data
 
   return (
-    <div className="space-y-8 max-w-2xl">
+    <div className="space-y-8 max-w-4xl mx-auto">
       <PageHeader
         title="Your Soratra"
         description={<>Who reads here, and how new readers join. You never see anyone&apos;s shelves or journal from this page.</>}

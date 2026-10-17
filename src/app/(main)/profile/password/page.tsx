@@ -35,7 +35,7 @@ export default function ChangePasswordPage() {
     }
   }
 
-  return <div className="max-w-md space-y-6">
+  return <div className="max-w-md mx-auto space-y-6">
     <PageHeader title="Change password" />
     <form method="post" onSubmit={submit} className="brutalist-card p-5 sm:p-6 space-y-4">
       <div><label htmlFor="current-password" className="block text-sm font-semibold mb-1">Current password</label><PasswordInput id="current-password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} minLength={8} required autoComplete="current-password" className="brutalist-input w-full" /></div>

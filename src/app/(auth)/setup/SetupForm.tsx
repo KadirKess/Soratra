@@ -80,7 +80,7 @@ export function SetupForm() {
       <p className="auth-kicker">Soratra</p>
       <h1 className="auth-title">Welcome to your Soratra</h1>
       <p className="auth-subtitle">
-        A quiet place for your reading. Create your account first; it will be the one that looks after this instance.
+        A quiet place for your reading. Create your account first; it will be the one that looks after this Soratra.
       </p>
       <form method="post" onSubmit={handleSubmit} noValidate className="auth-form">
         <p className="auth-step">1 · Your account</p>

@@ -5,6 +5,8 @@ import { BottomNav } from './BottomNav'
 import { MobileHeader } from './MobileHeader'
 import { ProjectCredit } from './ProjectCredit'
 import { getInstance } from '@/server/instance'
+import { and, eq, isNull } from 'drizzle-orm'
+import { db, users } from '@/server/db'
 
 export async function Shell({ children }: { children: React.ReactNode }) {
   const session = await auth()
@@ -12,12 +14,15 @@ export async function Shell({ children }: { children: React.ReactNode }) {
   if (!session) {
     return <>{children}<ProjectCredit /></>
   }
-  const instance = await getInstance()
+  const [instance, account] = await Promise.all([
+    getInstance(),
+    db.query.users.findFirst({ where: and(eq(users.id, session.user.id), isNull(users.deletedAt)), columns: { isAdmin: true } }),
+  ])
 
   return (
     <div className="flex min-h-screen">
       <a href="#main-content" className="skip-link">Skip to content</a>
-      <Sidebar operatorName={instance.operatorName} contact={instance.contact} />
+      <Sidebar operatorName={instance.operatorName} contact={instance.contact} isAdmin={account?.isAdmin ?? false} />
       <div className="app-shell-content flex-1 flex flex-col md:ml-56">
         <div className="hidden md:block">
           <TopBar />

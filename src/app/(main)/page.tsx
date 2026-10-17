@@ -91,14 +91,14 @@ export default function HomePage() {
 		<div className="space-y-6">
 			<div className="grid lg:grid-cols-12 gap-6 items-stretch card-enter card-enter-1">
 				<section aria-labelledby="today-title" className={`brutalist-card ${currentBook ? getPastelTint(currentBook.book.title) : ""} p-5 sm:p-6 lg:p-7 space-y-5 lg:col-span-7 lg:min-h-[29rem]`}>
-					<div className="flex items-start justify-between gap-4">
+					<div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
 						<div>
 							<p className="eyebrow">The book on your desk</p>
 							<h1 id="today-title" className="font-medium leading-none mt-1" style={{ fontFamily: "var(--font-cormorant)", fontSize: "3.25rem" }}>Today</h1>
 						</div>
 						{hasBookBeingRead && (
-							<Link href="/library?status=reading" className="text-xs font-semibold text-right leading-relaxed hover:underline" style={{ color: "var(--accent-ink)" }}>
-								{dashboard?.totalReading ?? 0} {dashboard?.totalReading === 1 ? "book" : "books"} in progress<br />View shelf →
+							<Link href="/library?status=reading" className="text-xs font-semibold leading-relaxed hover:underline sm:text-right" style={{ color: "var(--accent-ink)" }}>
+								{dashboard?.totalReading ?? 0} {dashboard?.totalReading === 1 ? "book" : "books"} in progress<br className="hidden sm:inline" /><span className="sm:hidden"> · </span>View shelf →
 							</Link>
 						)}
 					</div>

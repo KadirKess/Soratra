@@ -1,0 +1,94 @@
+'use client'
+import { signIn } from 'next-auth/react'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import { PasswordInput } from '@/components/ui/PasswordInput'
+
+export function SignInForm({ openRegistration, operatorName }: { openRegistration: boolean; operatorName: string }) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [error, setError] = useState<string | null>(null)
+  const [usernameError, setUsernameError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const successNotice = searchParams.get('registered')
+    ? 'Account created. Sign in to start your journal.'
+    : searchParams.get('deleted')
+      ? 'Your account was deleted. You can always come back to Soratra later.'
+      : searchParams.get('reset')
+        ? 'Password updated. Sign in with your new password.'
+      : null
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const formElement = e.currentTarget
+    const usernameInput = formElement.elements.namedItem('username')
+    if (!(usernameInput instanceof HTMLInputElement) || !usernameInput.value.trim()) {
+      setUsernameError('Enter your username.')
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+    setUsernameError(null)
+    const form = new FormData(formElement)
+    try {
+      const result = await signIn('credentials', {
+        username: form.get('username'),
+        password: form.get('password'),
+        redirect: false,
+      })
+      if (result?.error) {
+        setError(
+          result.code === 'rate_limited'
+            ? 'Too many sign-in attempts. Please wait a few minutes and try again.'
+            : result.error === 'CredentialsSignin'
+              ? 'Invalid username or password.'
+              : 'We could not sign you in right now. Please try again shortly.',
+        )
+        return
+      }
+      router.replace('/')
+      router.refresh()
+    } catch {
+      setError('We could not sign you in. Check your connection and try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="auth-card">
+      <p className="auth-kicker"><Link href="/landing" className="auth-brand-link" aria-label="Soratra home">Soratra</Link></p>
+      <h1 className="auth-title">Welcome back</h1>
+      <p className="auth-subtitle">
+        Settle in and pick up where you left off.
+      </p>
+      {successNotice && <p className="auth-notice" role="status">{successNotice}</p>}
+      <form method="post" onSubmit={handleSubmit} noValidate className="auth-form">
+        <label htmlFor="signin-username" className="field-label">Username</label>
+        <input id="signin-username" name="username" type="text" required autoComplete="username" autoCapitalize="none" spellCheck={false} aria-invalid={Boolean(usernameError)} aria-describedby={usernameError ? 'signin-username-error' : undefined} onChange={(event) => {
+          if (usernameError && event.currentTarget.value.trim()) setUsernameError(null)
+        }} className="auth-input" />
+        {usernameError && <p id="signin-username-error" className="auth-field-error">{usernameError}</p>}
+        <label htmlFor="signin-password" className="field-label">Password</label>
+        <PasswordInput id="signin-password" name="password" required minLength={8} autoComplete="current-password" className="auth-input" />
+        {error && (
+          <p className="auth-error" role="alert">
+            {error}{error === 'Invalid username or password.' && ' Usernames are not case-sensitive; passwords are.'}
+          </p>
+        )}
+        <button type="submit" disabled={loading} className="auth-btn">
+          {loading ? 'Signing in...' : 'Sign in'}
+        </button>
+      </form>
+      <p className="auth-footer">
+        <Link href="/forgot-password">Forgot password?</Link><br />
+        {openRegistration
+          ? <>No account? <Link href="/signup">Create one</Link></>
+          : <>New here? Ask {operatorName} for an invite link.</>}
+      </p>
+    </div>
+  )
+}

@@ -137,7 +137,7 @@ export default function JournalPage() {
 	const months = groupByMonth(sessions ?? []);
 
 	return (
-		<div className="space-y-10 max-w-4xl">
+		<div className="space-y-10 max-w-4xl mx-auto">
 			<PageHeader title="Journal" description="Every sitting you’ve logged, newest first." />
 
 			<section aria-label="Reading summary" className="brutalist-card grid md:grid-cols-[1.35fr_1fr_1.35fr]">

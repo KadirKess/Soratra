@@ -42,7 +42,8 @@ export default function FriendsPage() {
 	}
 
 	function completed(message: string) {
-		setStatusMessage(message);
+		// Successes go to the toast only; the inline line is kept for errors.
+		setStatusMessage("");
 		toast.success(message);
 		void refreshFriendships();
 	}
@@ -90,10 +91,10 @@ export default function FriendsPage() {
 	const pending = sendRequest.isPending || accept.isPending || decline.isPending || cancel.isPending || remove.isPending;
 
 	return (
-		<div className="space-y-8 max-w-2xl">
+		<div className="space-y-8 max-w-4xl mx-auto">
 			<PageHeader title="Friends" description="A small circle for sharing reading, by mutual choice." />
 
-			{statusMessage && <p role="status" className="text-sm" style={{ color: "var(--muted)" }}>{statusMessage}</p>}
+			{statusMessage && <p role="alert" className="form-error">{statusMessage}</p>}
 
 			{received && received.length > 0 && (
 				<section className="space-y-3" aria-labelledby="received-requests">

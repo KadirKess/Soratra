@@ -6,7 +6,7 @@ import { db, users } from '@/server/db'
 import { AdminPanel } from './AdminPanel'
 
 export const metadata: Metadata = {
-  title: 'Your instance',
+  title: 'Your Soratra',
   robots: { index: false, follow: false },
 }
 

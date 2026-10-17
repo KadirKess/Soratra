@@ -41,7 +41,7 @@ export default function DeleteAccountPage() {
   }
 
   return (
-    <div className="max-w-md space-y-6">
+    <div className="max-w-md mx-auto space-y-6">
       <PageHeader title="Delete account" />
       <div
         className="p-5 space-y-4"

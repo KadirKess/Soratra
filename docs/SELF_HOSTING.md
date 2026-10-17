@@ -85,7 +85,7 @@ If you already run Traefik, nginx, Nginx Proxy Manager, or Cloudflare Tunnel, po
 
 ## Readers and accounts
 
-Soratra doesn't send email. The person who runs the instance looks after joining and forgotten passwords from **Profile → Manage members**:
+Soratra doesn't send email. The person who runs the instance looks after joining and forgotten passwords from **Your Soratra** in the sidebar (on a phone, from **Profile**):
 
 - **Who can join.** *Only people I invite* (the default) or *Anyone who can open this page*. Open sign-up is fine on a private network; on a public domain, invite-only keeps strangers out.
 - **Invite links.** Each one works once and expires after seven days. Send it any way you like.
