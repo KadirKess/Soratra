@@ -24,7 +24,7 @@ export default async function ProfilePage() {
       />
 
       {account?.isAdmin && (
-        <div className="brutalist-card p-5 sm:p-6 space-y-3 tint-straw">
+        <div className="brutalist-card p-5 sm:p-6 space-y-3">
           <p className="eyebrow" style={{ color: 'var(--muted-strong)' }}>
             Your instance
           </p>

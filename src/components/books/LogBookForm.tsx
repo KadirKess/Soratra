@@ -14,6 +14,8 @@ const STATUS_OPTIONS = [
 
 type Status = 'want_to_read' | 'reading' | 'read'
 
+const STATUS_LABELS: Record<Status, string> = { want_to_read: 'Want to read', reading: 'Reading', read: 'Read' }
+
 interface LogBookFormProps {
   bookId: string
 }
@@ -57,8 +59,12 @@ export function LogBookForm({ bookId }: LogBookFormProps) {
       const wasRead = ctx?.prev?.status === 'read'
       if (vars.status === 'read' && !wasRead) {
         celebrateFinished()
+      } else if (!ctx?.prev) {
+        toast.success(`Added to your library as ${STATUS_LABELS[vars.status].toLowerCase()}`)
+      } else if (ctx.prev.status !== vars.status) {
+        toast.success(`Moved to ${STATUS_LABELS[vars.status].toLowerCase()}`)
       } else {
-        toast.success(ctx?.prev ? 'Updated' : 'Added to library')
+        toast.success('Review saved')
       }
     },
     onSettled: () => {
@@ -91,25 +97,35 @@ export function LogBookForm({ bookId }: LogBookFormProps) {
     },
   })
 
-  function handleSave() {
+  function save(nextStatus: Status, nextRating: number | null, nextReview: string, nextSpoiler: boolean) {
     upsert.mutate({
       bookId,
-      status,
-      rating: status === 'read' ? rating : null,
-      review: status === 'read' ? review || null : null,
-      reviewHasSpoiler: status === 'read' && Boolean(review.trim()) && reviewHasSpoiler,
+      status: nextStatus,
+      rating: nextStatus === 'read' ? nextRating : null,
+      review: nextStatus === 'read' ? nextReview || null : null,
+      reviewHasSpoiler: nextStatus === 'read' && Boolean(nextReview.trim()) && nextSpoiler,
     })
   }
 
+  // Choosing a status saves it straight away, like logging a session does.
   function selectStatus(nextStatus: Status) {
+    if (userBook && nextStatus === status) return
     hasEdited.current = true
     setStatus(nextStatus)
-    if (nextStatus !== 'read') {
+    const keepsReview = nextStatus === 'read'
+    if (!keepsReview) {
       setRating(null)
       setReview('')
       setReviewHasSpoiler(false)
     }
+    save(nextStatus, keepsReview ? rating : null, keepsReview ? review : '', keepsReview && reviewHasSpoiler)
   }
+
+  const savedRating = userBook?.rating ? Number(userBook.rating) : null
+  const reviewChanged =
+    status === 'read' &&
+    Boolean(userBook) &&
+    (rating !== savedRating || review !== (userBook?.review ?? '') || reviewHasSpoiler !== (userBook?.reviewHasSpoiler === 1))
 
   async function handleRemove() {
     const ok = await confirm({
@@ -144,9 +160,8 @@ export function LogBookForm({ bookId }: LogBookFormProps) {
 
   return (
     <div className="brutalist-card space-y-5 p-5 sm:p-6">
-      {/* Status */}
       <div>
-        <p className="eyebrow mb-2.5">Status</p>
+        <p className="eyebrow mb-2.5">{userBook ? 'On your shelf' : 'Add to your shelf'}</p>
         <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label="Reading status">
           {STATUS_OPTIONS.map(({ value, label }) => {
             const active = status === value
@@ -155,8 +170,9 @@ export function LogBookForm({ bookId }: LogBookFormProps) {
                 key={value}
                 type="button"
                 onClick={() => selectStatus(value)}
+                disabled={isLoading || upsert.isPending}
                 role="radio"
-                aria-checked={active}
+                aria-checked={Boolean(userBook) && active}
                 className="chip"
               >
                 {label}
@@ -203,27 +219,30 @@ export function LogBookForm({ bookId }: LogBookFormProps) {
         </>
       )}
 
-      {/* Actions */}
-      <div className="flex flex-wrap gap-2.5">
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={upsert.isPending || isLoading}
-          className="btn-primary"
-        >
-          {isLoading ? 'Loading…' : upsert.isPending ? 'Saving…' : userBook ? 'Update' : status === 'reading' ? 'Start reading' : 'Add to library'}
-        </button>
-        {userBook && (
-          <button
-            type="button"
-            onClick={handleRemove}
-            disabled={remove.isPending}
-            className="btn-danger"
-          >
-            {remove.isPending ? 'Removing…' : 'Remove'}
-          </button>
-        )}
-      </div>
+      {(reviewChanged || userBook) && (
+        <div className="flex flex-wrap items-center justify-between gap-2.5">
+          {reviewChanged ? (
+            <button
+              type="button"
+              onClick={() => save(status, rating, review, reviewHasSpoiler)}
+              disabled={upsert.isPending}
+              className="btn-primary"
+            >
+              {upsert.isPending ? 'Saving…' : 'Save review'}
+            </button>
+          ) : <span />}
+          {userBook && (
+            <button
+              type="button"
+              onClick={handleRemove}
+              disabled={remove.isPending}
+              className="btn-quiet is-danger text-sm -mr-3"
+            >
+              {remove.isPending ? 'Removing…' : 'Remove from library'}
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }

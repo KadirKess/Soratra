@@ -8,6 +8,7 @@ import { formatDateOnly } from "@/lib/dates";
 import { StarRating } from "@/components/books/StarRating";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { SpoilerReveal } from "@/components/ui/SpoilerReveal";
+import { Avatar } from "@/components/ui/Avatar";
 
 export function FriendFeed() {
 	const { data: activity, isLoading, isError, refetch, isRefetching } = trpc.readingSessions.friendFeed.useQuery({ limit: 6 });
@@ -40,8 +41,9 @@ export function FriendFeed() {
 								<div className="flex items-baseline gap-2 flex-wrap text-sm">
 							<Link
 								href={`/profile/${entry.user.username}`}
-								className="font-bold hover:underline"
+								className="inline-flex items-center gap-2 self-center font-bold hover:underline"
 							>
+								<Avatar username={entry.user.username} size="sm" />
 								@{entry.user.username}
 							</Link>
 							<span

@@ -8,6 +8,7 @@ import { CheckInModal } from "./CheckInModal";
 import { useCheckInSuccess } from "./useCheckInSuccess";
 import { CoverPlaceholder } from "./CoverPlaceholder";
 import type { Book } from "@/server/db";
+import { getPastelTint } from "@/lib/pastel";
 
 interface LibraryReadingCardProps {
 	book: Book;
@@ -21,7 +22,7 @@ export function LibraryReadingCard({ book, loggedToday, todayDate }: LibraryRead
 	const handleSuccess = useCheckInSuccess();
 
 	return (
-		<article className={`brutalist-card ${loggedToday ? "tint-sage" : ""} p-3 flex flex-col h-full gap-3`}>
+		<article className={`brutalist-card ${getPastelTint(book.title)} p-3 flex flex-col h-full gap-3`}>
 			<Link href={`/books/${encodeURIComponent(book.openLibraryId)}`} prefetch={false} className="group block">
 				<div className="cover">
 					<CoverPlaceholder title={book.title} author={book.authors[0]} />

@@ -6,6 +6,7 @@ import { trpc } from '@/lib/trpc/client'
 import { useConfirm } from '@/components/ui/ConfirmDialog'
 import { CopyLink } from '@/components/ui/CopyLink'
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Avatar } from '@/components/ui/Avatar'
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
 const dateTimeFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
@@ -121,9 +122,12 @@ export function AdminPanel({ welcome }: { welcome: boolean }) {
         {members.map((member) => (
           <div key={member.id} className="card-flat p-4 space-y-3">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <p className="font-semibold text-sm truncate">@{member.username}{member.isAdmin && <span className="eyebrow ml-2" style={{ color: 'var(--accent-ink)' }}>You</span>}</p>
-                <p className="text-xs" style={{ color: 'var(--muted)' }}>Joined {dateFormat.format(member.createdAt)}</p>
+              <div className="flex items-center gap-3 min-w-0">
+                <Avatar username={member.username} />
+                <div className="min-w-0">
+                  <p className="font-semibold text-sm truncate">@{member.username}{member.isAdmin && <span className="eyebrow ml-2" style={{ color: 'var(--accent-ink)' }}>You</span>}</p>
+                  <p className="text-xs" style={{ color: 'var(--muted)' }}>Joined {dateFormat.format(member.createdAt)}</p>
+                </div>
               </div>
               {!member.isAdmin && (
                 <button type="button" onClick={() => handleResetLink(member.id, member.username)} disabled={createResetLink.isPending} className="btn-secondary justify-center">

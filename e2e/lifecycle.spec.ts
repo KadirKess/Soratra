@@ -36,11 +36,14 @@ test('reading sessions survive editing and export with the book finish date', as
   await expect(page.getByText('Synthetic lifecycle note before editing', { exact: true })).toHaveCount(0)
 
   await page.goto('/books/OL910004W')
+  // Choosing a status saves it; the review is saved separately once typed.
+  const statusSave = page.waitForResponse(response => response.url().includes('userBooks.upsert') && response.ok())
   await page.getByRole('radio', { name: 'Read', exact: true }).click()
+  await statusSave
   await page.getByLabel('Your note about this book').fill('Synthetic completed-book review')
-  const save = page.waitForResponse(response => response.url().includes('userBooks.upsert') && response.ok())
-  await page.getByRole('button', { name: 'Update', exact: true }).click()
-  await save
+  const reviewSave = page.waitForResponse(response => response.url().includes('userBooks.upsert') && response.ok())
+  await page.getByRole('button', { name: 'Save review', exact: true }).click()
+  await reviewSave
 
   const exported = await page.request.get('/api/profile/export')
   expect(exported.status()).toBe(200)

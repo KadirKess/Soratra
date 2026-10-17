@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { trpc } from "@/lib/trpc/client";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Avatar } from "@/components/ui/Avatar";
 
 export default function FriendsPage() {
 	const { data: session } = useSession();
@@ -101,12 +102,12 @@ export default function FriendsPage() {
 					</h2>
 					{received.map((request) => (
 						<div key={request.requester.id} className="card-flat p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-							<span className="font-semibold text-sm truncate">@{request.requester.username}</span>
+							<span className="flex items-center gap-3 min-w-0"><Avatar username={request.requester.username} /><span className="font-semibold text-sm truncate">@{request.requester.username}</span></span>
 							<div className="grid grid-cols-2 gap-2 sm:flex">
-								<button type="button" onClick={() => accept.mutate({ requesterId: request.requester.id })} disabled={pending} className="btn-secondary justify-center tint-sage">
+								<button type="button" onClick={() => accept.mutate({ requesterId: request.requester.id })} disabled={pending} className="btn-primary justify-center">
 									{accept.isPending ? "Accepting..." : "Accept"}
 								</button>
-								<button type="button" onClick={() => decline.mutate({ requesterId: request.requester.id })} disabled={pending} className="btn-secondary justify-center tint-blush">
+								<button type="button" onClick={() => decline.mutate({ requesterId: request.requester.id })} disabled={pending} className="btn-secondary justify-center">
 									{decline.isPending ? "Declining..." : "Decline"}
 								</button>
 							</div>
@@ -115,7 +116,7 @@ export default function FriendsPage() {
 				</section>
 			)}
 
-			<section className="brutalist-card p-5 sm:p-6 space-y-4 tint-sky" aria-labelledby="connect-reader">
+			<section className="brutalist-card p-5 sm:p-6 space-y-4" aria-labelledby="connect-reader">
 				<div>
 					<h2 id="connect-reader" className="text-xl font-bold" style={{ fontFamily: "var(--font-cormorant)" }}>Connect with a reader</h2>
 					<p className="text-sm mt-1" style={{ color: "var(--muted)" }}>Ask someone you know for their username.</p>
@@ -133,7 +134,7 @@ export default function FriendsPage() {
 							: lookup.isLoading ? <p>Looking for that reader...</p>
 								: lookup.isError ? <p>We couldn&apos;t look that up. Check your connection and try again.</p>
 									: !lookup.data ? <p>No reader with that exact username. Check the spelling.</p>
-										: <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><span className="font-semibold truncate">@{lookup.data.username}</span><LookupAction relationship={relationship.data?.status ?? "none"} checking={relationship.isLoading} pending={pending} onConnect={() => sendRequest.mutate({ addresseeId: lookup.data!.id })} onCancel={() => cancel.mutate({ addresseeId: lookup.data!.id })} /></div>}
+										: <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><span className="flex items-center gap-3 min-w-0"><Avatar username={lookup.data.username} /><span className="font-semibold truncate">@{lookup.data.username}</span></span><LookupAction relationship={relationship.data?.status ?? "none"} checking={relationship.isLoading} pending={pending} onConnect={() => sendRequest.mutate({ addresseeId: lookup.data!.id })} onCancel={() => cancel.mutate({ addresseeId: lookup.data!.id })} /></div>}
 					</div>
 				)}
 			</section>
@@ -141,11 +142,11 @@ export default function FriendsPage() {
 			<section className="space-y-3" aria-labelledby="friends-list">
 				<h2 id="friends-list" className="eyebrow">Your friends</h2>
 				{!friends || friends.length === 0 ? <p className="text-sm" style={{ color: "var(--muted)" }}>No connections yet.</p> : friends.map(({ friend }) => {
-					return <div key={friend.id} className="card-flat p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><Link href={`/profile/${friend.username}`} className="font-semibold text-sm truncate hover:underline">@{friend.username}</Link><div className="grid grid-cols-2 gap-2 sm:flex"><Link href={`/profile/${friend.username}`} className="btn-secondary justify-center">View profile</Link><button type="button" onClick={() => handleRemoveFriend(friend.id, friend.username)} disabled={pending} className="btn-secondary justify-center tint-blush">{remove.isPending ? "Removing..." : "Remove"}</button></div></div>;
+					return <div key={friend.id} className="card-flat p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><Link href={`/profile/${friend.username}`} className="flex items-center gap-3 min-w-0 font-semibold text-sm hover:underline"><Avatar username={friend.username} /><span className="truncate">@{friend.username}</span></Link><div className="grid grid-cols-2 gap-2 sm:flex"><Link href={`/profile/${friend.username}`} className="btn-secondary justify-center">View profile</Link><button type="button" onClick={() => handleRemoveFriend(friend.id, friend.username)} disabled={pending} className="btn-quiet is-danger justify-center">{remove.isPending ? "Removing..." : "Remove"}</button></div></div>;
 				})}
 			</section>
 
-			{sent && sent.length > 0 && <section className="space-y-3" aria-labelledby="sent-requests"><h2 id="sent-requests" className="eyebrow">Requests sent</h2>{sent.map((request) => <div key={request.addressee.id} className="brutalist-card p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><span className="font-semibold text-sm truncate">@{request.addressee.username}</span><button type="button" onClick={() => cancel.mutate({ addresseeId: request.addressee.id })} disabled={pending} className="btn-secondary justify-center">{cancel.isPending ? "Cancelling..." : "Cancel request"}</button></div>)}</section>}
+			{sent && sent.length > 0 && <section className="space-y-3" aria-labelledby="sent-requests"><h2 id="sent-requests" className="eyebrow">Requests sent</h2>{sent.map((request) => <div key={request.addressee.id} className="card-flat p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><span className="flex items-center gap-3 min-w-0"><Avatar username={request.addressee.username} /><span className="font-semibold text-sm truncate">@{request.addressee.username}</span></span><button type="button" onClick={() => cancel.mutate({ addresseeId: request.addressee.id })} disabled={pending} className="btn-secondary justify-center">{cancel.isPending ? "Cancelling..." : "Cancel request"}</button></div>)}</section>}
 		</div>
 	);
 }

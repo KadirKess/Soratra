@@ -13,6 +13,7 @@ import { SpoilerReveal } from "@/components/ui/SpoilerReveal";
 import { dateOnlyParts, formatDateOnly } from "@/lib/dates";
 import { formatMinutes } from "@/lib/formatMinutes";
 import { getPastelTint } from "@/lib/pastel";
+import { Avatar } from "@/components/ui/Avatar";
 
 interface Props {
 	params: Promise<{ username: string }>;
@@ -64,9 +65,12 @@ export default function UserProfilePage({ params }: Props) {
 	return (
 		<div className="space-y-8 max-w-6xl">
 			<header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-				<div>
-					<p className="eyebrow">Reading journal</p>
-					<h1 className="text-5xl font-medium leading-none mt-2" style={{ fontFamily: "var(--font-cormorant)" }}>@{user.username}</h1>
+				<div className="flex items-end gap-4">
+					<Avatar username={user.username} size="lg" />
+					<div>
+						<p className="eyebrow">Reading journal</p>
+						<h1 className="text-5xl font-medium leading-none mt-2" style={{ fontFamily: "var(--font-cormorant)" }}>@{user.username}</h1>
+					</div>
 				</div>
 				<p className="text-sm font-semibold" style={{ color: "var(--muted)" }}>{totalRead} read <span aria-hidden="true">·</span> {totalReading} reading <span aria-hidden="true">·</span> {totalWantToRead} want to read</p>
 			</header>
