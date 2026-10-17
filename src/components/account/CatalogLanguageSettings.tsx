@@ -10,7 +10,7 @@ export function CatalogLanguageSettings() {
   const preferredLanguage = selection ?? me?.preferredLanguage ?? 'en'
   const save = trpc.users.setPreferredLanguage.useMutation()
 
-  return <div className="brutalist-card p-5 sm:p-6 space-y-3">
+  return <div className="brutalist-card tint-sky p-5 sm:p-6 space-y-3">
     <div>
       <p className="eyebrow">Book titles</p>
       <p className="text-sm mt-1" style={{ color: 'var(--muted)' }}>Search favors editions in this language. English is used when Open Library returns it instead.</p>

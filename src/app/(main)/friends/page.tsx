@@ -102,7 +102,7 @@ export default function FriendsPage() {
 						Requests received
 					</h2>
 					{received.map((request) => (
-						<div key={request.requester.id} className="card-flat p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+						<div key={request.requester.id} className="card-flat tint-sage p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 							<span className="flex items-center gap-3 min-w-0"><Avatar username={request.requester.username} /><span className="font-semibold text-sm truncate">@{request.requester.username}</span></span>
 							<div className="grid grid-cols-2 gap-2 sm:flex">
 								<button type="button" onClick={() => accept.mutate({ requesterId: request.requester.id })} disabled={pending} className="btn-primary justify-center">
@@ -117,7 +117,7 @@ export default function FriendsPage() {
 				</section>
 			)}
 
-			<section className="brutalist-card p-5 sm:p-6 space-y-4" aria-labelledby="connect-reader">
+			<section className="brutalist-card tint-sky p-5 sm:p-6 space-y-4" aria-labelledby="connect-reader">
 				<div>
 					<h2 id="connect-reader" className="text-xl font-bold" style={{ fontFamily: "var(--font-cormorant)" }}>Connect with a reader</h2>
 					<p className="text-sm mt-1" style={{ color: "var(--muted)" }}>Ask someone you know for their username.</p>

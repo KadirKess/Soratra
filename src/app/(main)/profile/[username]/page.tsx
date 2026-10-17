@@ -102,15 +102,15 @@ export default function UserProfilePage({ params }: Props) {
 				</section>
 
 				<div className="space-y-8">
-					<section className="brutalist-card p-5 sm:p-6" aria-labelledby="finished-title">
+					<section className="brutalist-card tint-blush p-5 sm:p-6" aria-labelledby="finished-title">
 						<div className="flex items-center gap-3 mb-4"><h2 id="finished-title" className="text-3xl font-bold shrink-0" style={{ fontFamily: "var(--font-cormorant)" }}>Finished</h2><div className="flex-1" style={{ borderTop: "1px solid var(--rule)" }} /></div>
 						{finished.entries.length === 0 ? <EmptyState message="No finished books shared yet." /> : <div className="space-y-3 max-h-[24rem] overflow-y-auto pr-2 pb-2" aria-label="Finished books and reviews">
-							{finished.entries.map((entry) => <article key={entry.id} className={`card-flat ${getPastelTint(entry.book.title)} p-4 space-y-2`}><Link href={`/books/${encodeURIComponent(entry.book.openLibraryId)}`} className="font-bold leading-tight hover:underline" style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.35rem" }}>{entry.book.title}</Link><p className="text-xs" style={{ color: "var(--muted)" }}>{entry.book.authors.join(", ")}{entry.finishedDate ? ` · ${formatDateOnly(entry.finishedDate)}` : ""}</p>{entry.rating && <StarRating value={Number(entry.rating)} onChange={() => undefined} readOnly className="text-base" />}{entry.review && (entry.reviewHasSpoiler ? <SpoilerReveal label="this review">{entry.review}</SpoilerReveal> : <p className="reader-note">{entry.review}</p>)}</article>)}
+							{finished.entries.map((entry) => <article key={entry.id} className="card-flat p-4 space-y-2"><Link href={`/books/${encodeURIComponent(entry.book.openLibraryId)}`} className="font-bold leading-tight hover:underline" style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.35rem" }}>{entry.book.title}</Link><p className="text-xs" style={{ color: "var(--muted)" }}>{entry.book.authors.join(", ")}{entry.finishedDate ? ` · ${formatDateOnly(entry.finishedDate)}` : ""}</p>{entry.rating && <StarRating value={Number(entry.rating)} onChange={() => undefined} readOnly className="text-base" />}{entry.review && (entry.reviewHasSpoiler ? <SpoilerReveal label="this review">{entry.review}</SpoilerReveal> : <p className="reader-note">{entry.review}</p>)}</article>)}
 						</div>}
 						<Pagination offset={finishedOffset} hasMore={finished.hasMore} onNewer={() => setFinishedOffset((value) => Math.max(0, value - PROFILE_PAGE_SIZE))} onOlder={() => setFinishedOffset((value) => value + PROFILE_PAGE_SIZE)} label="books" />
 					</section>
 
-					<section className="brutalist-card p-5 sm:p-6" aria-labelledby="want-to-read-title">
+					<section className="brutalist-card tint-sky p-5 sm:p-6" aria-labelledby="want-to-read-title">
 						<div className="flex items-center gap-3 mb-4"><h2 id="want-to-read-title" className="text-3xl font-bold shrink-0" style={{ fontFamily: "var(--font-cormorant)" }}>Want to read</h2><div className="flex-1" style={{ borderTop: "1px solid var(--rule)" }} /></div>
 						{wantToRead.entries.length === 0 ? <EmptyState message="Nothing waiting on this shelf yet." /> : <div className="grid grid-cols-3 gap-3 max-h-[24rem] overflow-y-auto pr-2 pb-2" aria-label="Want to read shelf">{wantToRead.entries.map(({ id, book }) => <BookCard key={id} openLibraryId={book.openLibraryId} title={book.title} authors={book.authors} coverUrl={book.coverUrl} compact />)}</div>}
 						<Pagination offset={wantToReadOffset} hasMore={wantToRead.hasMore} onNewer={() => setWantToReadOffset((value) => Math.max(0, value - PROFILE_PAGE_SIZE))} onOlder={() => setWantToReadOffset((value) => value + PROFILE_PAGE_SIZE)} label="books" />
@@ -118,7 +118,7 @@ export default function UserProfilePage({ params }: Props) {
 				</div>
 			</div>
 
-			{currentlyReading.length > 0 && <section className="brutalist-card p-5 sm:p-6" aria-labelledby="currently-reading-title"><div className="flex items-center gap-3 mb-4"><h2 id="currently-reading-title" className="text-3xl font-bold shrink-0" style={{ fontFamily: "var(--font-cormorant)" }}>On their desk</h2><div className="flex-1" style={{ borderTop: "1px solid var(--rule)" }} /></div><div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-3xl">{currentlyReading.map(({ book }) => <BookCard key={book.id} openLibraryId={book.openLibraryId} title={book.title} authors={book.authors} coverUrl={book.coverUrl} compact />)}</div></section>}
+			{currentlyReading.length > 0 && <section className="brutalist-card tint-sage p-5 sm:p-6" aria-labelledby="currently-reading-title"><div className="flex items-center gap-3 mb-4"><h2 id="currently-reading-title" className="text-3xl font-bold shrink-0" style={{ fontFamily: "var(--font-cormorant)" }}>On their desk</h2><div className="flex-1" style={{ borderTop: "1px solid var(--rule)" }} /></div><div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-3xl">{currentlyReading.map(({ book }) => <BookCard key={book.id} openLibraryId={book.openLibraryId} title={book.title} authors={book.authors} coverUrl={book.coverUrl} compact />)}</div></section>}
 		</div>
 	);
 }

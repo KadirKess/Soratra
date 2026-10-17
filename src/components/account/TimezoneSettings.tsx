@@ -19,7 +19,7 @@ export function TimezoneSettings() {
   const save = trpc.users.setTimezone.useMutation()
   const timeZones = getTimeZones()
 
-  return <div className="brutalist-card p-5 sm:p-6 space-y-3">
+  return <div className="brutalist-card tint-sage p-5 sm:p-6 space-y-3">
     <div>
       <p className="eyebrow">Reading day</p>
       <p className="text-sm mt-1" style={{ color: 'var(--muted)' }}>Your streak and check-ins use this time zone.</p>

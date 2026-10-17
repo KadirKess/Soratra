@@ -6,6 +6,7 @@ import { and, eq, isNull } from 'drizzle-orm'
 import { db, users } from '@/server/db'
 import { getInstance } from '@/server/instance'
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Avatar } from "@/components/ui/Avatar";
 
 export default async function ProfilePage() {
   const session = await auth()
@@ -19,13 +20,13 @@ export default async function ProfilePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <PageHeader
-        title="Profile"
+        title={<span className="flex items-center gap-4">{session?.user?.name && <Avatar username={session.user.name} size="lg" />}Profile</span>}
         description={<><span className="font-semibold" style={{ color: 'var(--fg)' }}>@{session?.user?.name}</span> · {account?.isAdmin ? 'You run this Soratra' : `Reader on ${instance.operatorName}'s Soratra`}</>}
       />
 
       <div className="grid gap-6 md:grid-cols-2 items-start">
         {account?.isAdmin && (
-          <div className="brutalist-card p-5 sm:p-6 space-y-3 md:col-span-2 md:flex md:items-center md:justify-between md:gap-6 md:space-y-0">
+          <div className="brutalist-card tint-straw p-5 sm:p-6 space-y-3 md:col-span-2 md:flex md:items-center md:justify-between md:gap-6 md:space-y-0">
             <div className="space-y-1.5">
               <p className="eyebrow">Your Soratra</p>
               <p className="text-sm leading-6" style={{ color: 'var(--muted)' }}>
