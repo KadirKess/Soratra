@@ -2,17 +2,22 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { auth } from '@/server/auth'
+import { siteConfig } from '@/lib/config'
 import { FALLBACK_OPERATOR_NAME, getInstance } from '@/server/instance'
 import { requireSetup } from '@/server/setupGate'
 import { OperatorContact } from '@/components/layout/OperatorContact'
 import { Wordmark } from '@/components/layout/Wordmark'
 
 // Every installation is someone's private Soratra, so its front door stays out
-// of search results. The story of the project lives on soratra.app.
-export const metadata: Metadata = {
-  title: { absolute: 'Soratra' },
-  description: 'A private reading journal.',
-  robots: { index: false, follow: false },
+// of search results unless the operator turns SEARCH_INDEXING on. The story of
+// the project lives on soratra.app.
+export function generateMetadata(): Metadata {
+  const indexed = siteConfig.searchIndexing
+  return {
+    title: { absolute: 'Soratra' },
+    description: 'A private reading journal.',
+    robots: { index: indexed, follow: indexed },
+  }
 }
 
 export const dynamic = 'force-dynamic'

@@ -24,6 +24,9 @@ const cormorantItalic = localFont({
   ],
   variable: '--font-cormorant-italic',
   preload: false,
+  // The default fallback is a resized Arial, which flashes while the file loads.
+  // Without it, .reader-note falls through to the roman Cormorant instead.
+  adjustFontFallback: false,
 })
 
 const dmSans = localFont({

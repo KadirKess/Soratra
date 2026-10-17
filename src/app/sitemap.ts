@@ -3,8 +3,15 @@ import { siteConfig } from '@/lib/config'
 
 export const dynamic = 'force-dynamic'
 
+// Only list pages when the operator has asked to be found.
 export default function sitemap(): MetadataRoute.Sitemap {
+  if (!siteConfig.searchIndexing) return []
   return [
+    {
+      url: new URL('/landing', siteConfig.siteUrl).toString(),
+      changeFrequency: 'monthly',
+      priority: 1,
+    },
     {
       url: new URL('/privacy', siteConfig.siteUrl).toString(),
       changeFrequency: 'yearly',
