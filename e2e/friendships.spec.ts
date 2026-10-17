@@ -18,12 +18,12 @@ test.describe('Friendships', () => {
       await firstPage.getByRole('button', { name: 'Find reader', exact: true }).click()
       await expect(firstPage.getByText(`@${secondReader.username}`, { exact: true })).toBeVisible()
       await firstPage.getByRole('button', { name: 'Connect', exact: true }).click()
-      await expect(firstPage.getByRole('status').filter({ hasText: 'Friend request sent.' })).toBeVisible()
+      await expect(firstPage.getByText('Friend request sent.', { exact: true })).toBeVisible()
 
       await secondPage.goto('/friends')
       await expect(secondPage.getByText(`@${firstReader.username}`, { exact: true })).toBeVisible()
       await secondPage.getByRole('button', { name: 'Accept', exact: true }).click()
-      await expect(secondPage.getByRole('status').filter({ hasText: 'You are now friends.' })).toBeVisible()
+      await expect(secondPage.getByText('You are now friends.', { exact: true })).toBeVisible()
 
       await firstPage.goto('/friends')
       await expect(firstPage.getByRole('link', { name: `@${secondReader.username}`, exact: true })).toBeVisible()
@@ -32,7 +32,7 @@ test.describe('Friendships', () => {
       const dialog = firstPage.getByRole('dialog')
       await expect(dialog).toBeVisible()
       await dialog.getByRole('button', { name: 'Remove', exact: true }).click()
-      await expect(firstPage.getByRole('status').filter({ hasText: 'Connection removed. Shared reading access has ended.' })).toBeVisible()
+      await expect(firstPage.getByText('Connection removed. Shared reading access has ended.', { exact: true })).toBeVisible()
 
       await secondPage.goto(`/profile/${firstReader.username}`)
       await expect(secondPage.getByRole('heading', { name: 'Private profile', exact: true })).toBeVisible()

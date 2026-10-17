@@ -111,7 +111,7 @@ export function SetupForm() {
           {loading ? 'Setting up...' : 'Start my journal'}
         </button>
       </form>
-      <p className="auth-footer">You can change all of this later from your profile.</p>
+      <p className="auth-footer">You can change who can join later, in Your Soratra.</p>
     </div>
   )
 }
