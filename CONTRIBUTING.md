@@ -68,6 +68,22 @@ docker compose down --volumes
 
 The [CI workflow](.github/workflows/ci.yml) does the same on GitHub and also checks the rescue command, the first backup, readiness, and the downloadable source archive.
 
+### Install scenarios
+
+CI also runs whole installations in other shapes, each from its own throwaway folder and Compose project, with the scripts in `docker/ci/`:
+
+- `lifecycle.sh` seeds the previous release, updates it to your image on the same volumes, restarts it, then moves it to a fresh install with a backup. Readers must stay signed in with their data intact throughout. It needs the release tags (`git fetch --tags`) and the published previous image.
+- `fresh-install.sh` drives first-run setup in the browser, invite-only joining, and the admin settings.
+- `caddy.sh` runs the HTTPS overlay in production mode with `DOMAIN=localhost`, and checks the optional settings and that rate limits use the address Caddy saw. It needs ports 80 and 443.
+- `compose-config.sh` checks that every documented combination of compose files parses.
+
+Build the image under the tag the scripts expect, then run any of them:
+
+```sh
+docker build -t ghcr.io/kadirkess/soratra:ci --build-arg SORATRA_VERSION=ci .
+docker/ci/fresh-install.sh
+```
+
 ## Make changes that fit the project
 
 - Preserve the reader's local calendar date. Sessions and streaks use IANA time zones and `YYYY-MM-DD` text dates; do not replace them with UTC date slicing.

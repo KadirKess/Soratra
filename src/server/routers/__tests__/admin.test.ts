@@ -33,6 +33,8 @@ describe('admin router', () => {
   it('is closed to readers who are not the admin', async () => {
     await expect(caller(false).createInvite()).rejects.toMatchObject({ code: 'FORBIDDEN' })
     await expect(caller(false).createResetLink({ userId: memberId })).rejects.toMatchObject({ code: 'FORBIDDEN' })
+    await expect(caller(false).updateSettings({ operatorName: '', contact: '', registration: 'open' }))
+      .rejects.toMatchObject({ code: 'FORBIDDEN' })
     expect(createInviteToken).not.toHaveBeenCalled()
     expect(createPasswordResetToken).not.toHaveBeenCalled()
   })
@@ -52,5 +54,44 @@ describe('admin router', () => {
     const result = await caller(true).createInvite()
     expect(result.path).toBe('/signup?invite=t')
     expect(createInviteToken).toHaveBeenCalledWith(db, adminId)
+  })
+
+  describe('updateSettings', () => {
+    function mockUpdate() {
+      const where = vi.fn().mockResolvedValue(undefined)
+      const set = vi.fn(() => ({ where }))
+      const update = vi.fn(() => ({ set }))
+      ;(db as unknown as Record<string, unknown>).update = update
+      return { update, set, where }
+    }
+
+    it('saves trimmed operator details and the registration mode', async () => {
+      const { update, set, where } = mockUpdate()
+      await expect(caller(true).updateSettings({
+        operatorName: '  Ada  ', contact: ' ada@example.org ', registration: 'open',
+      })).resolves.toEqual({ ok: true })
+      expect(update).toHaveBeenCalledTimes(1)
+      expect(set).toHaveBeenCalledWith(expect.objectContaining({
+        operatorName: 'Ada', contact: 'ada@example.org', registration: 'open', updatedAt: expect.any(Date),
+      }))
+      expect(where).toHaveBeenCalledTimes(1)
+    })
+
+    it('clears blank details so the defaults show again', async () => {
+      const { set } = mockUpdate()
+      await caller(true).updateSettings({ operatorName: '   ', contact: '', registration: 'invite' })
+      expect(set).toHaveBeenCalledWith(expect.objectContaining({ operatorName: null, contact: null, registration: 'invite' }))
+    })
+
+    it('rejects overlong details and unknown registration modes without writing', async () => {
+      const { update } = mockUpdate()
+      await expect(caller(true).updateSettings({ operatorName: 'a'.repeat(81), contact: '', registration: 'open' }))
+        .rejects.toMatchObject({ code: 'BAD_REQUEST' })
+      await expect(caller(true).updateSettings({ operatorName: '', contact: 'a'.repeat(201), registration: 'open' }))
+        .rejects.toMatchObject({ code: 'BAD_REQUEST' })
+      await expect(caller(true).updateSettings({ operatorName: '', contact: '', registration: 'everyone' as never }))
+        .rejects.toMatchObject({ code: 'BAD_REQUEST' })
+      expect(update).not.toHaveBeenCalled()
+    })
   })
 })

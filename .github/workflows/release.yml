@@ -2,7 +2,8 @@ name: Release
 
 # Pushing a tag such as v1.2.0 runs the full checks, publishes
 # ghcr.io/kadirkess/soratra:1.2.0, :1.2, :1 and :latest for amd64 and arm64,
-# then creates the GitHub release with compose.yaml attached.
+# smoke-tests the published image on both, then creates the GitHub release with
+# compose.yaml attached.
 on:
   push:
     tags: ['v*.*.*']
@@ -104,9 +105,31 @@ jobs:
       - name: Show the published image
         run: docker buildx imagetools inspect "$IMAGE:${{ steps.meta.outputs.version }}"
 
+  # Pulls what was just published on each architecture and runs it the way a
+  # new user would, before the release (and its install files) goes public.
+  smoke:
+    needs: publish
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - run: docker/ci/release-smoke.sh "${GITHUB_REF_NAME#v}"
+
   # The README's install command downloads these from the latest release.
   release-files:
-    needs: publish
+    needs: smoke
     runs-on: ubuntu-24.04
     permissions:
       contents: write
