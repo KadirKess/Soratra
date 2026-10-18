@@ -208,6 +208,8 @@ export const instanceSettings = pgTable(
     operatorName: text('operator_name'),
     contact: text('contact'),
     registration: text('registration').notNull().default('invite'), // 'invite' | 'open'
+    // Asks GitHub for the latest release when the admin opens their page.
+    checkForUpdates: boolean('check_for_updates').notNull().default(true),
     setupCompletedAt: timestamp('setup_completed_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

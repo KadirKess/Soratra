@@ -20,7 +20,7 @@ The original hosted service has shut down. This repository is the self-hosted ve
 - Friends by exact username, with mutual consent. Removing a friend ends shared access at once.
 - Account export, password changes, and account deletion.
 
-Book search and covers come from Open Library, so those need internet access. Everything you write stays in your own database. Soratra sends no email and has no ads or third-party analytics.
+Book search and covers come from Open Library, so those need internet access. Everything you write stays in your own database. Soratra sends no email and has no ads or third-party analytics. When you open Your Soratra, the server asks GitHub at most once a day whether a newer release is out; you can turn that off on the same page.
 
 ## Run it
 

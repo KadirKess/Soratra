@@ -7,6 +7,7 @@ import { db, users } from '@/server/db'
 import { getInstance } from '@/server/instance'
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Avatar } from "@/components/ui/Avatar";
+import { ProfileUpdateHint } from '@/components/admin/ProfileUpdateHint'
 
 export default async function ProfilePage() {
   const session = await auth()
@@ -33,6 +34,7 @@ export default async function ProfilePage() {
               <p className="text-sm leading-6" style={{ color: 'var(--muted)' }}>
                 Invite friends, help someone back in after a forgotten password, and choose who can join.
               </p>
+              <ProfileUpdateHint />
             </div>
             <Link href="/admin" className="btn-primary shrink-0">Open Your Soratra</Link>
           </div>

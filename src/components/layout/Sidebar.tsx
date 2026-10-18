@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFriendSummary } from "@/components/social/useFriendSummary";
+import { useUpdateAvailable } from "@/components/admin/useUpdateAvailable";
+import { UpdateDot } from "@/components/admin/UpdateDot";
 import { FriendsIcon, HomeIcon, JournalIcon, KeyIcon, LibraryIcon, ProfileIcon } from "@/components/ui/Icon";
 import { sectionFor } from "@/lib/sections";
 import { Wordmark } from "./Wordmark";
@@ -17,6 +19,7 @@ const readerLinks = [
 export function Sidebar({ operatorName, contact, isAdmin }: { operatorName: string; contact: string | null; isAdmin: boolean }) {
 	const path = usePathname();
 	const pendingRequests = useFriendSummary();
+	const updateAvailable = useUpdateAvailable(isAdmin);
 	const links = isAdmin ? [...readerLinks, { href: "/admin", label: "Your Soratra", Icon: KeyIcon }] : readerLinks;
 
 	return (
@@ -43,9 +46,10 @@ export function Sidebar({ operatorName, contact, isAdmin }: { operatorName: stri
 				{links.map(({ href, label, Icon }) => {
 					const active = path === href;
 					const hasRequests = href === "/friends" && pendingRequests > 0;
+					const hasUpdate = href === "/admin" && updateAvailable;
 					const accessibleLabel = hasRequests
 						? `Friends, ${pendingRequests} ${pendingRequests === 1 ? "request" : "requests"}`
-						: label;
+						: hasUpdate ? `${label}, update available` : label;
 					return (
 						<Link
 							key={href}
@@ -72,6 +76,7 @@ export function Sidebar({ operatorName, contact, isAdmin }: { operatorName: stri
 							<Icon size={18} />
 							<span>{label}</span>
 							{hasRequests && <span aria-hidden="true" className="ml-auto min-w-5 h-5 px-1 flex items-center justify-center rounded-full text-[0.7rem]" style={{ background: "var(--accent)", color: "var(--on-accent)" }}>{pendingRequests}</span>}
+							{hasUpdate && <UpdateDot className="ml-auto" />}
 						</Link>
 					);
 				})}

@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { trpc } from '@/lib/trpc/client'
 import { useConfirm } from '@/components/ui/ConfirmDialog'
 import { CopyLink } from '@/components/ui/CopyLink'
+import { CopyCommand } from '@/components/ui/CopyCommand'
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Avatar } from '@/components/ui/Avatar'
 
@@ -65,7 +66,7 @@ export function AdminPanel({ welcome }: { welcome: boolean }) {
 
   if (overview.isLoading) return <p className="text-sm" style={{ color: 'var(--muted)' }}>Loading your Soratra…</p>
   if (!overview.data) return <p className="text-sm" style={{ color: 'var(--muted)' }}>We could not load your Soratra. Refresh to try again.</p>
-  const { members, pendingInvites, acceptedInvites, settings } = overview.data
+  const { members, pendingInvites, acceptedInvites, settings, version } = overview.data
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
@@ -79,6 +80,8 @@ export function AdminPanel({ welcome }: { welcome: boolean }) {
           You&apos;re all set. Make an invite link below and send it to a friend however you like.
         </p>
       )}
+
+      <UpdateNotice />
 
       <section className="brutalist-card tint-section p-5 sm:p-6 space-y-4" aria-labelledby="invite-heading">
         <div>
@@ -147,27 +150,35 @@ export function AdminPanel({ welcome }: { welcome: boolean }) {
         ))}
       </section>
 
-      <InstanceSettings key={JSON.stringify(settings)} initial={settings} />
+      {/* Not keyed on the saved values: a remount after the refetch would wipe the Saved state. */}
+      <InstanceSettings initial={settings} />
+
+      <p className="text-xs" style={{ color: 'var(--muted)' }}>
+        {version ? `Soratra ${version}` : 'A development build of Soratra'}
+        {version && !settings.checkForUpdates && ' · Checking for new releases is off'}
+      </p>
     </div>
   )
 }
 
-function InstanceSettings({ initial }: { initial: { operatorName: string; contact: string; registration: Registration } }) {
+function InstanceSettings({ initial }: { initial: { operatorName: string; contact: string; registration: Registration; checkForUpdates: boolean } }) {
   const utils = trpc.useUtils()
   const [operatorName, setOperatorName] = useState(initial.operatorName)
   const [contact, setContact] = useState(initial.contact)
   const [registration, setRegistration] = useState<Registration>(initial.registration)
+  const [checkForUpdates, setCheckForUpdates] = useState(initial.checkForUpdates)
   const [saved, setSaved] = useState(false)
   const update = trpc.admin.updateSettings.useMutation({
     onSuccess: () => {
       setSaved(true)
       toast.success('Settings saved.')
       void utils.admin.overview.invalidate()
+      void utils.admin.updateStatus.invalidate()
     },
     onError: (error) => toast.error(error.message),
   })
 
-  useEffect(() => setSaved(false), [operatorName, contact, registration])
+  useEffect(() => setSaved(false), [operatorName, contact, registration, checkForUpdates])
 
   return (
     <section className="brutalist-card p-5 sm:p-6 space-y-5" style={{ background: 'var(--surface)' }} aria-labelledby="settings-heading">
@@ -176,7 +187,7 @@ function InstanceSettings({ initial }: { initial: { operatorName: string; contac
         className="space-y-5"
         onSubmit={(event) => {
           event.preventDefault()
-          update.mutate({ operatorName, contact, registration })
+          update.mutate({ operatorName, contact, registration, checkForUpdates })
         }}
       >
         <fieldset className="choice-list">
@@ -200,10 +211,78 @@ function InstanceSettings({ initial }: { initial: { operatorName: string; contac
           <p className="text-xs" style={{ color: 'var(--muted)' }}>Shown on the support, privacy, and forgot-password pages. Optional.</p>
         </div>
 
+        <fieldset className="choice-list">
+          <legend className="eyebrow mb-3">Updates</legend>
+          <label className="choice-card">
+            <input type="checkbox" checked={checkForUpdates} onChange={(event) => setCheckForUpdates(event.target.checked)} />
+            <span className="choice-title">Tell me when a new release is out</span>
+            <span className="choice-copy">When you open this page, at most once a day, the server asks GitHub for the latest release. Only the server&apos;s address reaches GitHub, nothing about your readers.</span>
+          </label>
+        </fieldset>
+
         <button type="submit" disabled={update.isPending} className="btn-primary justify-center">
           {update.isPending ? 'Saving...' : saved ? 'Saved' : 'Save settings'}
         </button>
       </form>
+    </section>
+  )
+}
+
+const UPDATE_COMMANDS = ['docker compose pull', 'docker compose up -d']
+
+function UpdateNotice() {
+  const utils = trpc.useUtils()
+  const status = trpc.admin.updateStatus.useQuery({ check: true }, { retry: false })
+
+  // Lets the sidebar dot show without waiting for its own, fetch-free query.
+  useEffect(() => {
+    if (status.data) utils.admin.updateStatus.setData({ check: false }, status.data)
+  }, [status.data, utils])
+
+  const data = status.data
+  if (!data?.updateAvailable || !data.latest || !data.current) return null
+  const { latest, current, majorUpdate } = data
+  const nextMajor = latest.version.split('.')[0]
+  const notesLink = (
+    <a href={latest.url} target="_blank" rel="noreferrer" className="btn-secondary justify-center">
+      Read the release notes
+    </a>
+  )
+
+  return (
+    <section className="brutalist-card p-5 sm:p-6 space-y-4" aria-labelledby="update-heading">
+      <div className="space-y-1">
+        <p className="eyebrow">New release</p>
+        <h2 id="update-heading" className="text-xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>
+          Soratra {latest.version} is out, you&apos;re on {current}
+        </h2>
+      </div>
+
+      {majorUpdate ? (
+        <>
+          <p className="text-sm leading-6" style={{ color: 'var(--muted-strong)' }}>
+            This is a new major version, so a plain pull won&apos;t fetch it. Read the release notes first: they say what changes and whether there is anything to do before updating.
+          </p>
+          {notesLink}
+          <ol className="list-decimal pl-5 space-y-2 text-sm leading-6">
+            <li>If the notes say <code className="font-mono text-xs">compose.yaml</code> changed, download the new one from the release and replace yours.</li>
+            <li>In <code className="font-mono text-xs">.env</code>, set <code className="font-mono text-xs">SORATRA_VERSION={nextMajor}</code>.</li>
+            <li>In the folder with <code className="font-mono text-xs">compose.yaml</code>, run:</li>
+          </ol>
+          <CopyCommand lines={UPDATE_COMMANDS} label="Update commands" />
+        </>
+      ) : (
+        <>
+          <p className="text-sm leading-6" style={{ color: 'var(--muted-strong)' }}>
+            In the folder with <code className="font-mono text-xs">compose.yaml</code>, run these. The app updates its database when it starts.
+          </p>
+          <CopyCommand lines={UPDATE_COMMANDS} label="Update commands" />
+          <p className="text-xs leading-5" style={{ color: 'var(--muted)' }}>
+            If your <code className="font-mono">.env</code> pins <code className="font-mono">SORATRA_VERSION</code> to a release such as {current} or {current.split('.').slice(0, 2).join('.')}, change it to {latest.version} first.
+          </p>
+          {notesLink}
+        </>
+      )}
     </section>
   )
 }
