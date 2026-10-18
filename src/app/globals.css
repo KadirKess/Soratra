@@ -17,7 +17,18 @@
   --blush:     #F2C4AE;
   --sky:       #B8D0E0;
   --straw:     #EDD98A;
+  --lilac:     #D6CCE6;
+  --mint:      #BFE0D6;
   --surface-shimmer: #E5DECE;
+
+  /* A deeper ink per pastel, for small text on paper. Each passes 4.5:1 on bg
+     and surface. Blush borrows accent-ink, and so does straw, whose own ink
+     reads as muddy brown. */
+  --sage-ink:  #3D6634;
+  --sky-ink:   #2C5878;
+  --blush-ink: #9A4210;
+  --lilac-ink: #5B4785;
+  --mint-ink:  #23655A;
 
   /* Primary CTA. --accent is a fill only; text in accent uses --accent-ink. */
   --accent:    #E07A3A;
@@ -111,7 +122,7 @@ h1, h2, h3, h4, .display {
   letter-spacing: 0.14em;
   line-height: 1.3;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--eyebrow, var(--muted));
 }
 
 .field-label {
@@ -193,6 +204,44 @@ h1, h2, h3, h4, .display {
 .tint-blush { background: var(--blush); --muted: var(--muted-strong); }
 .tint-sky   { background: var(--sky);   --muted: var(--muted-strong); }
 .tint-straw { background: var(--straw); --muted: var(--muted-strong); }
+.tint-lilac { background: var(--lilac); --muted: var(--muted-strong); }
+.tint-mint  { background: var(--mint);  --muted: var(--muted-strong); }
+
+/* Sections. Each place in the app owns a pastel and its ink: the active nav
+   item, the highlight under the page title and one summary card per page. The
+   attribute sits on the shell for the page and on each nav link for itself. */
+[data-section="home"]    { --section: var(--straw); --section-ink: var(--accent-ink); }
+[data-section="library"] { --section: var(--sky);   --section-ink: var(--sky-ink); }
+[data-section="journal"] { --section: var(--lilac); --section-ink: var(--lilac-ink); }
+[data-section="friends"] { --section: var(--sage);  --section-ink: var(--sage-ink); }
+[data-section="profile"] { --section: var(--blush); --section-ink: var(--blush-ink); }
+[data-section="admin"]   { --section: var(--mint);  --section-ink: var(--mint-ink); }
+
+.tint-section { background: var(--section, var(--surface)); --muted: var(--muted-strong); }
+
+/* Eyebrows on paper pick up the section's ink. Any tinted card puts them back
+   to grey, so coloured text never sits on a coloured fill. */
+.app-shell-main { --eyebrow: var(--section-ink, var(--muted)); }
+:is(.tint-sage, .tint-blush, .tint-sky, .tint-straw, .tint-lilac, .tint-mint, .tint-section) { --eyebrow: var(--muted); }
+
+/* A highlighter stroke under the page title, a little uneven like a real one. */
+.page-title-mark {
+  position: relative;
+  z-index: 0;
+}
+
+.page-title-mark::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: -0.12em;
+  right: -0.2em;
+  bottom: 0.02em;
+  height: 0.36em;
+  background: var(--section, transparent);
+  border-radius: 0.14em 0.4em 0.22em 0.5em;
+  transform: rotate(-0.8deg) skewX(-8deg);
+}
 
 /* Book covers. The ::after draws a spine band with a hinge highlight and a
    faint inner edge, so a cover reads as an object rather than a flat image.
@@ -386,8 +435,7 @@ h1, h2, h3, h4, .display {
   line-height: 1.4;
 }
 
-/* Toggle chips for filters, sort and status pickers. Selected means inked in.
-   Pastels stay reserved for books, so a status never borrows one. */
+/* Toggle chips for filters, sort and status pickers. Selected means inked in. */
 .chip {
   display: inline-flex;
   align-items: center;

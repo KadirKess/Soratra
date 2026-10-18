@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFriendSummary } from "@/components/social/useFriendSummary";
+import { sectionFor } from "@/lib/sections";
 import { FriendsIcon, HomeIcon, JournalIcon, LibraryIcon, ProfileIcon } from "@/components/ui/Icon";
 
 const TABS = [
@@ -39,9 +40,10 @@ export function BottomNav() {
 						className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-xs font-semibold transition-colors"
 						aria-label={hasRequests ? `Friends, ${pendingRequests} ${pendingRequests === 1 ? "request" : "requests"}` : label}
 						aria-current={active ? "page" : undefined}
+						data-section={sectionFor(href) ?? undefined}
 						style={{
 							color: active ? "var(--fg)" : "var(--muted)",
-							background: active ? "var(--bg)" : "transparent",
+							background: active ? "var(--section)" : "transparent",
 							borderRight:
 								index < TABS.length - 1
 									? "1px solid var(--border)"

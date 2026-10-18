@@ -4,6 +4,7 @@ import { TopBar } from './TopBar'
 import { BottomNav } from './BottomNav'
 import { MobileHeader } from './MobileHeader'
 import { ProjectCredit } from './ProjectCredit'
+import { SectionFrame } from './SectionFrame'
 import { getInstance } from '@/server/instance'
 import { and, eq, isNull } from 'drizzle-orm'
 import { db, users } from '@/server/db'
@@ -20,7 +21,7 @@ export async function Shell({ children }: { children: React.ReactNode }) {
   ])
 
   return (
-    <div className="flex min-h-screen">
+    <SectionFrame>
       <a href="#main-content" className="skip-link">Skip to content</a>
       <Sidebar operatorName={instance.operatorName} contact={instance.contact} isAdmin={account?.isAdmin ?? false} />
       <div className="app-shell-content flex-1 flex flex-col md:ml-56">
@@ -38,6 +39,6 @@ export async function Shell({ children }: { children: React.ReactNode }) {
       </div>
 
       <BottomNav />
-    </div>
+    </SectionFrame>
   )
 }

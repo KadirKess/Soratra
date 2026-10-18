@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFriendSummary } from "@/components/social/useFriendSummary";
 import { FriendsIcon, HomeIcon, JournalIcon, KeyIcon, LibraryIcon, ProfileIcon } from "@/components/ui/Icon";
+import { sectionFor } from "@/lib/sections";
 import { Wordmark } from "./Wordmark";
 
 const readerLinks = [
@@ -52,13 +53,14 @@ export function Sidebar({ operatorName, contact, isAdmin }: { operatorName: stri
 							className={`sidebar-nav-link flex items-center gap-3 px-4 py-2.5 text-sm font-semibold${active ? " sidebar-nav-active" : ""}`}
 						aria-label={accessibleLabel}
 						aria-current={active ? 'page' : undefined}
+						data-section={sectionFor(href) ?? undefined}
 							style={{
 								borderRadius: "10px",
 								border: active
 									? "2px solid var(--fg)"
 									: "2px solid transparent",
 								background: active
-									? "var(--bg)"
+									? "var(--section)"
 									: "transparent",
 								boxShadow: active
 									? "var(--shadow-small)"

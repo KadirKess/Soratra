@@ -1,4 +1,4 @@
-const PASTELS = ['sage', 'blush', 'sky', 'straw'] as const
+const PASTELS = ['sage', 'blush', 'sky', 'straw', 'lilac', 'mint'] as const
 
 // A book keeps one pastel everywhere: its placeholder cover, journal entries
 // and lists all hash the title the same way.

@@ -117,7 +117,7 @@ export default function FriendsPage() {
 				</section>
 			)}
 
-			<section className="brutalist-card tint-sky p-5 sm:p-6 space-y-4" aria-labelledby="connect-reader">
+			<section className="brutalist-card tint-section p-5 sm:p-6 space-y-4" aria-labelledby="connect-reader">
 				<div>
 					<h2 id="connect-reader" className="text-xl font-bold" style={{ fontFamily: "var(--font-cormorant)" }}>Connect with a reader</h2>
 					<p className="text-sm mt-1" style={{ color: "var(--muted)" }}>Ask someone you know for their username.</p>
