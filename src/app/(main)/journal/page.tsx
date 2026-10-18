@@ -140,7 +140,7 @@ export default function JournalPage() {
 		<div className="space-y-10 max-w-4xl mx-auto">
 			<PageHeader title="Journal" description="Every sitting you’ve logged, newest first." />
 
-			<section aria-label="Reading summary" className="brutalist-card grid md:grid-cols-[1.35fr_1fr_1.35fr]">
+			<section aria-label="Reading summary" className="brutalist-card tint-section grid md:grid-cols-[1.35fr_1fr_1.35fr]">
 				<div className="p-5 sm:p-6 space-y-4">
 					<div className="flex items-start justify-between gap-4">
 						<div>
@@ -159,8 +159,8 @@ export default function JournalPage() {
 								<HeatmapStrip data={journal.heatmap} weeks={12} timeZone={journal.timezone} />
 							</div>
 							<div className="hidden md:block">
-								<p className="eyebrow mb-2.5">This year</p>
-								<HeatmapStrip data={journal.heatmap} weeks={52} timeZone={journal.timezone} />
+								<p className="eyebrow mb-2.5">Last 16 weeks</p>
+								<HeatmapStrip data={journal.heatmap} weeks={16} timeZone={journal.timezone} />
 							</div>
 						</>
 					)}

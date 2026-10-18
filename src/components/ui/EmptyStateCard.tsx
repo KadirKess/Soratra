@@ -6,6 +6,9 @@ const TONE_CLASSES = {
 	sage: "tint-sage",
 	sky: "tint-sky",
 	straw: "tint-straw",
+	lilac: "tint-lilac",
+	mint: "tint-mint",
+	section: "tint-section",
 	surface: "",
 } as const;
 

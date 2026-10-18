@@ -80,7 +80,7 @@ export function AdminPanel({ welcome }: { welcome: boolean }) {
         </p>
       )}
 
-      <section className="brutalist-card p-5 sm:p-6 space-y-4" aria-labelledby="invite-heading">
+      <section className="brutalist-card tint-section p-5 sm:p-6 space-y-4" aria-labelledby="invite-heading">
         <div>
           <h2 id="invite-heading" className="text-xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>Invite someone</h2>
           <p className="text-sm mt-1" style={{ color: 'var(--muted-strong)' }}>
