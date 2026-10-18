@@ -16,7 +16,7 @@ export default async function PrivacyPage() {
 
   return <article className={`${session ? '' : 'public-page-frame '}max-w-3xl space-y-6`}>
     {!session && <Link href="/landing" className="public-home-link">Back to home</Link>}
-    <h1 className="text-5xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>Privacy policy</h1>
+    <h1 className="text-5xl font-medium" style={{ fontFamily: 'var(--font-cormorant)' }}>Privacy policy</h1>
     <p>Last updated: 16 October 2026. This policy is provided by {instance.operatorName}, who runs this instance. To get in touch, <OperatorContact contact={instance.contact} />.</p>
     <section className="space-y-2"><h2 className="text-2xl font-bold">What Soratra stores</h2><p>Soratra stores your username, password hash, reading shelves, ratings, reviews, check-ins, notes, streak freezes, consent record, and selected time zone so the service can provide your reading journal.</p></section>
     <section className="space-y-2"><h2 className="text-2xl font-bold">Private social activity</h2><p>Signed-in readers can look up an exact username they have been given; Soratra does not provide a public directory, suggestions, or fuzzy people search. Only accepted friends can see your username, reading shelves, reading streak, heatmap, and reading journal. The journal includes a session&apos;s book, local date, minutes, rating, and note, while finished books may include a rating and review. Spoiler-marked notes and reviews stay hidden until a friend chooses to reveal them. Your time zone is never shared with friends. Removing a friend immediately ends shared access for both people.</p></section>

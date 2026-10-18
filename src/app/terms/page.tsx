@@ -16,7 +16,7 @@ export default async function TermsPage() {
 
   return <article className={`${session ? '' : 'public-page-frame '}max-w-3xl space-y-6`}>
     {!session && <Link href="/landing" className="public-home-link">Back to home</Link>}
-    <h1 className="text-5xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>Terms of use</h1>
+    <h1 className="text-5xl font-medium" style={{ fontFamily: 'var(--font-cormorant)' }}>Terms of use</h1>
     <p>Last updated: 16 October 2026. These terms govern this Soratra instance, run by {instance.operatorName}. For questions, <OperatorContact contact={instance.contact} />.</p>
     <section className="space-y-2"><h2 className="text-2xl font-bold">Using Soratra</h2><p>Soratra is a personal reading journal. Keep your account credentials confidential and use the service lawfully and respectfully. Do not attempt to access another reader's private data or interfere with the service.</p></section>
     <section className="space-y-2"><h2 className="text-2xl font-bold">Friends</h2><p>You may connect only by entering the exact username someone has shared with you. Friend requests require acceptance. Accepted friends can see the reading shelves, journal entries, ratings, and reviews described in the Privacy Policy. Spoiler-marked notes and reviews are hidden until a friend chooses to reveal them. Time zones remain private. You can decline, cancel, or remove a connection at any time; removal immediately ends shared reading access for both people.</p></section>

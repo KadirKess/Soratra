@@ -5,6 +5,8 @@ import { CatalogLanguageSettings } from '@/components/account/CatalogLanguageSet
 import { and, eq, isNull } from 'drizzle-orm'
 import { db, users } from '@/server/db'
 import { getInstance } from '@/server/instance'
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Avatar } from "@/components/ui/Avatar";
 
 export default async function ProfilePage() {
   const session = await auth()
@@ -16,67 +18,60 @@ export default async function ProfilePage() {
   ])
 
   return (
-    <div className="max-w-md space-y-8">
-      <h1 className="text-4xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>
-        Profile
-      </h1>
+    <div className="max-w-4xl mx-auto space-y-8">
+      <PageHeader
+        title={<span className="flex items-center gap-4">{session?.user?.name && <Avatar username={session.user.name} size="lg" />}Profile</span>}
+        description={<><span className="font-semibold" style={{ color: 'var(--fg)' }}>@{session?.user?.name}</span> · {account?.isAdmin ? 'You run this Soratra' : `Reader on ${instance.operatorName}'s Soratra`}</>}
+      />
 
-      <div className="space-y-0.5">
-        <p className="text-base font-bold" style={{ color: 'var(--fg)' }}>
-          {session?.user?.name}
-        </p>
-        <p className="text-sm" style={{ color: 'var(--muted)' }}>
-          {account?.isAdmin ? 'You run this Soratra' : `Member of ${instance.operatorName}'s Soratra`}
-        </p>
-      </div>
+      <div className="grid gap-6 md:grid-cols-2 items-start">
+        {account?.isAdmin && (
+          <div className="brutalist-card tint-straw p-5 sm:p-6 space-y-3 md:col-span-2 md:flex md:items-center md:justify-between md:gap-6 md:space-y-0">
+            <div className="space-y-1.5">
+              <p className="eyebrow">Your Soratra</p>
+              <p className="text-sm leading-6" style={{ color: 'var(--muted)' }}>
+                Invite friends, help someone back in after a forgotten password, and choose who can join.
+              </p>
+            </div>
+            <Link href="/admin" className="btn-primary shrink-0">Open Your Soratra</Link>
+          </div>
+        )}
 
-      {account?.isAdmin && (
-        <div className="brutalist-card p-5 space-y-3" style={{ background: 'var(--straw)' }}>
-          <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted-strong)' }}>
-            Your instance
-          </p>
-          <p className="text-sm leading-6" style={{ color: 'var(--muted-strong)' }}>
-            Invite friends, help someone back in after a forgotten password, and choose who can join.
-          </p>
-          <Link href="/admin" className="btn-primary text-center block">Manage members</Link>
-        </div>
-      )}
-
-      <div className="brutalist-card p-5 space-y-4">
-        <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
-          Privacy & Data
-        </p>
-        <div className="flex flex-col gap-2.5">
-          <a href="/api/profile/export" download className="btn-secondary text-center">
-            Export my data (JSON)
-          </a>
-          {!account?.isAdmin && (
-            <Link href="/profile/delete" className="btn-danger text-center">
-              Delete my account
+        <div className="brutalist-card p-5 sm:p-6 space-y-4">
+          <p className="eyebrow">Privacy and data</p>
+          <div className="flex flex-col gap-2.5">
+            <a href="/api/profile/export" download className="btn-secondary text-center">
+              Export my data (JSON)
+            </a>
+            <Link href="/profile/password" className="btn-secondary text-center">
+              Change password
             </Link>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-1 pt-1">
+            <Link href="/privacy" className="btn-ghost -ml-3">Privacy policy</Link>
+            <Link href="/terms" className="btn-ghost">Terms of use</Link>
+          </div>
+          {!account?.isAdmin && (
+            <div className="pt-3" style={{ borderTop: '1px solid var(--rule)' }}>
+              <Link href="/profile/delete" className="btn-quiet is-danger -ml-3">Delete my account</Link>
+            </div>
           )}
-          <Link href="/profile/password" className="btn-secondary text-center">
-            Change password
-          </Link>
-          <Link href="/privacy" className="btn-ghost text-center">Privacy policy</Link>
-          <Link href="/terms" className="btn-ghost text-center">Terms of use</Link>
         </div>
-      </div>
 
-      <TimezoneSettings />
+        <div className="space-y-6">
+          <TimezoneSettings />
+          <CatalogLanguageSettings />
+        </div>
 
-      <CatalogLanguageSettings />
-
-      <div className="brutalist-card p-5 space-y-2 md:hidden" style={{ background: 'var(--surface)' }}>
-        <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
-          Instance support
-        </p>
-        <p className="text-sm leading-6" style={{ color: 'var(--muted)' }}>
-          Forgot a password or found a bug? Ask{' '}
-          <span className="font-semibold" style={{ color: 'var(--fg)' }}>
-            {instance.contact ?? instance.operatorName}
-          </span>
-        </p>
+        <div className="brutalist-card p-5 sm:p-6 space-y-2 md:hidden">
+          <p className="eyebrow">Getting help</p>
+          <p className="text-sm leading-6" style={{ color: 'var(--muted)' }}>
+            Forgot a password or found a bug? Ask{' '}
+            <span className="font-semibold" style={{ color: 'var(--fg)' }}>
+              {instance.contact ?? instance.operatorName}
+            </span>
+          </p>
+        </div>
       </div>
 
       <form

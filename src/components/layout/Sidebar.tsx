@@ -2,26 +2,21 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFriendSummary } from "@/components/social/useFriendSummary";
+import { FriendsIcon, HomeIcon, JournalIcon, KeyIcon, LibraryIcon, ProfileIcon } from "@/components/ui/Icon";
+import { Wordmark } from "./Wordmark";
 
-const STATUS_COLORS: Record<string, string> = {
-	"/": "var(--sage)",
-	"/library": "var(--sky)",
-	"/journal": "var(--blush)",
-	"/friends": "var(--sage)",
-	"/profile": "var(--straw)",
-};
-
-const links = [
-	{ href: "/", label: "Home" },
-	{ href: "/library", label: "Library" },
-	{ href: "/journal", label: "Journal" },
-	{ href: "/friends", label: "Friends" },
-	{ href: "/profile", label: "Profile" },
+const readerLinks = [
+	{ href: "/", label: "Home", Icon: HomeIcon },
+	{ href: "/library", label: "Library", Icon: LibraryIcon },
+	{ href: "/journal", label: "Journal", Icon: JournalIcon },
+	{ href: "/friends", label: "Friends", Icon: FriendsIcon },
+	{ href: "/profile", label: "Profile", Icon: ProfileIcon },
 ];
 
-export function Sidebar({ operatorName, contact }: { operatorName: string; contact: string | null }) {
+export function Sidebar({ operatorName, contact, isAdmin }: { operatorName: string; contact: string | null; isAdmin: boolean }) {
 	const path = usePathname();
 	const pendingRequests = useFriendSummary();
+	const links = isAdmin ? [...readerLinks, { href: "/admin", label: "Your Soratra", Icon: KeyIcon }] : readerLinks;
 
 	return (
 		<aside
@@ -33,17 +28,9 @@ export function Sidebar({ operatorName, contact }: { operatorName: string; conta
 			}}
 		>
 			<div className="mb-10 px-2 space-y-2">
-				<span
-					style={{
-						fontFamily: "var(--font-cormorant)",
-						fontSize: "1.75rem",
-						fontWeight: 700,
-						color: "var(--fg)",
-						letterSpacing: "-0.02em",
-					}}
-				>
-					Soratra
-				</span>
+				<Link href="/" aria-label="Soratra home" className="inline-block">
+					<Wordmark />
+				</Link>
 				<p
 					className="text-xs leading-5 max-w-[11rem]"
 					style={{ color: "var(--muted)" }}
@@ -52,7 +39,7 @@ export function Sidebar({ operatorName, contact }: { operatorName: string; conta
 				</p>
 			</div>
 			<nav className="flex flex-col gap-2">
-				{links.map(({ href, label }) => {
+				{links.map(({ href, label, Icon }) => {
 					const active = path === href;
 					const hasRequests = href === "/friends" && pendingRequests > 0;
 					const accessibleLabel = hasRequests
@@ -62,7 +49,7 @@ export function Sidebar({ operatorName, contact }: { operatorName: string; conta
 						<Link
 							key={href}
 							href={href}
-							className={`sidebar-nav-link flex items-center px-4 py-2.5 text-sm font-semibold${active ? " sidebar-nav-active" : ""}`}
+							className={`sidebar-nav-link flex items-center gap-3 px-4 py-2.5 text-sm font-semibold${active ? " sidebar-nav-active" : ""}`}
 						aria-label={accessibleLabel}
 						aria-current={active ? 'page' : undefined}
 							style={{
@@ -71,28 +58,26 @@ export function Sidebar({ operatorName, contact }: { operatorName: string; conta
 									? "2px solid var(--fg)"
 									: "2px solid transparent",
 								background: active
-									? STATUS_COLORS[href]
+									? "var(--bg)"
 									: "transparent",
 								boxShadow: active
-									? "3px 3px 0 var(--fg)"
+									? "var(--shadow-small)"
 									: "none",
 								color: active ? "var(--fg)" : "var(--muted)",
 								fontWeight: active ? 700 : 500,
 							}}
 						>
+							<Icon size={18} />
 							<span>{label}</span>
-							{hasRequests && <span aria-hidden="true" className="ml-auto min-w-5 h-5 px-1 flex items-center justify-center rounded-full text-[0.7rem]" style={{ background: "var(--accent)", color: "var(--bg)" }}>{pendingRequests}</span>}
+							{hasRequests && <span aria-hidden="true" className="ml-auto min-w-5 h-5 px-1 flex items-center justify-center rounded-full text-[0.7rem]" style={{ background: "var(--accent)", color: "var(--on-accent)" }}>{pendingRequests}</span>}
 						</Link>
 					);
 				})}
 			</nav>
 			<div className="mt-auto mb-6 mx-2 space-y-4">
-				<div className="p-3.5 space-y-2 brutalist-card" style={{ background: "var(--bg)" }}>
-					<p
-						className="text-[0.7rem] font-bold uppercase tracking-[0.2em]"
-						style={{ color: "var(--muted)" }}
-					>
-						Instance support
+				<div className="px-3 pt-3 space-y-2" style={{ borderTop: "1px solid var(--rule)" }}>
+					<p className="eyebrow">
+						Getting help
 					</p>
 					<p className="text-xs leading-5" style={{ color: "var(--muted)" }}>
 						Forgot a password or found a bug? Ask

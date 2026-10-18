@@ -54,8 +54,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
 							background: "var(--surface)",
 							color: "var(--fg)",
 							border: "2px solid var(--fg)",
-							borderRadius: "12px",
-							boxShadow: "4px 4px 0 var(--fg)",
+							borderRadius: "var(--radius-control)",
+							boxShadow: "var(--shadow-small)",
 							fontFamily:
 								"var(--font-dm-sans), system-ui, sans-serif",
 							fontWeight: "500",

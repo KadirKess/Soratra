@@ -38,6 +38,9 @@ export async function isSetupComplete() {
   return setupDone
 }
 
+// Used when no operator name is set and the admin account can't be found.
+export const FALLBACK_OPERATOR_NAME = 'the person who runs this Soratra'
+
 export const getInstance = cache(async () => {
   const row = await ensureSettingsRow()
   const admin = await db.query.users.findFirst({
@@ -45,7 +48,7 @@ export const getInstance = cache(async () => {
     columns: { username: true },
   })
   return {
-    operatorName: row.operatorName?.trim() || admin?.username || 'the person who runs this Soratra',
+    operatorName: row.operatorName?.trim() || admin?.username || FALLBACK_OPERATOR_NAME,
     contact: row.contact?.trim() || null,
     adminUsername: admin?.username ?? null,
     registration: row.registration as RegistrationMode,

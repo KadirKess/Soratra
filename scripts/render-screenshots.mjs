@@ -24,6 +24,8 @@ try {
   await page.evaluate(() => document.fonts.ready)
   await page.fill('[name=username]', 'maya')
   await page.fill('[name=password]', password)
+  // Drop focus, or the last field shows its focus ring in the README.
+  await page.evaluate(() => document.activeElement?.blur())
   // Pad the crop so the card's offset shadow is not cut off.
   const card = await page.locator('.auth-card').boundingBox()
   await page.screenshot({ path: output('setup'), clip: { x: card.x - 40, y: card.y - 40, width: card.width + 80, height: card.height + 80 } })

@@ -5,7 +5,7 @@ import { useState } from "react";
 export function SpoilerReveal({ children, label }: { children: string; label: string }) {
 	const [revealed, setRevealed] = useState(false);
 
-	if (revealed) return <p className="mt-2 text-sm leading-relaxed whitespace-pre-wrap">{children}</p>;
+	if (revealed) return <p className="reader-note mt-2">{children}</p>;
 
 	return (
 		<button

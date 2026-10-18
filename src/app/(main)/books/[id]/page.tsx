@@ -6,7 +6,7 @@ import { SessionHistory } from "@/components/books/SessionHistory";
 import { StartReadingButton } from "@/components/books/StartReadingButton";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getPastelColor } from "@/lib/pastel";
+import { CoverPlaceholder } from "@/components/books/CoverPlaceholder";
 import ReactMarkdown from "react-markdown";
 import { and, eq } from "drizzle-orm";
 import { titlesMatch } from "@/lib/titles";
@@ -45,15 +45,9 @@ export default async function BookPage({ params }: PageProps) {
 			<div className="flex gap-8 flex-col sm:flex-row">
 				{/* Cover */}
 				<div className="shrink-0 w-40 sm:w-52">
-					<div
-						className="relative rounded-xl overflow-hidden"
-						style={{
-							aspectRatio: "2/3",
-							border: "2px solid var(--fg)",
-							boxShadow: "4px 4px 0 var(--fg)",
-						}}
-					>
-						{dbBook.coverUrl ? (
+					<div className="cover cover-raised">
+						<CoverPlaceholder title={dbBook.title} author={dbBook.authors[0]} size="lg" />
+						{dbBook.coverUrl && (
 							<Image
 								src={dbBook.coverUrl}
 								alt={dbBook.title}
@@ -62,24 +56,6 @@ export default async function BookPage({ params }: PageProps) {
 								sizes="(max-width: 640px) 160px, 208px"
 								priority
 							/>
-						) : (
-							<div
-								className="w-full h-full flex items-end p-4 rounded-[10px]"
-								style={{
-									background: getPastelColor(dbBook.title),
-									border: "2px solid var(--fg)",
-								}}
-							>
-								<span
-									className="text-lg font-bold leading-tight"
-									style={{
-										fontFamily: "var(--font-cormorant)",
-										color: "var(--fg)",
-									}}
-								>
-									{dbBook.title}
-								</span>
-							</div>
 						)}
 					</div>
 				</div>
@@ -88,7 +64,7 @@ export default async function BookPage({ params }: PageProps) {
 				<div className="flex-1 space-y-4 min-w-0">
 					<div>
 						<h1
-							className="text-3xl sm:text-4xl font-light leading-tight"
+							className="text-3xl sm:text-4xl font-medium leading-tight"
 							style={{ fontFamily: "var(--font-cormorant)" }}
 						>
 							{dbBook.title}
@@ -121,17 +97,7 @@ export default async function BookPage({ params }: PageProps) {
 					{dbBook.genres.length > 0 && (
 						<div className="flex flex-wrap gap-1.5">
 							{dbBook.genres.map((g) => (
-								<span
-									key={g}
-									className="px-3 py-1 text-xs font-bold"
-									style={{
-										border: "2px solid var(--fg)",
-										borderRadius: "8px",
-										background: "var(--straw)",
-										color: "var(--fg)",
-										boxShadow: "2px 2px 0 var(--fg)",
-									}}
-								>
+								<span key={g} className="tag">
 									{g}
 								</span>
 							))}

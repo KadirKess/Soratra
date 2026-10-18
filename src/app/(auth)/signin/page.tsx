@@ -1,92 +1,14 @@
-'use client'
-import { signIn } from 'next-auth/react'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useSearchParams } from 'next/navigation'
-import Link from 'next/link'
-import { PasswordInput } from '@/components/ui/PasswordInput'
+import { Suspense } from 'react'
+import { getInstance } from '@/server/instance'
+import { SignInForm } from './SignInForm'
 
-export default function SignInPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [error, setError] = useState<string | null>(null)
-  const [usernameError, setUsernameError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const successNotice = searchParams.get('registered')
-    ? 'Account created. Sign in to start building your reading ritual.'
-    : searchParams.get('deleted')
-      ? 'Your account was deleted. You can always come back to Soratra later.'
-      : searchParams.get('reset')
-        ? 'Password updated. Sign in with your new password.'
-      : null
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const formElement = e.currentTarget
-    const usernameInput = formElement.elements.namedItem('username')
-    if (!(usernameInput instanceof HTMLInputElement) || !usernameInput.value.trim()) {
-      setUsernameError('Enter your username.')
-      return
-    }
-
-    setLoading(true)
-    setError(null)
-    setUsernameError(null)
-    const form = new FormData(formElement)
-    try {
-      const result = await signIn('credentials', {
-        username: form.get('username'),
-        password: form.get('password'),
-        redirect: false,
-      })
-      if (result?.error) {
-        setError(
-          result.code === 'rate_limited'
-            ? 'Too many sign-in attempts. Please wait a few minutes and try again.'
-            : result.error === 'CredentialsSignin'
-              ? 'Invalid username or password.'
-              : 'We could not sign you in right now. Please try again shortly.',
-        )
-        return
-      }
-      router.replace('/')
-      router.refresh()
-    } catch {
-      setError('We could not sign you in. Check your connection and try again.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
+// Invite-only instances have no sign-up form to send people to, so the
+// footer needs to know which mode this Soratra is in.
+export default async function SignInPage() {
+  const instance = await getInstance()
   return (
-    <div className="auth-card">
-      <p className="auth-kicker"><Link href="/landing" className="auth-brand-link" aria-label="Soratra home">Soratra</Link></p>
-      <h1 className="auth-title">Welcome back</h1>
-      <p className="auth-subtitle">
-        Settle in, pick up your current read, and keep the momentum going.
-      </p>
-      {successNotice && <p className="auth-notice" role="status">{successNotice}</p>}
-      <form method="post" onSubmit={handleSubmit} noValidate className="auth-form">
-        <label htmlFor="signin-username" className="sr-only">Username</label>
-        <input id="signin-username" name="username" type="text" placeholder="Username" required autoComplete="username" autoCapitalize="none" spellCheck={false} aria-invalid={Boolean(usernameError)} aria-describedby={usernameError ? 'signin-username-error' : undefined} onChange={(event) => {
-          if (usernameError && event.currentTarget.value.trim()) setUsernameError(null)
-        }} className="auth-input" />
-        {usernameError && <p id="signin-username-error" className="auth-field-error">{usernameError}</p>}
-        <label htmlFor="signin-password" className="sr-only">Password</label>
-        <PasswordInput id="signin-password" name="password" placeholder="Password" required minLength={8} autoComplete="current-password" className="auth-input" />
-        {error && (
-          <p className="auth-error" role="alert">
-            {error}{error === 'Invalid username or password.' && ' Usernames are not case-sensitive; passwords are.'}
-          </p>
-        )}
-        <button type="submit" disabled={loading} className="auth-btn">
-          {loading ? 'Signing in...' : 'Sign in'}
-        </button>
-      </form>
-      <p className="auth-footer">
-        <Link href="/forgot-password">Forgot password?</Link><br />
-        No account? <Link href="/signup">Create one</Link>
-      </p>
-    </div>
+    <Suspense>
+      <SignInForm openRegistration={instance.registration === 'open'} operatorName={instance.operatorName} />
+    </Suspense>
   )
 }

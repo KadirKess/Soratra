@@ -7,22 +7,13 @@ import { LibraryReadingCard } from "@/components/books/LibraryReadingCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyStateCard } from "@/components/ui/EmptyStateCard";
 import { QueryErrorCard } from "@/components/ui/QueryErrorCard";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 const FILTERS = [
-	{ value: undefined, label: "All", bg: "var(--fg)", color: "var(--bg)" },
-	{
-		value: "reading",
-		label: "Reading",
-		bg: "var(--sage)",
-		color: "var(--fg)",
-	},
-	{ value: "read", label: "Read", bg: "var(--blush)", color: "var(--fg)" },
-	{
-		value: "want_to_read",
-		label: "Want to read",
-		bg: "var(--straw)",
-		color: "var(--fg)",
-	},
+	{ value: undefined, label: "All" },
+	{ value: "reading", label: "Reading" },
+	{ value: "read", label: "Read" },
+	{ value: "want_to_read", label: "Want to read" },
 ] as const;
 
 type StatusFilter = "reading" | "read" | "want_to_read" | undefined;
@@ -90,24 +81,14 @@ function LibraryPageInner() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-baseline justify-between">
-				<h1
-					className="text-4xl font-bold"
-					style={{ fontFamily: "var(--font-cormorant)" }}
-				>
-					Library
-				</h1>
-				<span
-					className="text-sm font-medium"
-					style={{ color: "var(--muted)" }}
-				>
-					{books.length} books
-				</span>
-			</div>
+			<PageHeader
+				title="Library"
+				action={<span className="text-sm font-medium" style={{ color: "var(--muted)" }}>{books.length} {books.length === 1 ? "book" : "books"}</span>}
+			/>
 
 			{/* Status filters */}
 			<div className="flex gap-2 flex-wrap" aria-label="Library shelf">
-				{FILTERS.map(({ value, label, bg, color }) => {
+				{FILTERS.map(({ value, label }) => {
 					const active = filter === value;
 					return (
 						<button
@@ -115,16 +96,7 @@ function LibraryPageInner() {
 							type="button"
 							onClick={() => updateFilters({ status: value, author: undefined, genre: undefined })}
 							aria-pressed={active}
-							className="px-3 py-1.5 text-xs font-bold transition-all"
-							style={{
-								background: active ? bg : "transparent",
-								color: active ? color : "var(--muted)",
-								border: `2px solid ${active ? "var(--fg)" : "var(--muted)"}`,
-								borderRadius: "8px",
-								boxShadow: active
-									? "2px 2px 0 var(--fg)"
-									: "none",
-							}}
+							className="chip"
 						>
 							{label}
 						</button>
@@ -134,28 +106,14 @@ function LibraryPageInner() {
 
 			{/* Sort */}
 			<div className="flex gap-2 flex-wrap items-center" aria-label="Library sort order">
-				<span
-					className="text-xs font-bold uppercase tracking-wider"
-					style={{ color: "var(--muted)" }}
-				>
-					Sort
-				</span>
+				<span className="eyebrow">Sort</span>
 				{(["date_added", "date_released"] as SortOption[]).map((s) => (
 					<button
 						key={s}
 						type="button"
 						onClick={() => updateFilters({ sort: s === "date_added" ? undefined : s })}
 						aria-pressed={sort === s}
-						className="px-3 py-1.5 text-xs font-bold transition-all"
-						style={{
-							background:
-								sort === s ? "var(--fg)" : "transparent",
-							color: sort === s ? "var(--bg)" : "var(--muted)",
-							border: `2px solid ${sort === s ? "var(--fg)" : "var(--muted)"}`,
-							borderRadius: "8px",
-							boxShadow:
-								sort === s ? "2px 2px 0 var(--accent)" : "none",
-						}}
+						className="chip"
 					>
 						{s === "date_added" ? "Date added" : "Date released"}
 					</button>
@@ -174,14 +132,14 @@ function LibraryPageInner() {
 							onChange={(e) =>
 								updateFilters({ author: e.target.value || undefined })
 							}
-							className="px-3 py-1.5 text-base font-bold md:text-xs"
+							className="min-w-0 max-w-full px-3 py-1.5 text-base font-bold md:text-xs"
 							style={{
 								background: authorFilter
-									? "var(--sage)"
+									? "var(--surface-shimmer)"
 									: "transparent",
 								color: authorFilter ? "var(--fg)" : "var(--muted)",
 								border: `2px solid ${authorFilter ? "var(--fg)" : "var(--muted)"}`,
-								borderRadius: "8px",
+								borderRadius: "var(--radius-control)",
 							}}
 						>
 							<option value="">All authors</option>
@@ -202,14 +160,14 @@ function LibraryPageInner() {
 							onChange={(e) =>
 								updateFilters({ genre: e.target.value || undefined })
 							}
-							className="px-3 py-1.5 text-base font-bold md:text-xs"
+							className="min-w-0 max-w-full px-3 py-1.5 text-base font-bold md:text-xs"
 							style={{
 								background: genreFilter
-									? "var(--blush)"
+									? "var(--surface-shimmer)"
 									: "transparent",
 								color: genreFilter ? "var(--fg)" : "var(--muted)",
 								border: `2px solid ${genreFilter ? "var(--fg)" : "var(--muted)"}`,
-								borderRadius: "8px",
+								borderRadius: "var(--radius-control)",
 							}}
 						>
 							<option value="">All genres</option>
@@ -248,7 +206,6 @@ function LibraryPageInner() {
 					description="Save books you want to read, are reading, or have already finished."
 					ctaHref="/search"
 					ctaLabel="Find a book"
-					tone="sky"
 				/>
 			))}
 
@@ -278,8 +235,7 @@ function LibraryPageInner() {
 								<div>
 									<div className="flex items-center gap-3 my-4">
 										<span
-											className="text-xs font-bold uppercase tracking-wider"
-											style={{ color: "var(--muted)" }}
+											className="eyebrow"
 										>
 											Unknown release date
 										</span>

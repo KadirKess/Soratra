@@ -5,6 +5,8 @@ import { toast } from 'sonner'
 import { trpc } from '@/lib/trpc/client'
 import { useConfirm } from '@/components/ui/ConfirmDialog'
 import { CopyLink } from '@/components/ui/CopyLink'
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Avatar } from '@/components/ui/Avatar'
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
 const dateTimeFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
@@ -61,18 +63,16 @@ export function AdminPanel({ welcome }: { welcome: boolean }) {
     if (ok) createResetLink.mutate({ userId })
   }
 
-  if (overview.isLoading) return <p className="text-sm" style={{ color: 'var(--muted)' }}>Loading your instance...</p>
-  if (!overview.data) return <p className="text-sm" style={{ color: 'var(--muted)' }}>We could not load your instance. Refresh to try again.</p>
+  if (overview.isLoading) return <p className="text-sm" style={{ color: 'var(--muted)' }}>Loading your Soratra…</p>
+  if (!overview.data) return <p className="text-sm" style={{ color: 'var(--muted)' }}>We could not load your Soratra. Refresh to try again.</p>
   const { members, pendingInvites, acceptedInvites, settings } = overview.data
 
   return (
-    <div className="space-y-8 max-w-2xl">
-      <div className="space-y-2">
-        <h1 className="text-4xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>Your Soratra</h1>
-        <p className="text-sm" style={{ color: 'var(--muted)' }}>
-          Who reads here, and how new readers join. You never see anyone&apos;s shelves or journal from this page.
-        </p>
-      </div>
+    <div className="space-y-8 max-w-4xl mx-auto">
+      <PageHeader
+        title="Your Soratra"
+        description={<>Who reads here, and how new readers join. You never see anyone&apos;s shelves or journal from this page.</>}
+      />
 
       {welcome && (
         <p className="auth-notice" role="status">
@@ -80,7 +80,7 @@ export function AdminPanel({ welcome }: { welcome: boolean }) {
         </p>
       )}
 
-      <section className="brutalist-card p-5 space-y-4" style={{ background: 'var(--sage)' }} aria-labelledby="invite-heading">
+      <section className="brutalist-card p-5 sm:p-6 space-y-4" aria-labelledby="invite-heading">
         <div>
           <h2 id="invite-heading" className="text-xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>Invite someone</h2>
           <p className="text-sm mt-1" style={{ color: 'var(--muted-strong)' }}>
@@ -101,13 +101,13 @@ export function AdminPanel({ welcome }: { welcome: boolean }) {
         {(pendingInvites.length > 0 || acceptedInvites.length > 0) && (
           <ul className="space-y-2 text-sm">
             {pendingInvites.map((invite) => (
-              <li key={invite.id} className="flex items-center justify-between gap-3 border-t-2 pt-2" style={{ borderColor: 'var(--border)' }}>
+              <li key={invite.id} className="flex items-center justify-between gap-3 border-t pt-2" style={{ borderColor: 'var(--rule)' }}>
                 <span>Unused link, expires {dateFormat.format(invite.expiresAt)}</span>
                 <button type="button" onClick={() => handleRevoke(invite.id)} disabled={revokeInvite.isPending} className="btn-ghost text-xs">Revoke</button>
               </li>
             ))}
             {acceptedInvites.map((invite) => (
-              <li key={invite.id} className="border-t-2 pt-2" style={{ borderColor: 'var(--border)', color: 'var(--muted-strong)' }}>
+              <li key={invite.id} className="border-t pt-2" style={{ borderColor: 'var(--rule)', color: 'var(--muted-strong)' }}>
                 {invite.username ? <>Joined as <strong>@{invite.username}</strong></> : 'Used'} on {dateFormat.format(invite.usedAt)}
               </li>
             ))}
@@ -116,15 +116,18 @@ export function AdminPanel({ welcome }: { welcome: boolean }) {
       </section>
 
       <section className="space-y-3" aria-labelledby="members-heading">
-        <h2 id="members-heading" className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
+        <h2 id="members-heading" className="eyebrow">
           Readers · {members.length}
         </h2>
         {members.map((member) => (
-          <div key={member.id} className="brutalist-card p-4 space-y-3">
+          <div key={member.id} className="card-flat p-4 space-y-3">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <p className="font-semibold text-sm truncate">@{member.username}{member.isAdmin && <span className="ml-2 text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--accent-ink)' }}>You</span>}</p>
-                <p className="text-xs" style={{ color: 'var(--muted)' }}>Joined {dateFormat.format(member.createdAt)}</p>
+              <div className="flex items-center gap-3 min-w-0">
+                <Avatar username={member.username} />
+                <div className="min-w-0">
+                  <p className="font-semibold text-sm truncate">@{member.username}{member.isAdmin && <span className="eyebrow ml-2" style={{ color: 'var(--accent-ink)' }}>You</span>}</p>
+                  <p className="text-xs" style={{ color: 'var(--muted)' }}>Joined {dateFormat.format(member.createdAt)}</p>
+                </div>
               </div>
               {!member.isAdmin && (
                 <button type="button" onClick={() => handleResetLink(member.id, member.username)} disabled={createResetLink.isPending} className="btn-secondary justify-center">
@@ -167,7 +170,7 @@ function InstanceSettings({ initial }: { initial: { operatorName: string; contac
   useEffect(() => setSaved(false), [operatorName, contact, registration])
 
   return (
-    <section className="brutalist-card p-5 space-y-5" style={{ background: 'var(--surface)' }} aria-labelledby="settings-heading">
+    <section className="brutalist-card p-5 sm:p-6 space-y-5" style={{ background: 'var(--surface)' }} aria-labelledby="settings-heading">
       <h2 id="settings-heading" className="text-xl font-bold" style={{ fontFamily: 'var(--font-cormorant)' }}>Settings</h2>
       <form
         className="space-y-5"
@@ -177,7 +180,7 @@ function InstanceSettings({ initial }: { initial: { operatorName: string; contac
         }}
       >
         <fieldset className="choice-list">
-          <legend className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--muted)' }}>Who can join</legend>
+          <legend className="eyebrow mb-3">Who can join</legend>
           {registrationOptions.map((option) => (
             <label key={option.value} className="choice-card">
               <input type="radio" name="registration" value={option.value} checked={registration === option.value} onChange={() => setRegistration(option.value)} />
@@ -188,11 +191,11 @@ function InstanceSettings({ initial }: { initial: { operatorName: string; contac
         </fieldset>
 
         <div className="space-y-1.5">
-          <label htmlFor="operator-name" className="block text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>Your name, as readers see it</label>
+          <label htmlFor="operator-name" className="field-label">Your name, as readers see it</label>
           <input id="operator-name" value={operatorName} onChange={(event) => setOperatorName(event.target.value)} maxLength={80} placeholder="Defaults to your username" className="auth-input" />
         </div>
         <div className="space-y-1.5">
-          <label htmlFor="operator-contact" className="block text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>How readers can reach you</label>
+          <label htmlFor="operator-contact" className="field-label">How readers can reach you</label>
           <input id="operator-contact" value={contact} onChange={(event) => setContact(event.target.value)} maxLength={200} placeholder="An email, a link, or a short note" className="auth-input" />
           <p className="text-xs" style={{ color: 'var(--muted)' }}>Shown on the support, privacy, and forgot-password pages. Optional.</p>
         </div>

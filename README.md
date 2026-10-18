@@ -63,7 +63,7 @@ Caddy fetches and renews the certificate on its own. Ports 80 and 443 must be fr
 
 ## Invite friends
 
-Open **Profile → Manage members**. Make an invite link and send it however you like; each one works once. Forgot passwords are handled the same way: you make a one-time reset link for that friend. You never see anyone's password or journal from this page.
+Open **Your Soratra** in the sidebar (on a phone, from **Profile**). Make an invite link and send it however you like; each one works once. Forgot passwords are handled the same way: you make a one-time reset link for that friend. You never see anyone's password or journal from this page.
 
 ![The admin page: invite links, readers, and who can join.](docs/images/admin.png)
 

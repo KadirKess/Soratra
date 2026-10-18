@@ -77,11 +77,11 @@ export function SignUpForm({ invite }: { invite: string | null }) {
           : 'Save books, track your reading rhythm, and make your shelves feel like home.'}
       </p>
       <form method="post" onSubmit={handleSubmit} noValidate className="auth-form">
-        <label htmlFor="signup-username" className="sr-only">Username</label>
-        <input id="signup-username" name="username" type="text" placeholder="Username" required minLength={2} maxLength={30} pattern="[A-Za-z0-9_]+" title="Use 2-30 letters, numbers, or underscores." autoComplete="username" aria-invalid={Boolean(fieldErrors.username)} aria-describedby={fieldErrors.username ? 'signup-username-error' : 'signup-username-hint'} className="auth-input" />
+        <label htmlFor="signup-username" className="field-label">Username</label>
+        <input id="signup-username" name="username" type="text" required minLength={2} maxLength={30} pattern="[A-Za-z0-9_]+" title="Use 2-30 letters, numbers, or underscores." autoComplete="username" aria-invalid={Boolean(fieldErrors.username)} aria-describedby={fieldErrors.username ? 'signup-username-error' : 'signup-username-hint'} className="auth-input" />
         {fieldErrors.username ? <p id="signup-username-error" className="auth-field-error">{fieldErrors.username}</p> : <p id="signup-username-hint" className="auth-field-hint">2-30 letters, numbers, or underscores. You sign in with it.</p>}
-        <label htmlFor="signup-password" className="sr-only">Password</label>
-        <PasswordInput id="signup-password" name="password" placeholder="Password (min 8 chars)" required minLength={8} autoComplete="new-password" aria-invalid={Boolean(fieldErrors.password)} aria-describedby={fieldErrors.password ? 'signup-password-error' : undefined} className="auth-input" />
+        <label htmlFor="signup-password" className="field-label">Password</label>
+        <PasswordInput id="signup-password" name="password" placeholder="At least 8 characters" required minLength={8} autoComplete="new-password" aria-invalid={Boolean(fieldErrors.password)} aria-describedby={fieldErrors.password ? 'signup-password-error' : undefined} className="auth-input" />
         {fieldErrors.password && <p id="signup-password-error" className="auth-field-error">{fieldErrors.password}</p>}
         <label className="auth-consent">
           <input name="gdprConsent" type="checkbox" required aria-invalid={Boolean(fieldErrors.gdprConsent)} aria-describedby={fieldErrors.gdprConsent ? 'signup-consent-error' : undefined} />

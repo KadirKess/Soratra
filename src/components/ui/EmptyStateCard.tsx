@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 
-const TONE_BACKGROUNDS = {
-	blush: "var(--blush)",
-	sage: "var(--sage)",
-	sky: "var(--sky)",
-	straw: "var(--straw)",
-	surface: "var(--surface)",
+const TONE_CLASSES = {
+	blush: "tint-blush",
+	sage: "tint-sage",
+	sky: "tint-sky",
+	straw: "tint-straw",
+	surface: "",
 } as const;
 
 interface EmptyStateCardProps {
@@ -14,7 +14,7 @@ interface EmptyStateCardProps {
 	description: ReactNode;
 	ctaHref?: string;
 	ctaLabel?: string;
-	tone?: keyof typeof TONE_BACKGROUNDS;
+	tone?: keyof typeof TONE_CLASSES;
 }
 
 export function EmptyStateCard({
@@ -26,8 +26,7 @@ export function EmptyStateCard({
 }: EmptyStateCardProps) {
 	return (
 		<div
-			className="brutalist-card p-6 sm:p-7 text-center"
-			style={{ background: TONE_BACKGROUNDS[tone] }}
+			className={`brutalist-card ${TONE_CLASSES[tone]} p-6 sm:p-7 text-center`}
 		>
 			<div className="max-w-sm mx-auto space-y-3">
 				<div className="space-y-1.5">

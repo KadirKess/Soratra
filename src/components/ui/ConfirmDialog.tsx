@@ -81,6 +81,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
 						role="dialog"
 						aria-modal="true"
 						aria-labelledby="confirm-dialog-title"
+						className="dialog-backdrop"
 						onClick={() => close(false)}
 						style={{
 							position: "fixed",
@@ -90,15 +91,13 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
 							alignItems: "center",
 							justifyContent: "center",
 							padding: "1rem",
-							background: "rgba(28, 25, 23, 0.4)",
 						}}
 					>
 						<div
 							ref={dialogRef}
 							onClick={(e) => e.stopPropagation()}
-							className="brutalist-card slideUp"
+							className="card-dialog slideUp"
 							style={{
-								background: "var(--bg)",
 								padding: "1.5rem",
 								maxWidth: "26rem",
 								width: "100%",
@@ -133,7 +132,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
 								<button
 									type="button"
 									onClick={() => close(true)}
-									className={options.danger ? "btn-danger" : "btn-primary"}
+									className={options.danger ? "btn-danger btn-danger-solid" : "btn-primary"}
 								>
 									{options.confirmLabel ?? "Confirm"}
 								</button>
