@@ -150,7 +150,8 @@ export function AdminPanel({ welcome }: { welcome: boolean }) {
         ))}
       </section>
 
-      <InstanceSettings key={JSON.stringify(settings)} initial={settings} />
+      {/* Not keyed on the saved values: a remount after the refetch would wipe the Saved state. */}
+      <InstanceSettings initial={settings} />
 
       <p className="text-xs" style={{ color: 'var(--muted)' }}>
         {version ? `Soratra ${version}` : 'A development build of Soratra'}
