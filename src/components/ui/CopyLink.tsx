@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { copyText } from './copyText'
 
 // Shows a one-time link built from the address the admin is using right now,
 // so it works whether Soratra is reached on localhost, the LAN or a domain.
@@ -14,14 +15,7 @@ export function CopyLink({ path, label }: { path: string; label: string }) {
   }, [path])
 
   async function copy(input: HTMLInputElement | null) {
-    try {
-      await navigator.clipboard.writeText(url)
-    } catch {
-      // The clipboard API needs HTTPS or localhost; plain http on a LAN address
-      // only has the older selection-based copy.
-      input?.select()
-      if (!document.execCommand('copy')) return
-    }
+    if (!await copyText(url, () => input?.select())) return
     setCopied(true)
     window.setTimeout(() => setCopied(false), 2_000)
   }

@@ -38,7 +38,7 @@ export async function Shell({ children }: { children: React.ReactNode }) {
         <ProjectCredit />
       </div>
 
-      <BottomNav />
+      <BottomNav isAdmin={account?.isAdmin ?? false} />
     </SectionFrame>
   )
 }

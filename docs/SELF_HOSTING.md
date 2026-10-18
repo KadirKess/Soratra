@@ -137,6 +137,8 @@ The app applies any database changes when it starts. The daily backup covers you
 
 `SORATRA_VERSION` decides how far updates go. The default `1` follows every 1.x release; a new major version is never pulled in automatically. Release notes are on the [releases page](https://github.com/KadirKess/Soratra/releases). Download the new `compose.yaml` from there too when the notes say it changed.
 
+Your Soratra tells you when a newer release is out, with the commands above or, for a new major version, what to change first. A small dot on Your Soratra in the sidebar (on a phone, on Profile) shows it from anywhere in the app. To find out, the server asks GitHub's API for the latest release (`api.github.com/repos/KadirKess/Soratra/releases/latest`) when you open the page, at most once a day. The request carries no cookies, account details, or install identifier, only a User-Agent naming the version you run, so GitHub sees the server's IP address and that version. If nobody opens the page, nothing is sent. Images not built from a release (`dev`, local builds) never check. If GitHub can't be reached, the page works as usual and the app logs one line. To turn the check off, untick **Tell me when a new release is out** under Settings on Your Soratra. The running version is always shown at the bottom of that page.
+
 ## Building from source
 
 To run your own changes, clone the repository and build the image locally:

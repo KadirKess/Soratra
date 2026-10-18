@@ -1,0 +1,1 @@
+ALTER TABLE "instance_settings" ADD COLUMN "check_for_updates" boolean DEFAULT true NOT NULL;

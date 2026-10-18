@@ -4,6 +4,7 @@ import { TRPCError } from '@trpc/server'
 import { router, adminProcedure } from '../trpc'
 import { db, instanceSettings, invites, users } from '../db'
 import { createInviteToken, createPasswordResetToken } from '../tokens'
+import { currentVersion, getUpdateStatus } from '../updateCheck'
 
 // The admin sees usernames and join dates only, never anyone's reading data.
 export const adminRouter = router({
@@ -28,7 +29,9 @@ export const adminRouter = router({
         operatorName: settings?.operatorName ?? '',
         contact: settings?.contact ?? '',
         registration: (settings?.registration ?? 'invite') as 'invite' | 'open',
+        checkForUpdates: settings?.checkForUpdates ?? true,
       },
+      version: currentVersion(),
       members,
       pendingInvites: inviteRows
         .filter((invite) => !invite.usedAt)
@@ -44,6 +47,7 @@ export const adminRouter = router({
       operatorName: z.string().trim().max(80, 'Keep the name under 80 characters.'),
       contact: z.string().trim().max(200, 'Keep the contact under 200 characters.'),
       registration: z.enum(['invite', 'open']),
+      checkForUpdates: z.boolean(),
     }))
     .mutation(async ({ input }) => {
       await db.update(instanceSettings)
@@ -51,10 +55,24 @@ export const adminRouter = router({
           operatorName: input.operatorName || null,
           contact: input.contact || null,
           registration: input.registration,
+          checkForUpdates: input.checkForUpdates,
           updatedAt: new Date(),
         })
         .where(eq(instanceSettings.id, 1))
       return { ok: true }
+    }),
+
+  // The admin page passes check: true and may wait on GitHub for up to five
+  // seconds; the navigation only reads what that check found.
+  updateStatus: adminProcedure
+    .input(z.object({ check: z.boolean() }))
+    .query(async ({ input }) => {
+      const settings = await db.query.instanceSettings.findFirst({
+        where: eq(instanceSettings.id, 1),
+        columns: { checkForUpdates: true },
+      })
+      const enabled = settings?.checkForUpdates ?? true
+      return { enabled, ...await getUpdateStatus({ enabled, fetch: input.check }) }
     }),
 
   createInvite: adminProcedure.mutation(async ({ ctx }) => {
