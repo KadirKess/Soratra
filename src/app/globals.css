@@ -271,6 +271,64 @@ h1, h2, h3, h4, .display {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bg) 22%, transparent);
 }
 
+/* Placeholder covers are a container, so their type is sized in cqw and
+   scales with the cover like a printed one would. */
+.cover-placeholder {
+  position: absolute;
+  inset: 0;
+  container-type: inline-size;
+}
+
+.cover-placeholder__inner {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5cqw;
+  padding: 12cqw 8cqw;
+  text-align: center;
+}
+
+.cover-placeholder__inner::before,
+.cover-placeholder__inner::after {
+  content: '';
+  flex: none;
+  align-self: stretch;
+  border-top: 1px solid var(--rule);
+}
+
+.cover-placeholder__inner::before { margin-bottom: 2cqw; }
+.cover-placeholder__inner::after { margin-top: 2cqw; }
+
+/* The size comes from coverTitleSize so the longest word fits. A word only
+   breaks if it is longer than a line even at the smallest size. */
+.cover-placeholder__title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: var(--title-size, 14cqw);
+  font-weight: 600;
+  line-height: 1.15;
+  overflow-wrap: break-word;
+  hyphens: manual;
+}
+
+.cover-placeholder__author {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 5.5cqw;
+  letter-spacing: 0.14em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--muted-strong);
+}
+
 .cover-raised {
   box-shadow: var(--shadow-raised);
   transition: box-shadow 0.1s ease, transform 0.1s ease;

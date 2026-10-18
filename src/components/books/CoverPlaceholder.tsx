@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react'
+import { coverTitle, coverTitleSize } from '@/lib/coverTitle'
 import { getPastelColor } from '@/lib/pastel'
 
 interface CoverPlaceholderProps {
@@ -9,33 +11,22 @@ interface CoverPlaceholderProps {
 
 // Drawn under every cover image, so it also shows while the real cover loads
 // and stays if it never does. Decorative: the title is always named nearby.
+// The type scales with the cover (see .cover-placeholder), so md and lg only
+// differ in how big the cover is.
 export function CoverPlaceholder({ title, author, size = 'md' }: CoverPlaceholderProps) {
   const background = getPastelColor(title)
   if (size === 'sm') {
     return <div aria-hidden="true" className="absolute inset-0" style={{ background }} />
   }
+  const shown = coverTitle(title)
   return (
-    <div
-      aria-hidden="true"
-      className="absolute inset-0 flex flex-col items-center justify-center text-center"
-      style={{ background, padding: size === 'lg' ? '1.5rem 1.25rem' : '1.25rem 0.9rem' }}
-    >
-      <div className="w-full mb-3" style={{ borderTop: '1px solid var(--rule)' }} />
-      <span
-        className="font-semibold leading-snug line-clamp-5"
-        style={{ fontFamily: 'var(--font-cormorant)', fontSize: size === 'lg' ? '1.4rem' : '1.05rem' }}
-      >
-        {title}
-      </span>
-      {author && (
-        <span
-          className="mt-2 line-clamp-1 uppercase"
-          style={{ fontSize: '0.6rem', letterSpacing: '0.14em', color: 'var(--muted-strong)' }}
-        >
-          {author}
+    <div aria-hidden="true" className="cover-placeholder" style={{ background }}>
+      <div className="cover-placeholder__inner">
+        <span className="cover-placeholder__title" style={{ '--title-size': `${coverTitleSize(shown)}cqw` } as CSSProperties}>
+          {shown}
         </span>
-      )}
-      <div className="w-full mt-3" style={{ borderTop: '1px solid var(--rule)' }} />
+        {author && <span className="cover-placeholder__author">{author}</span>}
+      </div>
     </div>
   )
 }
