@@ -15,8 +15,8 @@ The original hosted service has shut down. This repository is the self-hosted ve
 ![Illustrated overview of Soratra's shelves, daily journal, and accepted-friend sharing.](docs/images/reading.png)
 
 - Shelves for books you want to read, are reading, and have read, with ratings, reviews, and finish dates.
-- Daily reading sessions with minutes, ratings, notes, and spoiler controls.
-- A journal, reading heatmap, time-zone-aware streaks, and a weekly streak freeze.
+- Daily reading sessions with minutes, ratings, notes, and spoiler controls. Note the page you stopped at if you like, and Soratra shows how far through the book you are.
+- A journal, reading heatmap, time-zone-aware streaks, and a weekly streak freeze. When you note pages, it also counts pages read and your pages per hour.
 - Friends by exact username, with mutual consent. Removing a friend ends shared access at once.
 - Account export, password changes, and account deletion.
 
