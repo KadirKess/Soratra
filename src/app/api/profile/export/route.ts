@@ -62,9 +62,9 @@ export async function GET() {
 
   const exportData = {
     exportedAt: new Date().toISOString(),
-    version: '1.7',
+    version: '1.8',
     account,
-    books: books.map(({ book, status, rating, review, reviewHasSpoiler, finishedAt, createdAt, updatedAt }) => ({
+    books: books.map(({ book, status, rating, review, reviewHasSpoiler, finishedAt, pageCount, createdAt, updatedAt }) => ({
       title: book.title,
       authors: book.authors,
       openLibraryId: book.openLibraryId,
@@ -73,15 +73,19 @@ export async function GET() {
       review,
       reviewHasSpoiler: reviewHasSpoiler === 1,
       finishedAt,
+      // Your own page count for your copy; null means Open Library's was used.
+      pageCount,
       addedAt: createdAt,
       updatedAt,
     })),
-    readingSessions: sessions.map(({ book, sessionDate, rating, minutes, note, hasSpoiler, createdAt }) => ({
+    readingSessions: sessions.map(({ book, sessionDate, rating, minutes, startPage, endPage, note, hasSpoiler, createdAt }) => ({
       bookTitle: book.title,
       openLibraryId: book.openLibraryId,
       sessionDate,
       rating: rating ? Number(rating) : null,
       minutes,
+      startPage,
+      endPage,
       note,
       hasSpoiler: hasSpoiler === 1,
       loggedAt: createdAt,

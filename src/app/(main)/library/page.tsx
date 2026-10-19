@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { trpc } from "@/lib/trpc/client";
 import { BookCard } from "@/components/books/BookCard";
 import { LibraryReadingCard } from "@/components/books/LibraryReadingCard";
+import { effectivePageCount } from "@/lib/pages";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyStateCard } from "@/components/ui/EmptyStateCard";
 import { QueryErrorCard } from "@/components/ui/QueryErrorCard";
@@ -225,8 +226,8 @@ function LibraryPageInner() {
 					return (
 						<>
 							<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3">
-								{sorted.map(({ book }) => filter === "reading" ? (
-									<LibraryReadingCard key={book.id} book={book} loggedToday={todayLogged.includes(book.id)} todayDate={todayDate} />
+								{sorted.map(({ book, currentPage, pageCount }) => filter === "reading" ? (
+									<LibraryReadingCard key={book.id} book={book} loggedToday={todayLogged.includes(book.id)} todayDate={todayDate} progress={currentPage == null ? null : { page: currentPage, total: effectivePageCount(pageCount, book.pageCount) }} />
 								) : (
 									<BookCard key={book.id} openLibraryId={book.openLibraryId} title={book.title} authors={book.authors} coverUrl={book.coverUrl} compact />
 								))}
@@ -249,8 +250,8 @@ function LibraryPageInner() {
 										/>
 									</div>
 									<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3">
-										{unknownDate.map(({ book }) => filter === "reading" ? (
-											<LibraryReadingCard key={book.id} book={book} loggedToday={todayLogged.includes(book.id)} todayDate={todayDate} />
+										{unknownDate.map(({ book, currentPage, pageCount }) => filter === "reading" ? (
+											<LibraryReadingCard key={book.id} book={book} loggedToday={todayLogged.includes(book.id)} todayDate={todayDate} progress={currentPage == null ? null : { page: currentPage, total: effectivePageCount(pageCount, book.pageCount) }} />
 										) : (
 											<BookCard key={book.id} openLibraryId={book.openLibraryId} title={book.title} authors={book.authors} coverUrl={book.coverUrl} compact />
 										))}

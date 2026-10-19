@@ -699,6 +699,31 @@ h1, h2, h3, h4, .display {
   color: var(--muted);
 }
 
+/* Reading progress: a thin ink rule, square ends like the flat cards. */
+.progress-rule {
+  position: relative;
+  height: 3px;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.progress-rule--desk {
+  height: 4px;
+}
+
+.progress-rule > span {
+  display: block;
+  height: 100%;
+  background: var(--fg);
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-rule > span {
+    transition: none;
+  }
+}
+
 /* Errors get their own look so they don't borrow the CTA orange. */
 .form-error {
   padding: 0.5rem 0.75rem;

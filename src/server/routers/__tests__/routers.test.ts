@@ -178,13 +178,22 @@ describe('reading sessions', () => {
   const bookId = '22222222-2222-4222-8222-222222222222'
   const input = { bookId, sessionDate: '2026-06-03', rating: 4, minutes: 30, expectedRevision: 0 }
 
-  function mockInsert() {
+  function mockInsert(saved: unknown[] = [{ id: 'session-1', ...input }]) {
     const values = vi.fn()
-    const returning = vi.fn().mockResolvedValue([{ id: 'session-1', ...input }])
+    const returning = vi.fn().mockResolvedValue(saved)
     const onConflictDoUpdate = vi.fn(() => ({ returning }))
     values.mockReturnValue({ onConflictDoUpdate })
-    ;(db as unknown as Record<string, unknown>).insert = vi.fn(() => ({ values }))
-    return { values, onConflictDoUpdate }
+    const set = vi.fn(() => ({ where: vi.fn().mockResolvedValue(undefined) }))
+    const dbMock = db as unknown as Record<string, unknown>
+    dbMock.insert = vi.fn(() => ({ values }))
+    dbMock.update = vi.fn(() => ({ set }))
+    dbMock.transaction = vi.fn((work: (tx: unknown) => unknown) => work(db))
+    return { values, onConflictDoUpdate, set }
+  }
+
+  function mockLibraryEntry(entry: Record<string, unknown>) {
+    const dbMock = db as unknown as { query: { userBooks: { findFirst: ReturnType<typeof vi.fn> } } }
+    dbMock.query.userBooks.findFirst.mockResolvedValueOnce({ id: 'user-book-1', status: 'reading', pageCount: null, book: { pageCount: null }, ...entry })
   }
 
   it('upserts a valid check-in', async () => {
@@ -210,13 +219,81 @@ describe('reading sessions', () => {
   })
 
   it('rejects a save when the entry changed after it was opened', async () => {
-    const values = vi.fn()
-    const returning = vi.fn().mockResolvedValue([])
-    const onConflictDoUpdate = vi.fn(() => ({ returning }))
-    values.mockReturnValue({ onConflictDoUpdate })
-    ;(db as unknown as Record<string, unknown>).insert = vi.fn(() => ({ values }))
+    const mock = mockInsert([])
+    await expect(sessionsCaller.log({ ...input, expectedRevision: 1, bookPageCount: 320 })).rejects.toMatchObject({ code: 'CONFLICT' })
+    expect(mock.set).not.toHaveBeenCalled()
+  })
 
-    await expect(sessionsCaller.log({ ...input, expectedRevision: 1 })).rejects.toMatchObject({ code: 'CONFLICT' })
+  it('stores page positions and leaves them empty when not given', async () => {
+    const mock = mockInsert()
+    await sessionsCaller.log({ ...input, startPage: 120, endPage: 150 })
+    expect(mock.values).toHaveBeenLastCalledWith(expect.objectContaining({ startPage: 120, endPage: 150 }))
+    await sessionsCaller.log(input)
+    expect(mock.values).toHaveBeenLastCalledWith(expect.objectContaining({ startPage: null, endPage: null }))
+    const conflict = (mock.onConflictDoUpdate.mock.calls as unknown as Array<[{ set: Record<string, unknown> }]>).at(-1)![0]
+    expect(conflict.set).toMatchObject({ startPage: null, endPage: null })
+  })
+
+  it('accepts a bookmark without a starting page', async () => {
+    const mock = mockInsert()
+    await sessionsCaller.log({ ...input, endPage: 210 })
+    expect(mock.values).toHaveBeenCalledWith(expect.objectContaining({ startPage: null, endPage: 210 }))
+  })
+
+  it('rejects page ranges the database would refuse, before writing', async () => {
+    const mock = mockInsert()
+    await expect(sessionsCaller.log({ ...input, startPage: 150, endPage: 120 })).rejects.toMatchObject({ code: 'BAD_REQUEST' })
+    await expect(sessionsCaller.log({ ...input, startPage: 120 })).rejects.toMatchObject({ code: 'BAD_REQUEST' })
+    await expect(sessionsCaller.log({ ...input, endPage: -1 })).rejects.toMatchObject({ code: 'BAD_REQUEST' })
+    await expect(sessionsCaller.log({ ...input, endPage: 100_001 })).rejects.toMatchObject({ code: 'BAD_REQUEST' })
+    await expect(sessionsCaller.log({ ...input, bookPageCount: 0 })).rejects.toMatchObject({ code: 'BAD_REQUEST' })
+    expect(mock.values).not.toHaveBeenCalled()
+  })
+
+  it('saves a changed page count in the same transaction as the session', async () => {
+    const mock = mockInsert()
+    mockLibraryEntry({ pageCount: null, book: { pageCount: 300 } })
+    await sessionsCaller.log({ ...input, startPage: 0, endPage: 40, bookPageCount: 320 })
+    expect(db.transaction).toHaveBeenCalledTimes(1)
+    expect(mock.set).toHaveBeenCalledWith(expect.objectContaining({ pageCount: 320, updatedAt: expect.any(Date) }))
+  })
+
+  it('skips the shelf update when the page count is unchanged', async () => {
+    const mock = mockInsert()
+    mockLibraryEntry({ pageCount: 320 })
+    await sessionsCaller.log({ ...input, startPage: 0, endPage: 40, bookPageCount: 320 })
+    expect(mock.set).not.toHaveBeenCalled()
+  })
+
+  it('says when a save reaches the last page of a book still being read', async () => {
+    mockInsert()
+    mockLibraryEntry({ book: { pageCount: 320 } })
+    await expect(sessionsCaller.log({ ...input, startPage: 300, endPage: 320 })).resolves.toMatchObject({ reachedEnd: true })
+    mockLibraryEntry({ book: { pageCount: 320 } })
+    await expect(sessionsCaller.log({ ...input, startPage: 280, endPage: 300 })).resolves.toMatchObject({ reachedEnd: false })
+    mockLibraryEntry({ status: 'read', book: { pageCount: 320 } })
+    await expect(sessionsCaller.log({ ...input, endPage: 320 })).resolves.toMatchObject({ reachedEnd: false })
+    mockLibraryEntry({ book: { pageCount: null } })
+    await expect(sessionsCaller.log({ ...input, endPage: 999 })).resolves.toMatchObject({ reachedEnd: false })
+  })
+
+  it('pre-fills the page context from the session before the chosen date', async () => {
+    const dbMock = db as unknown as { query: { userBooks: { findFirst: ReturnType<typeof vi.fn> } }; select: unknown }
+    dbMock.query.userBooks.findFirst.mockResolvedValueOnce({ pageCount: null, book: { pageCount: 320 } })
+    dbMock.select = vi.fn(() => ({
+      from: vi.fn(() => ({ where: vi.fn().mockResolvedValue([
+        { sessionDate: '2026-06-01', endPage: 80 },
+        { sessionDate: '2026-06-02', endPage: 120 },
+        { sessionDate: '2026-06-05', endPage: 200 },
+      ]) })),
+    }))
+    await expect(sessionsCaller.pageContext({ bookId, sessionDate: '2026-06-03' })).resolves.toEqual({
+      startPage: 120,
+      lastRecordedPage: 120,
+      tracksPages: true,
+      readerPageCount: null,
+      catalogPageCount: 320,
+    })
   })
 
   it('returns null when a book has no entry for the selected date', async () => {
@@ -234,6 +311,8 @@ describe('reading sessions', () => {
       sessionDate: '2026-07-30',
       createdAt: new Date('2026-07-30T10:00:00.000Z'),
       minutes: 45,
+      startPage: 120,
+      endPage: 150,
       rating: '4.5',
       note: 'A spoiler from the middle.',
       hasSpoiler: 1,
@@ -244,6 +323,8 @@ describe('reading sessions', () => {
       sessionDate: '2026-07-30',
       createdAt: new Date('2026-07-30T10:00:00.000Z'),
       minutes: 20,
+      startPage: null,
+      endPage: null,
       rating: '3.5',
       note: 'A quick thought.',
       hasSpoiler: 0,
@@ -302,6 +383,8 @@ describe('reading sessions', () => {
           activityId: 'session-0',
           activityDate: '2026-07-30',
           minutes: 20,
+          startPage: null,
+          endPage: null,
           rating: '3.5',
           note: 'A quick thought.',
           hasSpoiler: false,
@@ -313,6 +396,8 @@ describe('reading sessions', () => {
           activityId: 'session-1',
           activityDate: '2026-07-30',
           minutes: 45,
+          startPage: 120,
+          endPage: 150,
           rating: '4.5',
           note: 'A spoiler from the middle.',
           hasSpoiler: true,

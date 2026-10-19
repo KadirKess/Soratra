@@ -4,6 +4,9 @@ import { db, userBooks, books, readingSessions } from '../db'
 import { eq, and, sql, desc, asc, count } from 'drizzle-orm'
 import { sortByReleaseDate } from '@/lib/sortUserBooks'
 import { localDateInTimeZone } from '@/lib/dates'
+import { MAX_PAGE } from '@/lib/pages'
+import { latestPages } from '@/server/pageProgress'
+import { TRPCError } from '@trpc/server'
 
 const statusEnum = z.enum(['want_to_read', 'reading', 'read'])
 const LEGACY_GET_ALL_LIMIT = 60
@@ -50,6 +53,23 @@ export const userBooksRouter = router({
         .returning()
 
       return result
+    }),
+
+  // null goes back to Open Library's count.
+  setPageCount: protectedProcedure
+    .input(z.object({
+      bookId: z.string().uuid(),
+      pageCount: z.number().int().min(1).max(MAX_PAGE).nullable(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const [updated] = await db.update(userBooks)
+        .set({ pageCount: input.pageCount, updatedAt: new Date() })
+        .where(and(eq(userBooks.userId, ctx.session.user.id), eq(userBooks.bookId, input.bookId)))
+        .returning()
+      if (!updated) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'This book is not on your shelf.' })
+      }
+      return updated
     }),
 
   remove: protectedProcedure
@@ -154,8 +174,11 @@ export const userBooksRouter = router({
           )),
       ])
 
+      const readingIds = rows.filter(({ userBook }) => userBook.status === 'reading').map(({ book }) => book.id)
+      const pages = await latestPages(ctx.session.user.id, readingIds)
+
       return {
-        books: rows.map(({ userBook, book }) => ({ ...userBook, book })),
+        books: rows.map(({ userBook, book }) => ({ ...userBook, book, currentPage: pages.get(book.id) ?? null })),
         total: Number(totalRow?.count ?? 0),
         authors: (authorFacet as { values?: string[] } | undefined)?.values ?? [],
         genres: (genreFacet as { values?: string[] } | undefined)?.values ?? [],

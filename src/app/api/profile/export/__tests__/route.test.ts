@@ -22,10 +22,10 @@ function setupDatabase() {
   const query = {
     users: { findFirst: findAccount },
     userBooks: { findMany: vi.fn().mockResolvedValue([
-      { book, status: 'read', rating: '4.5', review: 'A private review', reviewHasSpoiler: 1, finishedAt, createdAt, updatedAt: finishedAt },
-      { book, status: 'reading', rating: null, review: null, reviewHasSpoiler: 0, finishedAt: null, createdAt, updatedAt: createdAt },
+      { book, status: 'read', rating: '4.5', review: 'A private review', reviewHasSpoiler: 1, finishedAt, pageCount: 412, createdAt, updatedAt: finishedAt },
+      { book, status: 'reading', rating: null, review: null, reviewHasSpoiler: 0, finishedAt: null, pageCount: null, createdAt, updatedAt: createdAt },
     ]) },
-    readingSessions: { findMany: vi.fn().mockResolvedValue([{ book, sessionDate: '2026-09-19', rating: '4.0', minutes: 45, note: 'A session note', hasSpoiler: 1, createdAt }]) },
+    readingSessions: { findMany: vi.fn().mockResolvedValue([{ book, sessionDate: '2026-09-19', rating: '4.0', minutes: 45, startPage: 120, endPage: 150, note: 'A session note', hasSpoiler: 1, createdAt }]) },
     streakFreezes: { findMany: vi.fn().mockResolvedValue([{ frozenDate: '2026-09-18', createdAt }]) },
     friendships: { findMany: vi.fn().mockResolvedValue([
       { requesterId: userId, addressee: { username: 'friend', deletedAt: null }, status: 'accepted', createdAt, updatedAt: createdAt },
@@ -43,16 +43,16 @@ beforeEach(() => {
 })
 
 describe('account export', () => {
-  it('preserves finish dates and writing without exporting deleted friends or credentials', async () => {
+  it('preserves finish dates, pages and writing without exporting deleted friends or credentials', async () => {
     setupDatabase()
     const response = await GET()
     const body = await response.json()
     expect(response.status).toBe(200)
     expect(response.headers.get('cache-control')).toContain('private, no-store')
-    expect(body.version).toBe('1.7')
-    expect(body.books[0]).toMatchObject({ finishedAt: finishedAt.toISOString(), rating: 4.5, review: 'A private review', reviewHasSpoiler: true })
+    expect(body.version).toBe('1.8')
+    expect(body.books[0]).toMatchObject({ finishedAt: finishedAt.toISOString(), rating: 4.5, review: 'A private review', reviewHasSpoiler: true, pageCount: 412 })
     expect(body.books[1].finishedAt).toBeNull()
-    expect(body.readingSessions[0]).toMatchObject({ sessionDate: '2026-09-19', minutes: 45, note: 'A session note', hasSpoiler: true })
+    expect(body.readingSessions[0]).toMatchObject({ sessionDate: '2026-09-19', minutes: 45, startPage: 120, endPage: 150, note: 'A session note', hasSpoiler: true })
     expect(body.streakFreezes[0].frozenDate).toBe('2026-09-18')
     expect(body.friendships).toEqual([expect.objectContaining({ counterpartUsername: 'friend', direction: 'sent', status: 'accepted' })])
     expect(body.account).not.toHaveProperty('passwordHash')

@@ -9,14 +9,16 @@ import { useCheckInSuccess } from "./useCheckInSuccess";
 import { CoverPlaceholder } from "./CoverPlaceholder";
 import type { Book } from "@/server/db";
 import { getPastelTint } from "@/lib/pastel";
+import { ProgressRule } from "./ProgressRule";
 
 interface LibraryReadingCardProps {
 	book: Book;
 	loggedToday: boolean;
 	todayDate?: string;
+	progress?: { page: number; total: number | null } | null;
 }
 
-export function LibraryReadingCard({ book, loggedToday, todayDate }: LibraryReadingCardProps) {
+export function LibraryReadingCard({ book, loggedToday, todayDate, progress }: LibraryReadingCardProps) {
 	const [open, setOpen] = useState(false);
 	const [imageFailed, setImageFailed] = useState(false);
 	const handleSuccess = useCheckInSuccess();
@@ -33,10 +35,11 @@ export function LibraryReadingCard({ book, loggedToday, todayDate }: LibraryRead
 				<p className="mt-3 font-bold leading-tight line-clamp-2" style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.3rem" }}>{book.title}</p>
 				{book.authors[0] && <p className="text-xs truncate mt-1" style={{ color: "var(--muted)" }}>{book.authors.join(", ")}</p>}
 			</Link>
+			{progress && <ProgressRule page={progress.page} total={progress.total} className="mt-auto" />}
 			<button
 				type="button"
 				onClick={() => setOpen(true)}
-				className="btn-primary w-full justify-center text-xs mt-auto"
+				className={`btn-primary w-full justify-center text-xs ${progress ? "" : "mt-auto"}`}
 			>
 				{loggedToday ? "Edit today’s log" : "Log reading"}
 			</button>

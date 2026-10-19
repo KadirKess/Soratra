@@ -5,10 +5,13 @@ import { eq, and, desc, inArray, or, gte, isNull, lte, ne, sql, count } from 'dr
 import { TRPCError } from '@trpc/server'
 import { getCurrentStreak } from '@/server/readingStreak'
 import { addDaysToDate, isValidDateOnly, localDateInTimeZone, weekStartForDate } from '@/lib/dates'
+import { effectivePageCount, MAX_PAGE, suggestStartPage, summarizePages } from '@/lib/pages'
 
 // Upper bound for a single session's minutes. The slider tops out at 3h;
 // the number input allows up to a full day.
 const MAX_SESSION_MINUTES = 1440
+
+const pageNumber = z.number().int().min(0).max(MAX_PAGE)
 
 export const readingSessionsRouter = router({
   log: protectedProcedure
@@ -19,7 +22,19 @@ export const readingSessionsRouter = router({
       minutes: z.number().int().min(1).max(MAX_SESSION_MINUTES),
       note: z.string().max(1000).optional(),
       hasSpoiler: z.boolean().default(false),
+      // Bookmark positions, both optional. Mirrors reading_sessions_start_page_check.
+      startPage: pageNumber.nullable().optional(),
+      endPage: pageNumber.nullable().optional(),
+      // The reader's page count for their copy, saved with the session.
+      bookPageCount: z.number().int().min(1).max(MAX_PAGE).optional(),
       expectedRevision: z.number().int().min(0),
+    }).superRefine((value, issue) => {
+      if (value.startPage == null) return
+      if (value.endPage == null) {
+        issue.addIssue({ code: 'custom', path: ['endPage'], message: 'Add the page you stopped at.' })
+      } else if (value.endPage < value.startPage) {
+        issue.addIssue({ code: 'custom', path: ['endPage'], message: 'The page you stopped at comes before the one you picked up at.' })
+      }
     }))
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id
@@ -29,37 +44,53 @@ export const readingSessionsRouter = router({
       }
       const libraryEntry = await db.query.userBooks.findFirst({
         where: and(eq(userBooks.userId, userId), eq(userBooks.bookId, input.bookId)),
-        columns: { id: true },
+        columns: { id: true, status: true, pageCount: true },
+        with: { book: { columns: { pageCount: true } } },
       })
       if (!libraryEntry) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Add this book to your library before logging a session.' })
       }
-      const [session] = await db
-        .insert(readingSessions)
-        .values({
-          userId,
-          bookId: input.bookId,
-          sessionDate: input.sessionDate,
-          rating: String(input.rating),
-          minutes: input.minutes,
-          note: input.note ?? null,
-          hasSpoiler: input.hasSpoiler ? 1 : 0,
-        })
-        .onConflictDoUpdate({
-          target: [readingSessions.userId, readingSessions.bookId, readingSessions.sessionDate],
-          set: {
+      const startPage = input.startPage ?? null
+      const endPage = input.endPage ?? null
+      const session = await db.transaction(async (tx) => {
+        const [saved] = await tx
+          .insert(readingSessions)
+          .values({
+            userId,
+            bookId: input.bookId,
+            sessionDate: input.sessionDate,
             rating: String(input.rating),
             minutes: input.minutes,
             note: input.note ?? null,
             hasSpoiler: input.hasSpoiler ? 1 : 0,
-            revision: sql`${readingSessions.revision} + 1`,
-          },
-          where: eq(readingSessions.revision, input.expectedRevision),
-        })
-        .returning()
-      if (!session) {
-        throw new TRPCError({ code: 'CONFLICT', message: 'This entry was changed in another tab.' })
-      }
+            startPage,
+            endPage,
+          })
+          .onConflictDoUpdate({
+            target: [readingSessions.userId, readingSessions.bookId, readingSessions.sessionDate],
+            set: {
+              rating: String(input.rating),
+              minutes: input.minutes,
+              note: input.note ?? null,
+              hasSpoiler: input.hasSpoiler ? 1 : 0,
+              startPage,
+              endPage,
+              revision: sql`${readingSessions.revision} + 1`,
+            },
+            where: eq(readingSessions.revision, input.expectedRevision),
+          })
+          .returning()
+        if (!saved) {
+          throw new TRPCError({ code: 'CONFLICT', message: 'This entry was changed in another tab.' })
+        }
+        if (input.bookPageCount !== undefined && input.bookPageCount !== libraryEntry.pageCount) {
+          await tx.update(userBooks)
+            .set({ pageCount: input.bookPageCount, updatedAt: new Date() })
+            .where(eq(userBooks.id, libraryEntry.id))
+        }
+        return saved
+      })
+      const pageCount = effectivePageCount(input.bookPageCount ?? libraryEntry.pageCount, libraryEntry.book?.pageCount)
       const [streak, todaySessions, loggedDateSessions] = await Promise.all([
         getCurrentStreak(userId, today),
         db.select({ bookId: readingSessions.bookId, minutes: readingSessions.minutes })
@@ -72,6 +103,8 @@ export const readingSessionsRouter = router({
       return {
         ...session,
         session,
+        // Lets the client offer "Mark as read" when the save reaches the last page.
+        reachedEnd: libraryEntry.status === 'reading' && endPage != null && pageCount != null && endPage >= pageCount,
         streak,
         todayDate: today,
         heatmapStart: addDaysToDate(today, -27),
@@ -107,6 +140,37 @@ export const readingSessionsRouter = router({
         ),
       })
       return session ?? null
+    }),
+
+  // What the check-in needs to pre-fill the page fields for one book and date.
+  pageContext: protectedProcedure
+    .input(z.object({
+      bookId: z.string().uuid(),
+      sessionDate: z.string().refine(isValidDateOnly, 'Use a valid calendar date.'),
+    }))
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id
+      const [libraryEntry, sessions] = await Promise.all([
+        db.query.userBooks.findFirst({
+          where: and(eq(userBooks.userId, userId), eq(userBooks.bookId, input.bookId)),
+          columns: { pageCount: true },
+          with: { book: { columns: { pageCount: true } } },
+        }),
+        db
+          .select({ sessionDate: readingSessions.sessionDate, endPage: readingSessions.endPage })
+          .from(readingSessions)
+          .where(and(eq(readingSessions.userId, userId), eq(readingSessions.bookId, input.bookId))),
+      ])
+      const readerPageCount = libraryEntry?.pageCount ?? null
+      const catalogPageCount = libraryEntry?.book?.pageCount ?? null
+      const pageCount = effectivePageCount(readerPageCount, catalogPageCount)
+      return {
+        ...suggestStartPage(sessions, input.sessionDate, pageCount),
+        // Shows the page field up front once the reader has used it for this book.
+        tracksPages: sessions.some((session) => session.endPage != null),
+        readerPageCount,
+        catalogPageCount,
+      }
     }),
 
   myStreak: protectedProcedure
@@ -238,6 +302,7 @@ export const readingSessionsRouter = router({
           avgRating: book.ratings.reduce((sum, rating) => sum + rating, 0) / book.ratings.length,
         }))
         return {
+          ...summarizePages(rows),
           totalMinutes,
           totalSessions: rows.length,
           avgRating: rows.length
@@ -299,6 +364,8 @@ export const readingSessionsRouter = router({
           sessionDate: readingSessions.sessionDate,
           createdAt: readingSessions.createdAt,
           minutes: readingSessions.minutes,
+          startPage: readingSessions.startPage,
+          endPage: readingSessions.endPage,
           rating: readingSessions.rating,
           note: readingSessions.note,
           hasSpoiler: readingSessions.hasSpoiler,
@@ -349,6 +416,8 @@ export const readingSessionsRouter = router({
           activityTimestamp: session.createdAt,
           activityDate: session.sessionDate,
           minutes: session.minutes,
+          startPage: session.startPage,
+          endPage: session.endPage,
           rating: session.rating,
           note: session.note,
           hasSpoiler: session.hasSpoiler === 1,
@@ -454,6 +523,9 @@ export const readingSessionsRouter = router({
           avgRating: sql<number>`coalesce(avg(${readingSessions.rating}), 0)`,
           daysRead: sql<number>`count(distinct ${readingSessions.sessionDate})`,
           distinctBooks: sql<number>`count(distinct ${readingSessions.bookId})`,
+          pagesRead: sql<number>`coalesce(sum(${readingSessions.endPage} - ${readingSessions.startPage}), 0)::int`,
+          pagedSessions: sql<number>`count(*) filter (where ${readingSessions.startPage} is not null)`,
+          pagedMinutes: sql<number>`coalesce(sum(${readingSessions.minutes}) filter (where ${readingSessions.startPage} is not null), 0)::int`,
         }).from(readingSessions).where(and(...conditions)),
         db.select({
           book: books,
@@ -485,6 +557,9 @@ export const readingSessionsRouter = router({
         avgRating: Number(summary?.avgRating ?? 0),
         daysRead: Number(summary?.daysRead ?? 0),
         distinctBooks: Number(summary?.distinctBooks ?? 0),
+        pagesRead: Number(summary?.pagesRead ?? 0),
+        pagedSessions: Number(summary?.pagedSessions ?? 0),
+        pagedMinutes: Number(summary?.pagedMinutes ?? 0),
         topByTime: topByTime.map((row) => ({ ...row, totalMinutes: Number(row.totalMinutes), avgRating: Number(row.avgRating) })),
         topByRating: topByRating.map((row) => ({ ...row, totalMinutes: Number(row.totalMinutes), avgRating: Number(row.avgRating) })),
         topAuthors: (topAuthors as unknown as Array<{ name: string; totalMinutes: number }>).map((row) => ({ ...row, totalMinutes: Number(row.totalMinutes) })),

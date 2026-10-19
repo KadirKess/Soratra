@@ -9,6 +9,7 @@ import { StarRating } from "@/components/books/StarRating";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { SpoilerReveal } from "@/components/ui/SpoilerReveal";
 import { Avatar } from "@/components/ui/Avatar";
+import { formatPages, sessionPages } from "@/lib/pages";
 
 export function FriendFeed() {
 	const { data: activity, isLoading, isError, refetch, isRefetching } = trpc.readingSessions.friendFeed.useQuery({ limit: 6 });
@@ -36,7 +37,7 @@ export function FriendFeed() {
 				</div>
 			) : activity?.length ? (
 					<div className="divide-y" aria-label="Recent activity from your friends" style={{ borderColor: "var(--rule)" }}>
-						{collapseRuns(activity).map(({ entry, count, minutes }) => (
+						{collapseRuns(activity).map(({ entry, count, minutes, pages }) => (
 							<article key={`${entry.kind}-${entry.activityId}`} className="py-3 first:pt-0 last:pb-0 space-y-1.5">
 								<div className="flex items-baseline gap-2 flex-wrap text-sm">
 							<Link
@@ -52,8 +53,8 @@ export function FriendFeed() {
 								{entry.kind !== "session"
 									? "finished reading"
 									: count > 1
-										? `${count} sittings · ${formatMinutes(minutes)}`
-										: `logged ${formatMinutes(entry.minutes)}`}
+										? `${count} sittings · ${formatMinutes(minutes)}${pages ? ` · ${formatPages(pages)}` : ""}`
+										: `logged ${formatMinutes(entry.minutes)}${pages != null ? ` · ${formatPages(pages)}` : ""}`}
 							</span>
 						</div>
 						<Link
@@ -95,9 +96,9 @@ export function FriendFeed() {
 type FeedEntry = inferRouterOutputs<AppRouter>["readingSessions"]["friendFeed"][number];
 
 // Several evenings with the same book by the same friend read as one row: the
-// newest sitting, with how many there were and the time they add up to.
+// newest sitting, with how many there were and the time and pages they add up to.
 function collapseRuns(activity: FeedEntry[]) {
-	const rows: { entry: FeedEntry; count: number; minutes: number }[] = [];
+	const rows: { entry: FeedEntry; count: number; minutes: number; pages: number | null }[] = [];
 	for (const entry of activity) {
 		const last = rows[rows.length - 1];
 		if (
@@ -107,11 +108,13 @@ function collapseRuns(activity: FeedEntry[]) {
 			last.entry.user.username === entry.user.username &&
 			last.entry.book.openLibraryId === entry.book.openLibraryId
 		) {
+			const pages = sessionPages(entry);
 			last.count += 1;
 			last.minutes += entry.minutes;
+			if (pages != null) last.pages = (last.pages ?? 0) + pages;
 			continue;
 		}
-		rows.push({ entry, count: 1, minutes: entry.kind === "session" ? entry.minutes : 0 });
+		rows.push({ entry, count: 1, minutes: entry.kind === "session" ? entry.minutes : 0, pages: entry.kind === "session" ? sessionPages(entry) : null });
 	}
 	return rows;
 }

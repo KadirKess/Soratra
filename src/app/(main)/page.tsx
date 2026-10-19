@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { FlameIcon } from "@/components/ui/Icon";
 import { getPastelTint } from "@/lib/pastel";
+import { effectivePageCount } from "@/lib/pages";
 
 const STAT_STYLES = [
 	{ label: "Read", status: "read" },
@@ -80,6 +81,8 @@ export default function HomePage() {
 	);
 	const currentBook = sortedCurrentlyReading[0];
 	const otherCurrentBooks = sortedCurrentlyReading.slice(1, 3);
+	const progressFor = (entry: (typeof currentlyReading)[number]) =>
+		entry.currentPage == null ? null : { page: entry.currentPage, total: effectivePageCount(entry.pageCount, entry.book.pageCount) };
 
 	function pickAnotherBook() {
 		if (!shelfPick) return;
@@ -104,8 +107,8 @@ export default function HomePage() {
 					</div>
 					{hasBookBeingRead && currentBook ? (
 						<div className="space-y-4">
-							<CheckInCard book={currentBook.book} userBookId={currentBook.id} loggedToday={dashboard?.todayLogged.includes(currentBook.book.id) ?? false} todayDate={dashboard?.todayDate} variant="desk" />
-							{otherCurrentBooks.length > 0 && <div className="grid sm:grid-cols-2 gap-3">{otherCurrentBooks.map(({ book, id }) => <CheckInCard key={book.id} book={book} userBookId={id} loggedToday={dashboard?.todayLogged.includes(book.id) ?? false} todayDate={dashboard?.todayDate} variant="compact" />)}</div>}
+							<CheckInCard book={currentBook.book} userBookId={currentBook.id} loggedToday={dashboard?.todayLogged.includes(currentBook.book.id) ?? false} todayDate={dashboard?.todayDate} variant="desk" progress={progressFor(currentBook)} />
+							{otherCurrentBooks.length > 0 && <div className="grid sm:grid-cols-2 gap-3">{otherCurrentBooks.map((entry) => <CheckInCard key={entry.book.id} book={entry.book} userBookId={entry.id} loggedToday={dashboard?.todayLogged.includes(entry.book.id) ?? false} todayDate={dashboard?.todayDate} variant="compact" progress={progressFor(entry)} />)}</div>}
 						</div>
 					) : (
 						<div className="py-12 max-w-md"><p className="eyebrow">Your next chapter</p><h2 className="font-medium leading-tight mt-2" style={{ fontFamily: "var(--font-cormorant)", fontSize: "2.5rem" }}>Find a book to put on your desk.</h2><Link href="/search" className="btn-primary inline-flex mt-5">Browse books</Link></div>

@@ -8,11 +8,14 @@ import { formatMinutes } from "@/lib/formatMinutes";
 import { localDateInTimeZone } from "@/lib/dates";
 import type { Book, ReadingSession } from "@/server/db";
 import { CloseIcon } from "@/components/ui/Icon";
+import { EMPTY_PAGES, initialPages, pageError, PageFields, pagesForSave, type PageDraft } from "./PageFields";
+import { offerMarkAsRead } from "./offerMarkAsRead";
 
 const DEFAULT_MINUTES = 30;
 
 export type CheckInResult = {
 	session: ReadingSession;
+	reachedEnd: boolean;
 	streak: number;
 	todayDate: string;
 	heatmapStart: string;
@@ -42,12 +45,21 @@ export function CheckInModal({ book, onClose, onSuccess, sessionDate, knownToday
 		{ bookId: book.id, sessionDate: queryDate },
 		{ enabled: Boolean(entryDate && shouldLookup), retry: 1, refetchOnMount: "always" },
 	);
+	const pageContext = trpc.readingSessions.pageContext.useQuery(
+		{ bookId: book.id, sessionDate: queryDate },
+		{ enabled: Boolean(entryDate), retry: 1, refetchOnMount: "always" },
+	);
+	const utils = trpc.useUtils();
 	const dialogRef = useRef<HTMLDivElement>(null);
 	const previousActiveElement = useRef<HTMLElement | null>(null);
 	const [rating, setRating] = useState<number | null>(null);
 	const [minutes, setMinutes] = useState(DEFAULT_MINUTES);
 	const [note, setNote] = useState("");
 	const [hasSpoiler, setHasSpoiler] = useState(false);
+	const [pages, setPages] = useState<PageDraft>(EMPTY_PAGES);
+	// Which date and revision the page fields were filled for, so a refetch
+	// doesn't overwrite what the reader is typing.
+	const pagesFilledFor = useRef<string | null>(null);
 	const [expanded, setExpanded] = useState(Boolean(sessionDate));
 	const [isMounted, setIsMounted] = useState(false);
 
@@ -67,6 +79,15 @@ export function CheckInModal({ book, onClose, onSuccess, sessionDate, knownToday
 		setHasSpoiler(existing.data.hasSpoiler === 1);
 		setExpanded(true);
 	}, [existing.data]);
+
+	const entryReady = Boolean(entryDate) && !(shouldLookup && (existing.isLoading || existing.isFetching));
+	useEffect(() => {
+		if (!entryReady || !pageContext.data || pageContext.isFetching) return;
+		const key = `${entryDate}:${existing.data?.revision ?? 0}`;
+		if (pagesFilledFor.current === key) return;
+		pagesFilledFor.current = key;
+		setPages(initialPages(pageContext.data, existing.data ?? null));
+	}, [entryDate, entryReady, existing.data, pageContext.data, pageContext.isFetching]);
 
 	useEffect(() => {
 		if (!isMounted) return;
@@ -128,6 +149,12 @@ export function CheckInModal({ book, onClose, onSuccess, sessionDate, knownToday
 
 	const log = trpc.readingSessions.log.useMutation({
 		onSuccess: (result) => {
+			// Every entry point needs these, whichever page opened the check-in.
+			utils.readingSessions.pageContext.invalidate({ bookId: book.id });
+			utils.readingSessions.forBook.invalidate({ bookId: book.id });
+			utils.userBooks.getForBook.invalidate({ bookId: book.id });
+			utils.userBooks.library.invalidate();
+			if (result.reachedEnd) offerMarkAsRead(utils, book);
 			onSuccess(result);
 			onClose();
 		},
@@ -147,8 +174,9 @@ export function CheckInModal({ book, onClose, onSuccess, sessionDate, knownToday
 
 	function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		if (!rating || minutes < 1) return;
+		if (!rating || minutes < 1 || pageError(pages)) return;
 		log.mutate({
+			...pagesForSave(pages, pageContext.data),
 			bookId: book.id,
 			sessionDate: queryDate,
 			rating,
@@ -165,11 +193,15 @@ export function CheckInModal({ book, onClose, onSuccess, sessionDate, knownToday
 		setMinutes(DEFAULT_MINUTES);
 		setNote("");
 		setHasSpoiler(false);
+		setPages(EMPTY_PAGES);
+		pagesFilledFor.current = null;
 		setForceLookup(false);
 	}
 
-	const canSubmit = Boolean(rating && minutes >= 1 && !existing.isFetching);
-	const isLoadingEntry = !entryDate || (shouldLookup && (existing.isLoading || existing.isFetching));
+	const canSubmit = Boolean(rating && minutes >= 1 && !existing.isFetching && !pageError(pages));
+	// Page fields wait for their context so they don't pop in after the form shows.
+	const isLoadingEntry = !entryReady || pageContext.isLoading;
+	const showPages = Boolean(pageContext.data);
 	const isConflict = log.error?.data?.code === "CONFLICT";
 	const entryTitle = isLoadingEntry
 		? "Loading today’s entry"
@@ -244,6 +276,10 @@ export function CheckInModal({ book, onClose, onSuccess, sessionDate, knownToday
 						<StarRating id="check-in-rating" value={rating} onChange={setRating} ariaLabel="How was today's session?" />
 					</div>
 
+					{!expanded && showPages && pages.open && pageContext.data && (
+						<PageFields idPrefix="check-in-pages" compact draft={pages} context={pageContext.data} onChange={setPages} />
+					)}
+
 					{expanded ? (
 						<>
 							<div>
@@ -268,6 +304,10 @@ export function CheckInModal({ book, onClose, onSuccess, sessionDate, knownToday
 									onChange={setMinutes}
 								/>
 							</div>
+
+							{showPages && pageContext.data && (
+								<PageFields idPrefix="check-in-pages" draft={pages} context={pageContext.data} onChange={setPages} />
+							)}
 
 							<div>
 							<label htmlFor="check-in-note"
