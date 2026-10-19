@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { join } from 'node:path'
 import {
   exportedData, LIFECYCLE_ADMIN, LIFECYCLE_NOTE, LIFECYCLE_OPERATOR, LIFECYCLE_READERS,
-  loadJson, signInApi, stateDir, trpcQuery,
+  loadJson, signInApi, stateDir, trpcQuery, withoutNewEmptyFields,
 } from './api'
 
 // Runs after each step of the lifecycle scenario (update, restart, restore
@@ -14,7 +14,8 @@ test('readers stay signed in and their data is unchanged', async ({ baseURL, pla
   for (const name of ['ada', 'ben']) {
     const context = await playwright.request.newContext({ baseURL, storageState: statePath(name) })
     try {
-      expect(await exportedData(context)).toEqual(loadJson(`${name}.export.json`))
+      const saved = loadJson(`${name}.export.json`)
+      expect(withoutNewEmptyFields(await exportedData(context), saved)).toEqual(saved)
     } finally {
       await context.dispose()
     }

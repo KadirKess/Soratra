@@ -14,6 +14,8 @@ import { dateOnlyParts, formatDateOnly } from "@/lib/dates";
 import { formatMinutes } from "@/lib/formatMinutes";
 import { getPastelTint } from "@/lib/pastel";
 import { Avatar } from "@/components/ui/Avatar";
+import { ProgressRule } from "@/components/books/ProgressRule";
+import { formatPages } from "@/lib/pages";
 
 interface Props {
 	params: Promise<{ username: string }>;
@@ -94,7 +96,7 @@ export default function UserProfilePage({ params }: Props) {
 							const date = dateOnlyParts(entry.sessionDate);
 							return <article key={entry.id} className={`card-flat ${getPastelTint(entry.book.title)} p-4 grid grid-cols-[3.25rem_minmax(0,1fr)] gap-4`}>
 								<div className="text-center"><p className="eyebrow">{date.month}</p><p className="text-3xl leading-none font-bold" style={{ fontFamily: "var(--font-cormorant)" }}>{date.day}</p></div>
-								<div className="min-w-0"><Link href={`/books/${encodeURIComponent(entry.book.openLibraryId)}`} className="font-bold hover:underline" style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.35rem" }}>{entry.book.title}</Link><p className="text-xs truncate" style={{ color: "var(--muted)" }}>{entry.book.authors.join(", ")}</p><div className="mt-2 flex flex-wrap items-center gap-2 text-xs" style={{ color: "var(--muted)" }}><StarRating value={Number(entry.rating)} onChange={() => undefined} readOnly className="text-base" /><span aria-hidden="true">·</span><span>{formatMinutes(entry.minutes)}</span></div>{entry.note && (entry.hasSpoiler ? <SpoilerReveal label="this reading note">{entry.note}</SpoilerReveal> : <p className="reader-note mt-2">{entry.note}</p>)}</div>
+								<div className="min-w-0"><Link href={`/books/${encodeURIComponent(entry.book.openLibraryId)}`} className="font-bold hover:underline" style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.35rem" }}>{entry.book.title}</Link><p className="text-xs truncate" style={{ color: "var(--muted)" }}>{entry.book.authors.join(", ")}</p><div className="mt-2 flex flex-wrap items-center gap-2 text-xs" style={{ color: "var(--muted)" }}><StarRating value={Number(entry.rating)} onChange={() => undefined} readOnly className="text-base" /><span aria-hidden="true">·</span><span>{formatMinutes(entry.minutes)}</span>{entry.endPage != null && <><span aria-hidden="true">·</span><span>{entry.startPage != null ? formatPages(entry.endPage - entry.startPage) : `to page ${entry.endPage}`}</span></>}</div>{entry.note && (entry.hasSpoiler ? <SpoilerReveal label="this reading note">{entry.note}</SpoilerReveal> : <p className="reader-note mt-2">{entry.note}</p>)}</div>
 							</article>;
 						})}
 					</div>}
@@ -118,7 +120,7 @@ export default function UserProfilePage({ params }: Props) {
 				</div>
 			</div>
 
-			{currentlyReading.length > 0 && <section className="brutalist-card tint-sage p-5 sm:p-6" aria-labelledby="currently-reading-title"><div className="flex items-center gap-3 mb-4"><h2 id="currently-reading-title" className="text-3xl font-bold shrink-0" style={{ fontFamily: "var(--font-cormorant)" }}>On their desk</h2><div className="flex-1" style={{ borderTop: "1px solid var(--rule)" }} /></div><div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-3xl">{currentlyReading.map(({ book }) => <BookCard key={book.id} openLibraryId={book.openLibraryId} title={book.title} authors={book.authors} coverUrl={book.coverUrl} compact />)}</div></section>}
+			{currentlyReading.length > 0 && <section className="brutalist-card tint-sage p-5 sm:p-6" aria-labelledby="currently-reading-title"><div className="flex items-center gap-3 mb-4"><h2 id="currently-reading-title" className="text-3xl font-bold shrink-0" style={{ fontFamily: "var(--font-cormorant)" }}>On their desk</h2><div className="flex-1" style={{ borderTop: "1px solid var(--rule)" }} /></div><div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-3xl">{currentlyReading.map(({ book, currentPage, pageCount }) => <div key={book.id} className="space-y-2"><BookCard openLibraryId={book.openLibraryId} title={book.title} authors={book.authors} coverUrl={book.coverUrl} compact />{currentPage != null && <ProgressRule page={currentPage} total={pageCount} />}</div>)}</div></section>}
 		</div>
 	);
 }

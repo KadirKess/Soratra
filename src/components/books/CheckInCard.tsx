@@ -7,6 +7,7 @@ import { CheckInModal } from "./CheckInModal";
 import { CoverPlaceholder } from "./CoverPlaceholder";
 import { getPastelTint } from "@/lib/pastel";
 import { useCheckInSuccess } from "./useCheckInSuccess";
+import { ProgressRule } from "./ProgressRule";
 import type { Book } from "@/server/db";
 
 interface Props {
@@ -15,9 +16,11 @@ interface Props {
 	loggedToday: boolean;
 	todayDate?: string;
 	variant?: "compact" | "medium" | "featured" | "desk";
+	// Last page the reader stopped at, only when they record pages.
+	progress?: { page: number; total: number | null } | null;
 }
 
-export function CheckInCard({ book, userBookId, loggedToday, todayDate, variant = "compact" }: Props) {
+export function CheckInCard({ book, userBookId, loggedToday, todayDate, variant = "compact", progress }: Props) {
 	const [open, setOpen] = useState(false);
 	const handleSuccess = useCheckInSuccess();
 	const isDesk = variant === "desk";
@@ -74,6 +77,7 @@ export function CheckInCard({ book, userBookId, loggedToday, todayDate, variant 
 			>
 				{book.authors.join(", ")}
 			</p>
+			{progress && <ProgressRule page={progress.page} total={progress.total} size={isFeatured ? "desk" : "card"} className={isFeatured ? "mt-4 max-w-sm" : "mt-2"} />}
 			{isFeatured && (
 				<>
 					{loggedToday && <p className="mt-4 text-sm font-semibold" style={{ color: "var(--fg)", opacity: 0.78 }}>Logged today. You can adjust it anytime.</p>}

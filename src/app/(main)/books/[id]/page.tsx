@@ -4,6 +4,7 @@ import { db, bookTitleResolutions, users } from "@/server/db";
 import { LogBookForm } from "@/components/books/LogBookForm";
 import { SessionHistory } from "@/components/books/SessionHistory";
 import { StartReadingButton } from "@/components/books/StartReadingButton";
+import { PageCountEditor } from "@/components/books/PageCountEditor";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { CoverPlaceholder } from "@/components/books/CoverPlaceholder";
@@ -89,9 +90,7 @@ export default async function BookPage({ params }: PageProps) {
 						{dbBook.publishedDate && (
 							<span>{dbBook.publishedDate}</span>
 						)}
-						{dbBook.pageCount && (
-							<span>{dbBook.pageCount} pages</span>
-						)}
+						<PageCountEditor bookId={dbBook.id} catalogPageCount={dbBook.pageCount} />
 					</div>
 
 					{dbBook.genres.length > 0 && (
@@ -128,7 +127,7 @@ export default async function BookPage({ params }: PageProps) {
 				</div>
 			)}
 
-			<SessionHistory bookId={dbBook.id} />
+			<SessionHistory bookId={dbBook.id} catalogPageCount={dbBook.pageCount} />
 		</div>
 	);
 }

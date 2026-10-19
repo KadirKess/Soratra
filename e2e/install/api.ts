@@ -56,6 +56,22 @@ export async function exportedData(context: APIRequestContext) {
   return data as Record<string, unknown>
 }
 
+// A newer release may add fields to the export. Data saved by an older one
+// must come back unchanged, and the new fields may only be empty.
+export function withoutNewEmptyFields(received: unknown, saved: unknown): unknown {
+  if (Array.isArray(received) && Array.isArray(saved)) {
+    return received.map((item, index) => withoutNewEmptyFields(item, saved[index]))
+  }
+  if (received && saved && typeof received === 'object' && typeof saved === 'object') {
+    return Object.fromEntries(
+      Object.entries(received)
+        .filter(([key, value]) => key in saved || value !== null)
+        .map(([key, value]) => [key, withoutNewEmptyFields(value, (saved as Record<string, unknown>)[key])]),
+    )
+  }
+  return received
+}
+
 export function saveJson(name: string, value: unknown) {
   writeFileSync(join(stateDir(), name), JSON.stringify(value, null, 2))
 }

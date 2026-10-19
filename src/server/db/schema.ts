@@ -76,6 +76,9 @@ export const userBooks = pgTable(
     review: text('review'),
     reviewHasSpoiler: integer('review_has_spoiler').notNull().default(0),
     finishedAt: timestamp('finished_at', { withTimezone: true }),
+    // The reader's own copy. Falls back to books.page_count, which is
+    // Open Library's figure and often belongs to another edition.
+    pageCount: integer('page_count'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
@@ -89,6 +92,7 @@ export const userBooks = pgTable(
       foreignColumns: [users.id, users.activeDataVersion],
     }).onUpdate('cascade'),
     check('user_books_status_check', sql`${t.status} in ('want_to_read', 'reading', 'read')`),
+    check('user_books_page_count_check', sql`${t.pageCount} is null or ${t.pageCount} between 1 and 100000`),
   ],
 )
 
@@ -104,6 +108,10 @@ export const readingSessions = pgTable(
     minutes: integer('minutes').notNull(),
     note: text('note'),
     hasSpoiler: integer('has_spoiler').notNull().default(0),
+    // Bookmark positions: picked up at 120, stopped at 150 is 30 pages. A
+    // session with only end_page moves progress but counts toward no pages.
+    startPage: integer('start_page'),
+    endPage: integer('end_page'),
     revision: integer('revision').notNull().default(1),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
@@ -118,6 +126,8 @@ export const readingSessions = pgTable(
       foreignColumns: [users.id, users.activeDataVersion],
     }).onUpdate('cascade'),
     check('reading_sessions_minutes_check', sql`${t.minutes} > 0`),
+    check('reading_sessions_end_page_check', sql`${t.endPage} is null or ${t.endPage} between 0 and 100000`),
+    check('reading_sessions_start_page_check', sql`${t.startPage} is null or (${t.endPage} is not null and ${t.startPage} between 0 and ${t.endPage})`),
   ],
 )
 

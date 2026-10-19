@@ -16,6 +16,7 @@ import { CloseIcon, FlameIcon, StarIcon } from "@/components/ui/Icon";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { CoverPlaceholder } from "@/components/books/CoverPlaceholder";
 import { getPastelTint } from "@/lib/pastel";
+import { formatPages, pagesPerHour, summarizePages, type PageSummary } from "@/lib/pages";
 
 function JournalSkeleton() {
 	return (
@@ -118,6 +119,8 @@ export default function JournalPage() {
 									sessionDate: session.sessionDate.slice(0, 10),
 									rating: Number(session.rating),
 									minutes: session.minutes,
+									startPage: session.startPage,
+									endPage: session.endPage,
 									note: session.note ?? undefined,
 									hasSpoiler: session.hasSpoiler === 1,
 									expectedRevision: 0,
@@ -170,6 +173,7 @@ export default function JournalPage() {
 					<div className="mt-3 flex flex-wrap gap-x-7 gap-y-3">
 						<Stat value={monthlyStats ? formatMinutes(monthlyStats.totalMinutes) : "—"} label="read" />
 						<Stat value={monthlyStats?.avgRating ? monthlyStats.avgRating.toFixed(1) : "—"} label="avg rating" />
+						{monthlyStats && <PagesStat stats={monthlyStats} />}
 					</div>
 				</div>
 				<div className="p-5 sm:p-6 border-t md:border-t-0 md:border-l" style={{ borderColor: "var(--rule)" }}>
@@ -180,6 +184,7 @@ export default function JournalPage() {
 								<Stat value={`${yearStats.distinctBooks}`} label={yearStats.distinctBooks === 1 ? "book" : "books"} />
 								<Stat value={formatMinutes(yearStats.totalMinutes)} label="read" />
 								<Stat value={`${yearStats.daysRead}`} label={yearStats.daysRead === 1 ? "day" : "days"} />
+								<PagesStat stats={yearStats} />
 							</div>
 							{yearStats.topAuthors[0] && <p className="text-xs mt-4" style={{ color: "var(--muted)" }}>Most read: {yearStats.topAuthors[0].name}</p>}
 						</>
@@ -226,11 +231,19 @@ export default function JournalPage() {
 							<p className="text-sm" style={{ color: "var(--muted)" }}>No sessions logged in this period yet.</p>
 						) : (
 							<div className="space-y-4">
-								<div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+								<div className={`grid grid-cols-2 gap-3 ${insights.pagedSessions > 0 ? "md:grid-cols-3" : "md:grid-cols-4"}`}>
 									<InsightStat label="Time read" value={formatMinutes(insights.totalMinutes)} />
 									<InsightStat label="Days read" value={`${insights.daysRead}`} />
 									<InsightStat label="Books" value={`${insights.distinctBooks}`} />
 									<InsightStat label="Avg rating" value={insights.avgRating ? insights.avgRating.toFixed(1) : "—"} />
+									{insights.pagedSessions > 0 && (
+										<InsightStat
+											label="Pages"
+											value={insights.pagesRead.toLocaleString("en")}
+											note={insights.pagedSessions < insights.totalSessions ? `From ${insights.pagedSessions} of ${insights.totalSessions} sittings` : undefined}
+										/>
+									)}
+									{pagesPerHour(insights) != null && <InsightStat label="Pages an hour" value={`${pagesPerHour(insights)}`} />}
 								</div>
 								{insights.topAuthors.length > 0 && (
 									<div>
@@ -266,11 +279,12 @@ export default function JournalPage() {
 							// The journal loads 50 sessions at a time, so a month on a page edge may be cut short.
 							const partial = (monthIndex === months.length - 1 && journal?.hasMoreRecent) || (monthIndex === 0 && historyOffset > 0);
 							const total = month.sessions.reduce((sum, session) => sum + session.minutes, 0);
+							const monthPages = summarizePages(month.sessions);
 							return (
 								<section key={month.key} aria-labelledby={`month-${month.key}`}>
 									<div className="flex items-baseline justify-between gap-3 pb-2.5" style={{ borderBottom: "2px solid var(--fg)" }}>
 										<h2 id={`month-${month.key}`} className="text-2xl font-semibold" style={{ fontFamily: "var(--font-cormorant)" }}>{monthLabel(month.key)}</h2>
-										{!partial && <p className="text-xs" style={{ color: "var(--muted)" }}>{month.sessions.length} {month.sessions.length === 1 ? "sitting" : "sittings"} · {formatMinutes(total)}</p>}
+										{!partial && <p className="text-xs" style={{ color: "var(--muted)" }}>{month.sessions.length} {month.sessions.length === 1 ? "sitting" : "sittings"} · {formatMinutes(total)}{monthPages.pagedSessions > 0 && ` · ${formatPages(monthPages.pagesRead)}`}</p>}
 									</div>
 									<ol className="journal-timeline pt-3">
 										{month.sessions.map((session, i) => {
@@ -298,6 +312,12 @@ export default function JournalPage() {
 																<span className="inline-flex items-center gap-1"><StarIcon size={12} />{session.rating}</span>
 																<span aria-hidden="true">·</span>
 																<span>{formatMinutes(session.minutes)}</span>
+																{session.endPage != null && (
+																	<>
+																		<span aria-hidden="true">·</span>
+																		<span>{session.startPage != null ? formatPages(session.endPage - session.startPage) : `to page ${session.endPage}`}</span>
+																	</>
+																)}
 															</div>
 															{session.note && (session.hasSpoiler ? (
 																<button type="button" className="reader-note mt-2 text-left" style={{ filter: isRevealed ? "none" : "blur(4px)" }} aria-expanded={isRevealed} onClick={() => setRevealedSessionIds((previous) => {
@@ -390,7 +410,15 @@ function TopList({ title, entries }: { title: string; entries: { book: TopBook; 
 	);
 }
 
-function InsightStat({ label, value }: { label: string; value: string }) {
+// Shown only when the period has sessions with pages. When some sittings have
+// none, says so, because a bare total would read as complete.
+function PagesStat({ stats }: { stats: PageSummary & { totalSessions: number } }) {
+	if (stats.pagedSessions === 0) return null;
+	const partial = stats.pagedSessions < stats.totalSessions;
+	return <Stat value={stats.pagesRead.toLocaleString("en")} label={`${stats.pagesRead === 1 ? "page" : "pages"}${partial ? `, from ${stats.pagedSessions} of ${stats.totalSessions} sittings` : ""}`} />;
+}
+
+function InsightStat({ label, value, note }: { label: string; value: string; note?: string }) {
 	return (
 		<div
 			className="card-flat p-3 flex flex-col justify-center"
@@ -406,6 +434,7 @@ function InsightStat({ label, value }: { label: string; value: string }) {
 			>
 				{value}
 			</p>
+			{note && <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>{note}</p>}
 		</div>
 	);
 }

@@ -4,18 +4,27 @@ import { trpc } from "@/lib/trpc/client";
 import { formatMinutes } from "@/lib/formatMinutes";
 import { dateOnlyParts } from "@/lib/dates";
 import { StarIcon } from "@/components/ui/Icon";
+import { effectivePageCount, pagesPerHour, summarizePages } from "@/lib/pages";
+import { ProgressRule } from "./ProgressRule";
 
 interface Props {
 	bookId: string;
+	catalogPageCount: number | null;
 }
 
-export function SessionHistory({ bookId }: Props) {
+export function SessionHistory({ bookId, catalogPageCount }: Props) {
 	const { data: sessions } = trpc.readingSessions.forBook.useQuery({
 		bookId,
 	});
+	const { data: userBook } = trpc.userBooks.getForBook.useQuery({ bookId });
 	const [revealedSessionIds, setRevealedSessionIds] = useState<Set<string>>(() => new Set());
 
 	if (!sessions || sessions.length === 0) return null;
+
+	// Sessions come newest first, so the first with a page is where the reader is.
+	const currentPage = sessions.find((session) => session.endPage != null)?.endPage ?? null;
+	const total = effectivePageCount(userBook?.pageCount, catalogPageCount);
+	const pace = pagesPerHour(summarizePages(sessions));
 
 	return (
 		<div className="mt-8 max-w-2xl">
@@ -25,6 +34,12 @@ export function SessionHistory({ bookId }: Props) {
 			>
 				Your sessions
 			</h2>
+			{currentPage != null && (
+				<div className="mb-4 max-w-sm space-y-1">
+					{userBook?.status !== "read" && <ProgressRule page={currentPage} total={total} size="desk" />}
+					{pace != null && <p className="text-sm" style={{ color: "var(--muted)" }}>About {pace} pages an hour on this book</p>}
+				</div>
+			)}
 			<div className="space-y-3">
 				{sessions.map((session) => {
 					const date = dateOnlyParts(session.sessionDate);
@@ -58,6 +73,12 @@ export function SessionHistory({ bookId }: Props) {
 								<span className="inline-flex items-center gap-1"><StarIcon size={12} />{session.rating}</span>
 								<span>·</span>
 								<span>{formatMinutes(session.minutes)}</span>
+								{session.endPage != null && (
+									<>
+										<span aria-hidden="true">·</span>
+										<span>{session.startPage != null ? `pages ${session.startPage} to ${session.endPage}` : `to page ${session.endPage}`}</span>
+									</>
+								)}
 							</div>
 							{session.note && (session.hasSpoiler ? (
 								<button type="button" className="reader-note text-left" style={{ filter: isRevealed ? "none" : "blur(4px)" }} aria-expanded={isRevealed} onClick={() => setRevealedSessionIds((previous) => {

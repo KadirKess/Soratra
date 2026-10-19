@@ -26,7 +26,9 @@ h1 { font: 600 56px/1.06 Cormorant, serif; margin: 0; }
 .entry { height: 126px; border: 2px solid var(--ink); padding: 14px; background: var(--paper); }
 .entry-label { font-size: 13px; letter-spacing: 1px; color: var(--muted); }
 .entry-time { font: 600 40px/1.15 Cormorant, serif; margin-top: 8px; }
-.rating { display: flex; gap: 5px; margin-top: 9px; }
+.entry-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 9px; }
+.entry-pages { font-size: 13px; color: var(--muted); }
+.rating { display: flex; gap: 5px; }
 .rating span { width: 22px; height: 6px; background: var(--accent); }
 .rating span:last-child { background: var(--surface); }
 .friends { height: 126px; display: flex; align-items: center; justify-content: center; gap: 17px; }
@@ -92,9 +94,9 @@ h1 { font: 600 56px/1.06 Cormorant, serif; margin: 0; }
       <p>Want to read, reading, and read.<br>Ratings, reviews, and finish dates.</p>
     </section>
     <section class="card">
-      <div class="entry" aria-hidden="true"><div class="entry-label">TODAY'S READING</div><div class="entry-time">37 minutes</div><div class="rating"><span></span><span></span><span></span><span></span><span></span></div></div>
+      <div class="entry" aria-hidden="true"><div class="entry-label">TODAY'S READING</div><div class="entry-time">37 minutes</div><div class="entry-bottom"><div class="rating"><span></span><span></span><span></span><span></span><span></span></div><div class="entry-pages">to page 142</div></div></div>
       <h2>Your journal</h2>
-      <p>Daily sessions, notes, and streaks.<br>A record of time spent reading.</p>
+      <p>Daily sessions, notes, and streaks.<br>Time spent, and pages if you like.</p>
     </section>
     <section class="card">
       <div class="friends" aria-hidden="true"><div class="reader">A</div><div class="connection"></div><div class="reader">B</div></div>

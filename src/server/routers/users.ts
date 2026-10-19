@@ -7,6 +7,8 @@ import { addDaysToDate, isValidTimeZone, localDateInTimeZone, weekStartForDate }
 import { getCurrentStreak } from '@/server/readingStreak'
 import { normalizeUsernameLookup } from '@/lib/usernames'
 import { catalogLanguageSchema } from '@/lib/catalogLanguages'
+import { effectivePageCount } from '@/lib/pages'
+import { latestPages } from '@/server/pageProgress'
 
 function shelfOffset(userId: string, today: string, total: number, nonce = 0) {
   let hash = 0
@@ -121,7 +123,7 @@ export const usersRouter = router({
     const yesterday = addDaysToDate(today, -1)
     const canUseWeeklyFreeze = !ctx.activeUser.weeklyFreezeUsed || ctx.activeUser.freezeWeekStart !== weekStart
     const freezeCandidate = canUseWeeklyFreeze && !heatmap[yesterday]
-    const [shelfPick, streakBeforeYesterday, existingFreeze] = await Promise.all([
+    const [shelfPick, streakBeforeYesterday, existingFreeze, currentPages] = await Promise.all([
       totalWantToRead
         ? db.query.userBooks.findFirst({
             where: and(eq(userBooks.userId, userId), eq(userBooks.status, 'want_to_read')),
@@ -137,6 +139,7 @@ export const usersRouter = router({
           columns: { id: true },
         })
         : Promise.resolve(null),
+      latestPages(userId, currentlyReadingRows.map((row) => row.bookId)),
     ])
 
     return {
@@ -144,7 +147,7 @@ export const usersRouter = router({
       totalReading: countFor('reading'),
       totalWantToRead,
       recentlyRead,
-      currentlyReading: currentlyReadingRows,
+      currentlyReading: currentlyReadingRows.map((row) => ({ ...row, currentPage: currentPages.get(row.bookId) ?? null })),
       shelfPick,
       streak,
       freezeEligible: freezeCandidate && !existingFreeze && streakBeforeYesterday > 0,
@@ -223,7 +226,7 @@ export const usersRouter = router({
           .groupBy(userBooks.status),
         db.query.userBooks.findMany({
           where: and(eq(userBooks.userId, user.id), eq(userBooks.status, 'reading')),
-          with: { book: { columns: { id: true, openLibraryId: true, title: true, authors: true, coverUrl: true } } },
+          with: { book: { columns: { id: true, openLibraryId: true, title: true, authors: true, coverUrl: true, pageCount: true } } },
           orderBy: (ub, { desc }) => [desc(ub.updatedAt)],
           limit: 3,
         }),
@@ -261,6 +264,7 @@ export const usersRouter = router({
 
       const countFor = (status: string) =>
         Number(statusCounts.find((row) => row.status === status)?.count ?? 0)
+      const deskPages = await latestPages(user.id, currentlyReadingRows.map((row) => row.bookId))
 
       const heatmap: Record<string, number> = {}
       for (const s of heatmapSessions) {
@@ -272,7 +276,12 @@ export const usersRouter = router({
         totalRead: countFor('read'),
         totalReading: countFor('reading'),
         totalWantToRead: countFor('want_to_read'),
-        currentlyReading: currentlyReadingRows.map(({ book }) => ({ book })),
+        // Friends see where a book is up to; pace and page stats stay private.
+        currentlyReading: currentlyReadingRows.map(({ book: { pageCount: catalogPageCount, ...book }, pageCount }) => ({
+          book,
+          currentPage: deskPages.get(book.id) ?? null,
+          pageCount: effectivePageCount(pageCount, catalogPageCount),
+        })),
         streak,
         heatmap,
         heatmapEndDate: today,
@@ -281,6 +290,8 @@ export const usersRouter = router({
             id: session.id,
             sessionDate: session.sessionDate,
             minutes: session.minutes,
+            startPage: session.startPage,
+            endPage: session.endPage,
             rating: session.rating,
             note: session.note,
             hasSpoiler: session.hasSpoiler === 1,

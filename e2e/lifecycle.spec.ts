@@ -49,7 +49,7 @@ test('reading sessions survive editing and export with the book finish date', as
   expect(exported.status()).toBe(200)
   expect(exported.headers()['cache-control']).toContain('no-store')
   const archive = await exported.json()
-  expect(archive.version).toBe('1.7')
+  expect(archive.version).toBe('1.8')
   expect(archive.books).toHaveLength(1)
   expect(archive.books[0]).toMatchObject({
     openLibraryId: 'OL910004W', status: 'read', review: 'Synthetic completed-book review',
@@ -59,6 +59,8 @@ test('reading sessions survive editing and export with the book finish date', as
   expect(archive.readingSessions[0]).toMatchObject({
     openLibraryId: 'OL910004W', minutes: 43, rating: 4,
     note: 'Synthetic lifecycle note after editing', hasSpoiler: false,
+    // Pages are optional, and this sitting never noted one.
+    startPage: null, endPage: null,
   })
   expect(archive.readingSessions[0].sessionDate).toMatch(/^\d{4}-\d{2}-\d{2}$/)
 
