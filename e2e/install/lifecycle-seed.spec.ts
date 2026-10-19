@@ -25,7 +25,8 @@ test('seed an installation with readers, reading and a friendship', async ({ bas
 
   const admin = await signInApi(baseURL!, LIFECYCLE_ADMIN.username, LIFECYCLE_ADMIN.password)
   await trpcMutation(admin, 'admin.updateSettings', {
-    operatorName: LIFECYCLE_OPERATOR, contact: 'books@example.org', registration: 'invite',
+    // Releases before 1.2.0 ignore checkForUpdates; later ones require it.
+    operatorName: LIFECYCLE_OPERATOR, contact: 'books@example.org', registration: 'invite', checkForUpdates: false,
   })
 
   const [ada, ben] = await Promise.all(LIFECYCLE_READERS.map(r => signInApi(baseURL!, r.username, r.password)))
